@@ -46,55 +46,6 @@ echo ------------------
     set start=yes
     goto main
 
-:error_a
-    cls
-    color fc
-    echo 错误：输入的被开方数不是整数，请重新输入！
-    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
-    echo 请不要在整数前加上正号（+）或多余的零！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_b
-    cls
-    color fc
-    echo 错误：平方根中被开方数不能小于0，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_c
-    cls
-    color fc
-    echo 错误：被开方数不能大于2147483646，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_d
-    cls
-    color fc
-    echo 错误：输入的精确位数不是正整数，请重新输入！
-    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
-    echo 请不要在整数前加上正号（+）或多余的零！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto set_precision
-
-:error_e
-    cls
-    color fc
-    echo 错误：精确位数不能大于238609294，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto set_precision
-
 :main
     cls
     echo.&echo  已经开始计算。
@@ -184,70 +135,7 @@ echo ------------------
     set main=%main%%temp%
     goto main
 
-:end
-    cls
-    echo.&echo 计算完毕！
-    echo.&echo 被开方数：%number%
-    echo.&echo 计算结果（未对其结果进行四舍五入）：
-    echo !nun!
-    echo.&echo 按任意键继续：&pause>nul
-    cls
-    echo 请选择接下来的操作。
-    echo ---------------------
-    echo 0：退出
-    echo 1：返回重新计算
-    echo 2：将结果保存至桌面。
-    echo ---------------------
-    set "choice="
-    set /p "choice=请输入操作序号，然后按回车键："
-    if "%choice%"=="0" exit /b
-    if "%choice%"=="1" (
-        cls
-        goto start
-    )
-    if "%choice%"=="2" goto save_and_exit
-    goto end
 
-:save_and_exit
-    if "%bit%"=="0" (
-        set info=（保留整数）
-    ) else (
-        set info=（精确到小数点后第%bit%位）
-    )
-    cd /d "%UserProfile%\desktop"
-    set fname="%number%的平方根的结果%info%.txt"
-    rem 若存在同名文件，获取权限
-    if exist %fname% takeown %fname%
-    
-    >%fname% (
-        echo %number%的平方根的结果：
-        echo %info%：
-        echo （未对其结果进行四舍五入）：
-        echo %nun%
-    )
-    goto exit
-
-:exit
-    cls
-    echo.&echo 保存完毕。
-    echo 请选择接下来的操作。
-    echo --------------------------
-    echo 0：退出
-    echo 1：返回重新计算
-    echo 2：打开保存到的文件并退出
-    echo --------------------------
-    set "choice="
-    set /p "choice=请输入操作序号，然后按回车键："
-    if "%choice%"=="0" exit /b
-    if "%choice%"=="1" (
-        cls
-        goto start
-    )
-    if "%choice%"=="2" (
-        start /d "%windir%" notepad.exe "%UserProfile%\desktop\%number%的平方根的结果%temp%.txt"
-        exit /b
-    )
-    goto exit
 
 :kfmain
     set /a u+=1
@@ -342,6 +230,71 @@ echo ------------------
     )
     goto kfmain
 
+:end
+    cls
+    echo.&echo 计算完毕！
+    echo.&echo 被开方数：%number%
+    echo.&echo 计算结果（未对其结果进行四舍五入）：
+    echo !nun!
+    echo.&echo 按任意键继续：&pause>nul
+    cls
+    echo 请选择接下来的操作。
+    echo ---------------------
+    echo 0：退出
+    echo 1：返回重新计算
+    echo 2：将结果保存至桌面。
+    echo ---------------------
+    set "choice="
+    set /p "choice=请输入操作序号，然后按回车键："
+    if "%choice%"=="0" exit /b
+    if "%choice%"=="1" (
+        cls
+        goto start
+    )
+    if "%choice%"=="2" goto save_and_exit
+    goto end
+
+:save_and_exit
+    if "%bit%"=="0" (
+        set info=（保留整数）
+    ) else (
+        set info=（精确到小数点后第%bit%位）
+    )
+    cd /d "%UserProfile%\desktop"
+    set fname="%number%的平方根的结果%info%.txt"
+    rem 若存在同名文件，获取权限
+    if exist %fname% takeown %fname%
+    
+    >%fname% (
+        echo %number%的平方根的结果：
+        echo %info%：
+        echo （未对其结果进行四舍五入）：
+        echo %nun%
+    )
+    goto exit
+
+:exit
+    cls
+    echo.&echo 保存完毕。
+    echo 请选择接下来的操作。
+    echo --------------------------
+    echo 0：退出
+    echo 1：返回重新计算
+    echo 2：打开保存到的文件并退出
+    echo --------------------------
+    set "choice="
+    set /p "choice=请输入操作序号，然后按回车键："
+    if "%choice%"=="0" exit /b
+    if "%choice%"=="1" (
+        cls
+        goto start
+    )
+    if "%choice%"=="2" (
+        start /d "%windir%" notepad.exe "%UserProfile%\desktop\%number%的平方根的结果%temp%.txt"
+        exit /b
+    )
+    goto exit
+    
 :StringLength
     set theString=%~1
     if not defined theString goto :eof
@@ -354,3 +307,52 @@ echo ------------------
     if defined thestring goto StringLength_continue
     if not "%2"=="" set %2=!len!
     goto :eof
+    
+:error_a
+    cls
+    color fc
+    echo 错误：输入的被开方数不是整数，请重新输入！
+    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
+    echo 请不要在整数前加上正号（+）或多余的零！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_b
+    cls
+    color fc
+    echo 错误：平方根中被开方数不能小于0，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_c
+    cls
+    color fc
+    echo 错误：被开方数不能大于2147483646，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_d
+    cls
+    color fc
+    echo 错误：输入的精确位数不是正整数，请重新输入！
+    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
+    echo 请不要在整数前加上正号（+）或多余的零！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto set_precision
+
+:error_e
+    cls
+    color fc
+    echo 错误：精确位数不能大于238609294，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto set_precision
