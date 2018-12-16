@@ -84,7 +84,8 @@ echo ------------------
     set tgb=%num%
     set /a num+=1
     for /l %%i in (0 1 %num%) do (set js[%%i]=0)
-    rem 如果预测根只有1位数
+    
+    rem 如果预测根的整数部分只有1位
     if "%allbit%"=="1" (
         set kfmain=js[1]
         call :kfmain
@@ -152,12 +153,12 @@ echo ------------------
     
     if defined ER_%er% (
         set %kfmain%=!ER_%er%!
-        goto jsmain
+        goto bignum_mp
     )
     
     if defined U_%u% (
         set %kfmain%=!U_%u%!
-        goto jsmain
+        goto bignum_mp
     )
     
     if "%er%"=="1m" set temp=0
@@ -172,7 +173,8 @@ echo ------------------
     if "%er%"=="9l" set temp=9
     goto :eof
 
-:jsmain
+rem 大数相乘 bignum multiply
+:bignum_mp
     set tgc=0
     set /a tgd=%num%*2-1
     for /l %%i in (%tgd% -1 0) do set dg[%%i]=0
