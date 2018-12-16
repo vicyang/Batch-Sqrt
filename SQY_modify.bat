@@ -230,6 +230,55 @@ echo ------------------
     )
     goto kfmain
 
+:error_a
+    cls
+    color fc
+    echo 错误：输入的被开方数不是整数，请重新输入！
+    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
+    echo 请不要在整数前加上正号（+）或多余的零！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_b
+    cls
+    color fc
+    echo 错误：平方根中被开方数不能小于0，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_c
+    cls
+    color fc
+    echo 错误：被开方数不能大于2147483646，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto start
+
+:error_d
+    cls
+    color fc
+    echo 错误：输入的精确位数不是正整数，请重新输入！
+    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
+    echo 请不要在整数前加上正号（+）或多余的零！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto set_precision
+
+:error_e
+    cls
+    color fc
+    echo 错误：精确位数不能大于238609294，请重新输入！
+    echo.&echo 按任意键继续：&pause>nul
+    color f0
+    cls
+    goto set_precision
+    
 :end
     cls
     echo.&echo 计算完毕！
@@ -307,52 +356,3 @@ echo ------------------
     if defined thestring goto StringLength_continue
     if not "%2"=="" set %2=!len!
     goto :eof
-    
-:error_a
-    cls
-    color fc
-    echo 错误：输入的被开方数不是整数，请重新输入！
-    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
-    echo 请不要在整数前加上正号（+）或多余的零！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_b
-    cls
-    color fc
-    echo 错误：平方根中被开方数不能小于0，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_c
-    cls
-    color fc
-    echo 错误：被开方数不能大于2147483646，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto start
-
-:error_d
-    cls
-    color fc
-    echo 错误：输入的精确位数不是正整数，请重新输入！
-    echo 其绝对值不得超过批处理支持的最大值（2147483647）！
-    echo 请不要在整数前加上正号（+）或多余的零！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto set_precision
-
-:error_e
-    cls
-    color fc
-    echo 错误：精确位数不能大于238609294，请重新输入！
-    echo.&echo 按任意键继续：&pause>nul
-    color f0
-    cls
-    goto set_precision
