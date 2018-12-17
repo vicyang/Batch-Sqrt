@@ -141,36 +141,27 @@ echo ------------------
 :kfmain
     set /a u+=1
     rem 设置常量映射表
-    set ER_2m=1
-    set ER_5m=2
-    set ER_4m=3
-    set ER_2l=4
-    set U_1=5
-    set ER_7m=6
-    set ER_5l=7
-    set ER_9m=8
-    set ER_7l=9
+    set /a iter = 1
+    for %%a in ( E_2m E_5m E_4m E_2l U_1 E_7m E_5l E_9m E_7l ) do (
+        set /a %%a=iter, iter+=1
+    )
+    set /a iter = 0
+    for %%a in ( 1m 1l 3m 3l 4l 6m 6l 8m 8l 9l ) do (
+        set /a T_%%a=iter, iter+=1
+    )
     
-    if defined ER_%er% (
-        set %kfmain%=!ER_%er%!
+    if defined E_%er% (
+        set /a %kfmain% = E_%er%
         goto bignum_mp
     )
     
     if defined U_%u% (
-        set %kfmain%=!U_%u%!
+        set /a %kfmain% = U_%u%
         goto bignum_mp
     )
+
+    if defined T_%er% set /a temp=T_%er%
     
-    if "%er%"=="1m" set temp=0
-    if "%er%"=="1l" set temp=1
-    if "%er%"=="3m" set temp=2
-    if "%er%"=="3l" set temp=3
-    if "%er%"=="4l" set temp=4
-    if "%er%"=="6m" set temp=5
-    if "%er%"=="6l" set temp=6
-    if "%er%"=="8m" set temp=7
-    if "%er%"=="8l" set temp=8
-    if "%er%"=="9l" set temp=9
     goto :eof
 
 rem 大数相乘 bignum multiply
