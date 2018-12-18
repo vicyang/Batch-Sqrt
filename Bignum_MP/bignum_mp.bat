@@ -19,7 +19,19 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
     call :length %num_a% len_a
     call :length %num_b% len_b
     for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
-    set /a id = 0, sid = 0, maxid = 0
+    set /a id = 0, sid = 0, maxid = 0, a = 0, b = 0
+
+    :LB
+        set /a b += 1, a = 0
+        set /a sid = id, ea = !num_b:~-%b%,1!
+        :LA
+            set /a a += 1
+            set /a eb = !num_a:~-%a%,1!
+            rem echo %ea% %eb%
+        if %a% leq %len_a% goto :LA
+    if %b% leq %len_b% goto :LB
+    exit
+
     for /l %%b in ( 1, 1, %len_b% ) do (
         set /a sid = id
         for /l %%a in ( 1, 1, %len_a% ) do (    
