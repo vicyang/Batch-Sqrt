@@ -70,12 +70,12 @@ set TIMEA=%time%
         set /a temp=!tga!%%4
         if not "!tga!"=="1" (
             if "!temp!"=="1" (
-                set nun=%nun%^ %main:~-1%
+                set nun=%nun%^ %root:~-1%
             ) else (
-                set nun=%nun%%main:~-1%
+                set nun=%nun%%root:~-1%
             )
         ) else (
-            set nun=%nun%%main:~-1%
+            set nun=%nun%%root:~-1%
         )
         set /a temp=%tga%+1
         if "!temp!"=="%bit%" goto end
@@ -93,7 +93,7 @@ set TIMEA=%time%
     call :stringlength "%number%" len
     set /a allbit=( %len% +1)/2
     set num=%allbit%
-    set tgb=%num%
+    set root_len=%num%
     set /a num+=1
     for /l %%i in (0 1 %num%) do (set js[%%i]=0)
     
@@ -102,14 +102,14 @@ set TIMEA=%time%
         set kfmain=js[1]
         call :kfmain
     ) else (
-        for /l %%i in (%tgb% -1 1) do (
+        for /l %%i in (%root_len% -1 1) do (
             set u=0
             set kfmain=js[%%i]
             call :kfmain
             set js[%%i]=!temp!
         )
         set temp=
-        for /l %%i in (%tgb% -1 1) do (
+        for /l %%i in (%root_len% -1 1) do (
             set temp=!temp!!js[%%i]!
         )
     )
@@ -125,15 +125,15 @@ set TIMEA=%time%
         set nun=%all%
         goto end
     )
-    set "main=%all%."
+    set "root=%all%."
     set "nun=%all%."
     set start=no
     goto js
 
 :js
     rem root without floating point
-    set /a int_root = %main:.=%
-    set /a root_len = num-1, tgb = root_len
+    set "int_root=%root:.=%"
+    set /a root_len = num-1
     set kfmain=js[0]
 
     if "%root_len%"=="1" (
@@ -146,7 +146,7 @@ set TIMEA=%time%
     set js[%num%]=0
     set u=0
     call :kfmain
-    set main=%main%%temp%
+    set root=%root%%temp%
     goto main
 
 :kfmain
@@ -169,7 +169,7 @@ rem 大数相乘 bignum multiply
     set tgc=0
     set /a tgd=%num%*2-1
     for /l %%i in (%tgd% -1 0) do set dg[%%i]=0
-    for /l %%i in (0 1 %tgb%) do (
+    for /l %%i in (0 1 %root_len%) do (
         for /l %%r in (0 1 %num%) do (
             set /a i=%%i+%%r
             set /a temp=!js[%%i]!*!js[%%r]!+!tgc!
@@ -180,7 +180,7 @@ rem 大数相乘 bignum multiply
         if %tga% geq 50 (
             if %tga% geq 100 (
                 set /p=<nul
-                set /p=总进度^:%u%^(最少3^,最多4^)^,副进度^:%%i^(共%tgb%^)^ ^ ^ ^ <nul
+                set /p=总进度^:%u%^(最少3^,最多4^)^,副进度^:%%i^(共%root_len%^)^ ^ ^ ^ <nul
             ) else (
                 set /p=<nul
                 set /p=总进度^:%u%^(最少3^,最多4^)^ ^ ^ ^ <nul
