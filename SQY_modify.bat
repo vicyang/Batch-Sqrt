@@ -131,15 +131,16 @@ set TIMEA=%time%
     goto js
 
 :js
-    set "nmn=%main:.=%"
-    set /a tgb=%num%-1
+    rem root without floating point
+    set /a int_root = %main:.=%
+    set /a root_len = num-1, tgb = root_len
     set kfmain=js[0]
-    if "%tgb%"=="1" (
-        set js[1]=%nmn%
+
+    if "%root_len%"=="1" (
+        set js[1]=%int_root%
     ) else (
-        for /l %%i in (%tgb% -1 1) do (
-            set temp=!nmn:~-%%i!
-            set js[%%i]=!temp:~0,1!
+        for /l %%i in (%root_len%, -1, 1) do (
+            set js[%%i]=!int_root:~-%%i, 1!
         )
     )
     set js[%num%]=0
@@ -161,7 +162,6 @@ set TIMEA=%time%
     )
 
     if defined T_%er% set /a temp=T_%er%
-    
     goto :eof
 
 rem ¥Û ˝œ‡≥À bignum multiply
