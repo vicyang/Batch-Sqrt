@@ -107,7 +107,7 @@ set TIMEA=%time%
             set u=0
             set next_ref=RT[%%i]
             call :select
-            set RT[%%i]=!luckynum!
+            set RT[%%i]=!temp!
         )
         set temp=
         for /l %%i in (%root_len% -1 1) do (
@@ -151,7 +151,7 @@ set TIMEA=%time%
     set RT[%num%]=0
     set u=0
     call :select
-    set root=%root%%luckynum%
+    set root=%root%%temp%
     goto main
 
 :select
@@ -166,7 +166,7 @@ set TIMEA=%time%
         goto bignum_mp
     )
 
-    if defined T_%er% set /a luckynum=T_%er%
+    if defined T_%er% set /a temp=T_%er%
     goto :eof
 
 :bignum_mp
@@ -212,7 +212,7 @@ set TIMEA=%time%
             set tgf=!tgf!!temp!
         )
     )
-
+    
     if not "%start%"=="yes" (
         if !tgf! geq %number% (
             set er=!%next_ref%!m
