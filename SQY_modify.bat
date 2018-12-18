@@ -31,8 +31,8 @@ set TIMEA=%time%
 :get_number
     cls
     if "%number%"=="" goto start
-    set /a temp=%number%+0
-    if not "%temp%"=="%number%" goto error_a
+    set /a test=%number%+0
+    if not "%test%"=="%number%" goto error_a
     if not %number% geq 0 goto error_b
     if %number% geq 2147483647 goto error_c
     goto set_precision
@@ -66,21 +66,23 @@ set TIMEA=%time%
     echo.&echo 被开方数：%number%
     if not "%start%"=="yes" (
         set /a num+=1
-        set /a tga=!num!-%allbit%-1
-        set /a temp=!tga!%%4
+        set /a tga = num - allbit - 1
+        set /a mod = tga %% 4
+
+        rem 小数点后，每4位数字保留一个空格
         if not "!tga!"=="1" (
-            if "!temp!"=="1" (
-                set nun=%nun%^ %root:~-1%
+            if "!mod!"=="1" (
+                set result=%result%^ %root:~-1%
             ) else (
-                set nun=%nun%%root:~-1%
+                set result=%result%%root:~-1%
             )
         ) else (
-            set nun=%nun%%root:~-1%
+            set result=%result%%root:~-1%
         )
         set /a temp=%tga%+1
         if "!temp!"=="%bit%" goto end
         echo.&echo 计算结果（未对其结果进行四舍五入）：
-        echo.&echo %nun%
+        echo.&echo %result%
         goto js
     ) else (
         echo.&echo 请稍候……
@@ -118,15 +120,15 @@ set TIMEA=%time%
     set /a temp=%all%*%all%
     if "%temp%"=="%number%" (
         set bit=0
-        set nun=%all%
+        set result=%all%
         goto end
     )
     if "%bit%"=="0" (
-        set nun=%all%
+        set result=%all%
         goto end
     )
     set "root=%all%."
-    set "nun=%all%."
+    set "result=%all%."
     set start=no
     goto js
 
@@ -168,8 +170,8 @@ set TIMEA=%time%
     if defined T_%er% set /a temp=T_%er%
     goto :eof
 
-rem bignum multiply
 :bignum_mp
+    rem bignum multiply
     set tgc=0
     set /a tgd=%num%*2-1
     for /l %%i in (%tgd% -1 0) do set dg[%%i]=0
@@ -283,7 +285,7 @@ rem bignum multiply
     echo.%time%
     echo.&echo 被开方数：%number%
     echo.&echo 计算结果（未对其结果进行四舍五入）：
-    echo !nun!
+    echo !result!
     echo.&echo 按任意键继续：&pause>nul
     cls
     echo 请选择接下来的操作。
@@ -317,7 +319,7 @@ rem bignum multiply
         echo %number%的平方根的结果：
         echo %info%：
         echo （未对其结果进行四舍五入）：
-        echo %nun%
+        echo %result%
     )
     goto exit
 
