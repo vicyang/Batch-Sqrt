@@ -66,11 +66,10 @@ set TIMEA=%time%
     echo.&echo 被开方数：%number%
     if not "%start%"=="yes" (
         set /a num+=1
-        set /a tga = num - allbit - 1
-        set /a mod = tga %% 4
-
+        set /a dec_bits = num - int_bits - 1
+        set /a mod = dec_bits %% 4
         rem 小数点后，每4位数字保留一个空格
-        if not "!tga!"=="1" (
+        if not "!dec_bits!"=="1" (
             if "!mod!"=="1" (
                 set result=%result%^ %root:~-1%
             ) else (
@@ -79,7 +78,7 @@ set TIMEA=%time%
         ) else (
             set result=%result%%root:~-1%
         )
-        set /a temp=%tga%+1
+        set /a temp=%dec_bits%+1
         if "!temp!"=="%bit%" goto end
         echo.&echo 计算结果（未对其结果进行四舍五入）：
         echo.&echo %result%
@@ -91,16 +90,16 @@ set TIMEA=%time%
 
 :temp
     set u=0
-    set tga=0
+    set dec_bits=0
     call :StringLength "%number%" len
-    set /a allbit=( %len% +1)/2
-    set num=%allbit%
+    set /a int_bits=( %len% +1)/2
+    set num=%int_bits%
     set root_len=%num%
     set /a num+=1
     for /l %%i in (0 1 %num%) do (set RT[%%i]=0)
     
     rem 如果预测根的整数部分只有1位
-    if "%allbit%"=="1" (
+    if "%int_bits%"=="1" (
         set next=RT[1]
         call :select
     ) else (
@@ -183,8 +182,8 @@ set TIMEA=%time%
             set /a tgc=!temp!/10
         )
         set tgc=0
-        if %tga% geq 50 (
-            if %tga% geq 100 (
+        if %dec_bits% geq 50 (
+            if %dec_bits% geq 100 (
                 set /p=<nul
                 set /p=总进度^:%u%^(最少3^,最多4^)^,副进度^:%%i^(共%root_len%^)^ ^ ^ ^ <nul
             ) else (
@@ -201,7 +200,7 @@ set TIMEA=%time%
     )
     
     set /a tgd+=1
-    set /a tge=1+!tgd!-(%allbit%*2)
+    set /a tge=1+!tgd!-(%int_bits%*2)
     set tgf=
     for /l %%i in (!tgd! -1 !tge!) do (
         set /a temp=!dg[%%i]!%%10
