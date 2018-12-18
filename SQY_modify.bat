@@ -90,27 +90,27 @@ set TIMEA=%time%
 :temp
     set u=0
     set tga=0
-    call :stringlength "%number%" len
+    call :StringLength "%number%" len
     set /a allbit=( %len% +1)/2
     set num=%allbit%
     set root_len=%num%
     set /a num+=1
-    for /l %%i in (0 1 %num%) do (set js[%%i]=0)
+    for /l %%i in (0 1 %num%) do (set RT[%%i]=0)
     
     rem 如果预测根的整数部分只有1位
     if "%allbit%"=="1" (
-        set kfmain=js[1]
-        call :kfmain
+        set next=RT[1]
+        call :select
     ) else (
         for /l %%i in (%root_len% -1 1) do (
             set u=0
-            set kfmain=js[%%i]
-            call :kfmain
-            set js[%%i]=!temp!
+            set next=RT[%%i]
+            call :select
+            set RT[%%i]=!temp!
         )
         set temp=
         for /l %%i in (%root_len% -1 1) do (
-            set temp=!temp!!js[%%i]!
+            set temp=!temp!!RT[%%i]!
         )
     )
 
@@ -133,38 +133,42 @@ set TIMEA=%time%
 :js
     rem root without floating point
     set "int_root=%root:.=%"
-    set /a root_len = num-1
-    set kfmain=js[0]
+    set /a root_len = num - 1
+    set next=RT[0]
 
     if "%root_len%"=="1" (
-        set js[1]=%int_root%
+        rem shift root value to left
+        set RT[1]=%int_root%
     ) else (
+        rem shift the number to left 1 bit, then try to find next number
         for /l %%i in (%root_len%, -1, 1) do (
-            set js[%%i]=!int_root:~-%%i, 1!
+            set RT[%%i]=!int_root:~-%%i, 1!
         )
     )
-    set js[%num%]=0
+
+    rem Select next number / Binary Search
+    set RT[%num%]=0
     set u=0
-    call :kfmain
+    call :select
     set root=%root%%temp%
     goto main
 
-:kfmain
+:select
     set /a u+=1
     if defined E_%er% (
-        set /a %kfmain% = E_%er%
+        set /a %next% = E_%er%
         goto bignum_mp
     )
     
     if defined U_%u% (
-        set /a %kfmain% = U_%u%
+        set /a %next% = U_%u%
         goto bignum_mp
     )
 
     if defined T_%er% set /a temp=T_%er%
     goto :eof
 
-rem 大数相乘 bignum multiply
+rem bignum multiply
 :bignum_mp
     set tgc=0
     set /a tgd=%num%*2-1
@@ -172,7 +176,7 @@ rem 大数相乘 bignum multiply
     for /l %%i in (0 1 %root_len%) do (
         for /l %%r in (0 1 %num%) do (
             set /a i=%%i+%%r
-            set /a temp=!js[%%i]!*!js[%%r]!+!tgc!
+            set /a temp=!RT[%%i]!*!RT[%%r]!+!tgc!
             set /a dg[!i!]+=!temp!%%10
             set /a tgc=!temp!/10
         )
@@ -210,18 +214,18 @@ rem 大数相乘 bignum multiply
     
     if not "%start%"=="yes" (
         if !tgf! geq %number% (
-            set er=!%kfmain%!m
+            set er=!%next%!m
         ) else (
-            set er=!%kfmain%!l
+            set er=!%next%!l
         )
     ) else (
         if !tgf! gtr %number% (
-            set er=!%kfmain%!m
+            set er=!%next%!m
         ) else (
-            set er=!%kfmain%!l
+            set er=!%next%!l
         )
     )
-    goto kfmain
+    goto select
 
 :error_a
     cls
