@@ -11,7 +11,7 @@ echo ------------------
 set TIMEA=%time%
 
 :init 
-    rem 设置常量映射表
+    rem 初始化常量映射表
     set /a iter = 1
     for %%a in ( E_2m E_5m E_4m E_2l U_1 E_7m E_5l E_9m E_7l ) do (
         set /a %%a=iter, iter+=1
@@ -98,7 +98,7 @@ set TIMEA=%time%
     set /a num+=1
     for /l %%i in (0 1 %num%) do (set RT[%%i]=0)
     
-    rem 如果预测根的整数部分只有1位
+    rem 如果整数部分只有1位
     if "%int_bits%"=="1" (
         set next=RT[1]
         call :select
@@ -172,8 +172,8 @@ set TIMEA=%time%
 :bignum_mp
     rem bignum multiply
     set tgc=0
-    set /a tgd=%num%*2-1
-    for /l %%i in (%tgd% -1 0) do set dg[%%i]=0
+    set /a tbits=%num%*2-1
+    for /l %%i in (%tbits% -1 0) do set dg[%%i]=0
     for /l %%i in (0 1 %root_len%) do (
         for /l %%r in (0 1 %num%) do (
             set /a i=%%i+%%r
@@ -193,18 +193,18 @@ set TIMEA=%time%
         )
     )
     
-    set /a tgd-=1
-    for /l %%i in (0 1 %tgd%) do (
+    set /a tbits-=1
+    for /l %%i in (0 1 %tbits%) do (
         set /a temp=%%i+1
         set /a dg[!temp!]+=!dg[%%i]!/10
     )
     
-    set /a tgd+=1
-    set /a tge=1+!tgd!-(%int_bits%*2)
+    set /a tbits+=1
+    set /a tge=1+!tbits!-(%int_bits%*2)
     set tgf=
-    for /l %%i in (!tgd! -1 !tge!) do (
+    for /l %%i in (!tbits! -1 !tge!) do (
         set /a temp=!dg[%%i]!%%10
-        if "%%i"=="!tgd!" (
+        if "%%i"=="!tbits!" (
             if not "!temp!"=="0" (
                 set tgf=!temp!
             )
