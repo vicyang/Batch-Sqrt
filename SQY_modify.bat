@@ -100,12 +100,12 @@ set TIMEA=%time%
     
     rem 如果整数部分只有1位
     if "%int_bits%"=="1" (
-        set next=RT[1]
+        set next_ref=RT[1]
         call :select
     ) else (
         for /l %%i in (%root_len% -1 1) do (
             set u=0
-            set next=RT[%%i]
+            set next_ref=RT[%%i]
             call :select
             set RT[%%i]=!temp!
         )
@@ -135,7 +135,7 @@ set TIMEA=%time%
     rem root without floating point
     set "int_root=%root:.=%"
     set /a root_len = num - 1
-    set next=RT[0]
+    set next_ref=RT[0]
 
     if "%root_len%"=="1" (
         rem shift root value to left
@@ -157,12 +157,12 @@ set TIMEA=%time%
 :select
     set /a u+=1
     if defined E_%er% (
-        set /a %next% = E_%er%
+        set /a %next_ref% = E_%er%
         goto bignum_mp
     )
     
     if defined U_%u% (
-        set /a %next% = U_%u%
+        set /a %next_ref% = U_%u%
         goto bignum_mp
     )
 
@@ -215,15 +215,15 @@ set TIMEA=%time%
     
     if not "%start%"=="yes" (
         if !tgf! geq %number% (
-            set er=!%next%!m
+            set er=!%next_ref%!m
         ) else (
-            set er=!%next%!l
+            set er=!%next_ref%!l
         )
     ) else (
         if !tgf! gtr %number% (
-            set er=!%next%!m
+            set er=!%next_ref%!m
         ) else (
-            set er=!%next%!l
+            set er=!%next_ref%!l
         )
     )
     goto select
