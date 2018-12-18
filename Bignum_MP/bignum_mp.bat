@@ -23,14 +23,13 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
     set /a id = 0, sid = 0, maxid = 0
     for %%b in ( %ele_b% ) do (
-        set /a sid = id
+        set /a sid = id, id+=1
         for %%a in ( %ele_a% ) do (
             set /a next = sid + 1
             set /a mp = %%a * %%b, foo = mp/10, bar = mp %% 10
             set /a buff[!sid!] += bar, buff[!next!] += foo
             set /a sid += 1, maxid = sid
         )
-        set /a id += 1
     )
     echo %time%
 
