@@ -51,8 +51,8 @@ set TIMEA=%time%
 :chk_precision
     cls
     if "%bit%"=="" goto then
-    set /a temp=%bit%+0
-    if not "%bit%"=="%temp%" goto error_d
+    set /a int_test=%bit%+0
+    if not "%bit%"=="%int_test%" goto error_d
     if not %bit% geq 0 goto error_d
     if %bit% geq 238609295 goto error_e
     set start=yes
