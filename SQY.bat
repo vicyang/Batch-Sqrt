@@ -8,6 +8,7 @@ cls
 echo ------------------
 echo 计算整数平方根的值
 echo ------------------
+set TIMEA=%time%
 
 :start
     echo.&echo 请输入被开方数（仅限整数）,然后按回车键：
@@ -120,7 +121,7 @@ echo ------------------
         echo.&echo %nun%
         goto js
     ) else (
-        echo.&echo 请稍候……
+        echo.&echo 请稍候…… 
         goto temp
     )
 
@@ -185,6 +186,8 @@ echo ------------------
 :end
     cls
     echo.&echo 计算完毕！
+    echo.%TIMEA%
+    echo.%time%
     echo.&echo 被开方数：%number%
     echo.&echo 计算结果（未对其结果进行四舍五入）：
     echo !nun!
