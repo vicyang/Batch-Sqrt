@@ -15,18 +15,18 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
 
 :bignum_mp
     echo %time%
-    set stock=0
     call :length %num_a% len_a
     call :length %num_b% len_b
-    for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
+
+    for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
+    for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
+    rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
     set /a id = 0, sid = 0, maxid = 0
-    for /l %%b in ( 1, 1, %len_b% ) do (
+    for %%b in ( %ele_b% ) do (
         set /a sid = id
-        for /l %%a in ( 1, 1, %len_a% ) do (    
+        for %%a in ( %ele_a% ) do (
             set /a next = sid + 1
-            set /a ea = !num_a:~-%%a,1!, eb = !num_b:~-%%b,1!
-            set /a mp = ea * eb, foo = mp/10, bar = mp %% 10
-            rem echo foo:!foo! bar:!bar!
+            set /a mp = %%a * %%b, foo = mp/10, bar = mp %% 10
             set /a buff[!sid!] += bar, buff[!next!] += foo
             set /a sid += 1, maxid = sid
         )
