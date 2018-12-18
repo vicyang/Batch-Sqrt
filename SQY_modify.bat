@@ -31,8 +31,8 @@ set TIMEA=%time%
 :get_number
     cls
     if "%number%"=="" goto start
-    set /a test=%number%+0
-    if not "%test%"=="%number%" goto error_a
+    set /a int_test=%number%+0
+    if not "%int_test%"=="%number%" goto error_a
     if not %number% geq 0 goto error_b
     if %number% geq 2147483647 goto error_c
     goto set_precision
