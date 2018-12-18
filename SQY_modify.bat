@@ -8,6 +8,18 @@ cls
 echo ------------------
 echo 计算整数平方根的值
 echo ------------------
+set TIMEA=%time%
+
+:init 
+    rem 设置常量映射表
+    set /a iter = 1
+    for %%a in ( E_2m E_5m E_4m E_2l U_1 E_7m E_5l E_9m E_7l ) do (
+        set /a %%a=iter, iter+=1
+    )    
+    set /a iter = 0
+    for %%a in ( 1m 1l 3m 3l 4l 6m 6l 8m 8l 9l ) do (
+        set /a T_%%a=iter, iter+=1
+    )
 
 :start
     echo.&echo 请输入被开方数（仅限整数）,然后按回车键：
@@ -136,20 +148,8 @@ echo ------------------
     set main=%main%%temp%
     goto main
 
-
-
 :kfmain
     set /a u+=1
-    rem 设置常量映射表
-    set /a iter = 1
-    for %%a in ( E_2m E_5m E_4m E_2l U_1 E_7m E_5l E_9m E_7l ) do (
-        set /a %%a=iter, iter+=1
-    )
-    set /a iter = 0
-    for %%a in ( 1m 1l 3m 3l 4l 6m 6l 8m 8l 9l ) do (
-        set /a T_%%a=iter, iter+=1
-    )
-    
     if defined E_%er% (
         set /a %kfmain% = E_%er%
         goto bignum_mp
@@ -275,6 +275,8 @@ rem 大数相乘 bignum multiply
 :end
     cls
     echo.&echo 计算完毕！
+    echo.%TIMEA%
+    echo.%time%
     echo.&echo 被开方数：%number%
     echo.&echo 计算结果（未对其结果进行四舍五入）：
     echo !nun!
