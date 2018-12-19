@@ -21,6 +21,25 @@ set TIMEA=%time%
         set /a T_%%a=iter, iter+=1
     )
 
+    set /a test_mode = 1
+    if "%test_mode%"=="1" (
+        set cls=rem&set echo=rem
+        goto :test
+    ) else (
+        set cls=cls
+        goto :start
+    )
+
+:test
+    for %%n in (2 121 25) do (
+        set /a number=%%n
+        set /a bit=6
+        set start=yes
+        call :main
+    )
+    pause
+    exit /b
+
 :start
     echo.&echo 请输入被开方数（仅限整数）,然后按回车键：
     echo （被开方数最高为2147483646，超出范围，会计算出错）
@@ -49,7 +68,7 @@ set TIMEA=%time%
     goto chk_precision
 
 :chk_precision
-    cls
+    %cls%
     if "%bit%"=="" goto set_precision
     set /a int_test=%bit%+0
     if not "%bit%"=="%int_test%" goto error_d
@@ -59,11 +78,11 @@ set TIMEA=%time%
     goto main
 
 :main
-    cls
-    echo.&echo  已经开始计算。
-    echo  每计算一位，都会对结果更新！
-    echo  越往后计算，结果显示越慢！请耐心等待本程序计算完成。
-    echo.&echo 被开方数：%number%
+    %cls%
+    %echo%.&%echo%  已经开始计算。
+    %echo%  每计算一位，都会对结果更新！
+    %echo%  越往后计算，结果显示越慢！请耐心等待本程序计算完成。
+    %echo%.&%echo% 被开方数：%number%
     if not "%start%"=="yes" (
         set /a num+=1
         set /a dec_bits = num - int_bits - 1
@@ -80,11 +99,11 @@ set TIMEA=%time%
         )
         set /a temp=%dec_bits%+1
         if "!temp!"=="%bit%" goto end
-        echo.&echo 计算结果（未对其结果进行四舍五入）：
-        echo.&echo %result%
+        %echo%.&%echo% 计算结果（未对其结果进行四舍五入）：
+        %echo%.&%echo% %result%
         goto js
     ) else (
-        echo.&echo 请稍候……
+        %echo%.&%echo% 请稍候……
         goto temp
     )
 
@@ -277,13 +296,14 @@ set TIMEA=%time%
     goto set_precision
     
 :end
-    cls
-    echo.&echo 计算完毕！
-    echo.%TIMEA%
-    echo.%time%
-    echo.&echo 被开方数：%number%
-    echo.&echo 计算结果（未对其结果进行四舍五入）：
+    %cls%
+    %echo%.&%echo% 计算完毕！
+    rem echo.%TIMEA%
+    rem echo.%time%
+    %echo%.&%echo% 被开方数：%number%
+    %echo%.&%echo% 计算结果（未对其结果进行四舍五入）：
     echo !result!
+    if "%test_mode%" == "1" goto :eof
     echo.&echo 按任意键继续：&pause>nul
     cls
     echo 请选择接下来的操作。
