@@ -50,7 +50,7 @@ set TIMEA=%time%
 
 :chk_precision
     cls
-    if "%bit%"=="" goto then
+    if "%bit%"=="" goto set_precision
     set /a int_test=%bit%+0
     if not "%bit%"=="%int_test%" goto error_d
     if not %bit% geq 0 goto error_d
@@ -107,17 +107,17 @@ set TIMEA=%time%
             set u=0
             set next_ref=RT[%%i]
             call :select
-            set RT[%%i]=!temp!
+            set RT[%%i]=!select!
         )
-        set temp=
+        set select=
         for /l %%i in (%root_len% -1 1) do (
-            set temp=!temp!!RT[%%i]!
+            set select=!select!!RT[%%i]!
         )
     )
 
-    set all=%temp%
-    set /a temp=%all%*%all%
-    if "%temp%"=="%number%" (
+    set all=%select%
+    set /a product = all * all
+    if "%product%"=="%number%" (
         set bit=0
         set result=%all%
         goto end
@@ -137,11 +137,10 @@ set TIMEA=%time%
     set /a root_len = num - 1
     set next_ref=RT[0]
 
+    rem 建立数组，预留1位
     if "%root_len%"=="1" (
-        rem shift root value to left
         set RT[1]=%int_root%
     ) else (
-        rem shift the number to left 1 bit, then try to find next number
         for /l %%i in (%root_len%, -1, 1) do (
             set RT[%%i]=!int_root:~-%%i, 1!
         )
@@ -151,7 +150,7 @@ set TIMEA=%time%
     set RT[%num%]=0
     set u=0
     call :select
-    set root=%root%%temp%
+    set root=%root%%select%
     goto main
 
 :select
@@ -166,7 +165,7 @@ set TIMEA=%time%
         goto bignum_mp
     )
 
-    if defined T_%er% set /a temp=T_%er%
+    if defined T_%er% set /a select=T_%er%
     goto :eof
 
 :bignum_mp
