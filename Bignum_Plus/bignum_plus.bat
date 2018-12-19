@@ -8,34 +8,40 @@ setlocal enabledelayedexpansion
     set mod=#0#1#2#3#4#5#6#7#8#9#A#B#C#D#E#F
     set "mod=!%mod:#=!!mod:#=%!"
 
-set num_a=99999
-set num_b=999
-for /l %%a in (1,1,200) do set num_a=!num_a!1
-for /l %%a in (1,1,200) do set num_b=!num_b!1
-rem set /a test = num_a + num_b
+set num_a=9999
+set num_b=999999
+for /l %%a in (1,1,250) do set num_a=!num_a!1
+for /l %%a in (1,1,250) do set num_b=!num_b!1
+set /a test = num_a + num_b
+echo %test%
 
 :bignum_plus
     set time_a=%time%
     call :length %num_a% len_a
     call :length %num_b% len_b
     set /a max = len_a
-    if %len_b% gtr %len_a% (set /a max=len_b&set num_a=%num_b%&set num_b=%num_a%)
+    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a, len_a=max&set num_a=%num_b%&set num_b=%num_a%)
 
+    set /a pool = 0
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
-            set /a buff[%%n] = !num_a:~-%%n,1! + !num_b:~-%%n,1!
+            set /a sum = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
+            if !sum! geq 10 (
+                set /a buff[%%n] = sum - 10, pool = 1
+            ) else (
+                set /a buff[%%n] = sum, pool = 0
+            )
         ) else (
-            set buff[%%n]=!num_a:~-%%n,1!
+            set /a sum = !num_a:~-%%n,1! + pool
+            if !sum! geq 10 (
+                set /a buff[%%n]=sum - 10, pool = 1
+            ) else (
+                set /a buff[%%n]=sum, pool = 0
+            )
         )
     )
-
-    set /a id = 0
-    for /l %%c in ( 0, 1, %max% ) do (
-        set /a next = %%c+1
-        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
-    )
-
-    if "!buff[%next%]!" gtr "0" set /a max+=1
+    
+    if "%pool%" == "1" ( set /a max+=1 &set buff[!max!]=1)
     for /l %%a in (%max%, -1, 1) do set /p inp="!buff[%%a]!"<nul
     call :time_used %time_a% %time%
     goto :eof
