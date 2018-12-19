@@ -31,9 +31,9 @@ set TIMEA=%time%
     )
 
 :test
-    for %%n in (2 121 25) do (
+    for %%n in (2 121 25 14641) do (
         set /a number=%%n
-        set /a bit=6
+        set /a bit=5
         set start=yes
         call :main
     )
@@ -300,7 +300,7 @@ set TIMEA=%time%
     %echo%.&%echo% 计算完毕！
     rem echo.%TIMEA%
     rem echo.%time%
-    %echo%.&%echo% 被开方数：%number%
+    echo.&echo 被开方数：%number%
     %echo%.&%echo% 计算结果（未对其结果进行四舍五入）：
     echo !result!
     if "%test_mode%" == "1" goto :eof
