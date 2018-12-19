@@ -10,8 +10,8 @@ setlocal enabledelayedexpansion
 
 set num_a=99999
 set num_b=999
-rem for /l %%a in (1,1,200) do set num_a=!num_a!9
-rem for /l %%a in (1,1,200) do set num_b=!num_b!2
+for /l %%a in (1,1,200) do set num_a=!num_a!1
+for /l %%a in (1,1,200) do set num_b=!num_b!1
 rem set /a test = num_a + num_b
 
 :bignum_plus
@@ -58,10 +58,7 @@ rem set /a test = num_a + num_b
     set dt=%dt:-=%
     set dt=0000%dt%
     set dt=%dt:~-4%
-    echo time used: %dt:~0,2%.%dt:~2,2%s
+    echo,&echo time used: %dt:~0,2%.%dt:~2,2%s
     endlocal
     goto :eof
-
-
-
 
