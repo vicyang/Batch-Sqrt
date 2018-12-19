@@ -43,7 +43,7 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
         )
 
     for /l %%a in (%maxid%, -1, 0) do set /p inp="!buff[%%a]!"<nul
-    echo, &echo %time%
+    echo,&echo %time%
     goto :eof
     
 :length %str% %vname%
