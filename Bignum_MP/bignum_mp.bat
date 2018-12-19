@@ -3,21 +3,18 @@ setlocal enabledelayedexpansion
 
 :init
   rem static template for calculating strlen
-  set "mod="
-  set /a maxlen = 1000
+  set "mod=" &set /a maxlen = 1000
   for /l %%a in (1,1,%maxlen%) do set mod=!mod!#
-
 
 set num_a=123456
 set num_b=9999
-set num_a=1234569999999999999999999999999999999999999999999999999999999999
+set num_a=1234569999999999999999999999999999999999999999999999999999999999999999999999999
 set num_b=9999999999999999999999999999999999999999999999999999999999999999999999999999999
 
 :bignum_mp
     echo %time%
     call :length %num_a% len_a
     call :length %num_b% len_b
-
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
@@ -29,23 +26,24 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
             if "%mp%" geq "10" (
                 set /a next = sid + 1
                 set /a foo = mp/10, bar = mp %% 10
-                set /a buff[!sid!] += bar, buff[!next!] += foo, sid += 1, maxid = sid
+                set /a buff[!sid!] += bar, ^
+                        buff[!next!] += foo, ^
+                        sid += 1, maxid = sid
             ) else (
                 set /a buff[!sid!] += mp, sid += 1, maxid = sid
             )
         )
     )
-    echo %time%
 
     :merge
         set /a id = 0
         for /l %%c in ( 0, 1, %maxid% ) do (
             set /a next = %%c+1
-            set /a buff[!next!] += buff[%%c]/10
-            set /a buff[%%c] = buff[%%c] %% 10
+            set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
         )
 
     for /l %%a in (%maxid%, -1, 0) do set /p inp="!buff[%%a]!"<nul
+    echo, &echo %time%
     goto :eof
     
 :length %str% %vname%
