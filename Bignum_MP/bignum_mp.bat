@@ -2,11 +2,17 @@
 setlocal enabledelayedexpansion
 
 :init
-  rem static template for calculating strlen
-  set "mod="
-  set /a maxlen = 1000
-  for /l %%a in (1,1,%maxlen%) do set mod=!mod!#
+    rem static template for calculating strlen
+    set "mod="
+    set /a maxlen = 1000
+    for /l %%a in (1,1,%maxlen%) do set mod=!mod!#
 
+    for /l %%a in (0,1,9) do (
+        for /l %%b in (0,1,9) do (
+            set /a mp_%%a%%b_foo = ^( %%a ^* %%b ^) / 10
+            set /a mp_%%a%%b_bar = ^( %%a * %%b ^) %% 10
+        )
+    )
 
 set num_a=123456
 set num_b=9999
@@ -25,13 +31,10 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
     for %%b in ( %ele_b% ) do (
         set /a sid = id, id += 1
         for %%a in ( %ele_a% ) do (
-            set /a next = sid + 1
-            set /a mp = %%a * %%b
-            if "%mp%" geq "10" (
-                set /a foo = mp/10, bar = mp %% 10
-                set /a buff[!sid!] += bar, buff[!next!] += foo
-            ) else (
-                set /a buff[!sid!] += mp
+            set /a buff[!sid!] += !mp_%%a%%b_bar!
+            if !mp_%%a%%b_foo! gtr 0 (
+                set /a next = sid + 1
+                set /a buff[!next!] += !mp_%%a%%b_foo!
             )
             set /a sid += 1, maxid = sid
         )
