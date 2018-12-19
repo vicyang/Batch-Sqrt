@@ -10,8 +10,8 @@ setlocal enabledelayedexpansion
 
 set num_a=99999
 set num_b=999
-for /l %%a in (1,1,200) do set num_a=!num_a!1
-for /l %%a in (1,1,200) do set num_b=!num_b!1
+for /l %%a in (1,1,250) do set num_a=!num_a!1
+for /l %%a in (1,1,250) do set num_b=!num_b!1
 rem set /a test = num_a + num_b
 
 :bignum_plus
@@ -19,7 +19,7 @@ rem set /a test = num_a + num_b
     call :length %num_a% len_a
     call :length %num_b% len_b
     set /a max = len_a
-    if %len_b% gtr %len_a% (set /a max=len_b&set num_a=%num_b%&set num_b=%num_a%)
+    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
