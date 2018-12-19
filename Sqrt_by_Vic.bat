@@ -11,12 +11,9 @@ set /p inp="%a%"<nul
 
 :lp
     call :bignum_mp %a%%b% %a%%b% res
-    echo call :cmp %res% %num%00 cmp
-    echo %cmp%
-    exit
+    call :cmp %res% %num%00 cmp
     rem exit
     if "%cmp%" == "1" (
-        echo a
         set /a b-=1,count+=1
         set /p inp="!b!"<nul
         set a=%a%!b!
@@ -63,6 +60,7 @@ exit
             set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
         )
 
+    if "!buff[%maxid%]!" == "0" set /a maxid-=1
     set result=
     for /l %%a in (%maxid%, -1, 0) do set result=!result!!buff[%%a]!
     endlocal &set %3=%result%
