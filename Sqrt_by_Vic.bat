@@ -5,8 +5,9 @@ setlocal enabledelayedexpansion
   set /a maxlen=1000
   for /l %%a in (1,1,%maxlen%) do set mod=!mod!#
 
-set /a num=2
-set /a a=1, b=0, count=0
+set /a num=5
+call :get_int_of_root %num% int_root cmp
+set /a a=int_root, b=0, count=0
 set /p inp="%a%"<nul
 
 :lp
@@ -27,6 +28,24 @@ if %count% lss 50 goto :lp
 rem echo %num% %a% %res%
 pause
 exit
+
+:get_int_of_root
+    rem get the integer part of root
+    setlocal
+    set /a num = %1
+    set /a min = 1, max = num/2+1
+    for /l %%a in (%min%, 1, %max%) do (
+        set /a delta = %%a * %%a - %num%
+        if !delta! gtr 0 (
+            endlocal &set /a %2=%%a-1, %3=1
+            goto :eof
+        )
+        if !delta! equ 0 (
+            endlocal &set /a %2=%%a, %3=0
+            goto :eof
+        )
+    )
+    goto :eof
 
 :bignum_mp
     setlocal
