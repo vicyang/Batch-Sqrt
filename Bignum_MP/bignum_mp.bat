@@ -11,6 +11,9 @@ set num_b=9999
 set num_a=1234569999999999999999999999999999999999999999999999999999999999999999999999999
 set num_b=9999999999999999999999999999999999999999999999999999999999999999999999999999999
 
+rem set num_a=100
+rem set num_b=1000
+
 :bignum_mp
     echo %time%
     call :length %num_a% len_a
@@ -42,6 +45,7 @@ set num_b=9999999999999999999999999999999999999999999999999999999999999999999999
             set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
         )
 
+    if "!buff[%maxid%]!" == "0" set /a maxid-=1
     for /l %%a in (%maxid%, -1, 0) do set /p inp="!buff[%%a]!"<nul
     echo,&echo %time%
     goto :eof
