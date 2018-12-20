@@ -1,16 +1,17 @@
+:: Bignum(integer) Square Root
 :: 523066680/vicyang
 :: 2018-12
 
 @echo off
 setlocal enabledelayedexpansion
 :init
-    rem template for counting string length
+    rem template for counting string lengt
     set mod=
     set /a maxlen=2000, half=maxlen/2
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-set num=2
+set num=82
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
