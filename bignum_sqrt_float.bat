@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-set num=82
+set num=1234561654321
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
@@ -74,7 +74,7 @@ exit
     set num=%1
     call :length %num% len
     rem initial min and max number
-    set /a min = 1, max = 9, root_len = len / 2 + len %% 2
+    set /a min = 1, max = 10, root_len = len / 2 + len %% 2
     for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
     call :bignum_plus %min% %max% sum
     rem middle_number = sum / 2
