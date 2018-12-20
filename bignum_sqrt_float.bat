@@ -41,7 +41,7 @@ exit
     :decroot_lp
     set /a min=0, max=10, mid=(max+min)/2, quit = 0, dec_len+=1
     :decroot_bin_search
-        rem calc [a*10]^2 + b^2 + 2*[a*10]*b , part1 part2 part3
+        rem calc [a*10]^2 + 2*[a*10]*b + b^2, part1 part2 part3
         set /a sum = 0
         set part1=%prev_pow%00
         set /a part3 = mid * mid
