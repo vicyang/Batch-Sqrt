@@ -71,13 +71,13 @@ exit
     rem only for few seconds, not consider minutes
     setlocal
     set ta=%1& set tb=%2
-    set ta=#%ta:~-5%& set tb=#%tb:~-5%
-    set ta=%ta:#0=%& set tb=%tb:#0=%
-    set ta=%ta:#=%& set tb=%tb:#=%
+    rem insert 1 befeore 00.00 if first num is zero
+    set ta=1%ta:~-5%
+    set tb=1%tb:~-5%
     set /a dt = %tb:.=% - %ta:.=%
     set dt=%dt:-=%
     set dt=0000%dt%
     set dt=%dt:~-4%
-    echo time used: %dt:~0,2%.%dt:~2,2%s
+    echo %ta% %tb%, time used: %dt:~0,2%.%dt:~2,2%s
     endlocal
     goto :eof
