@@ -7,11 +7,10 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num_a=18
+set num_a=314159
+rem set num_a=18
 set num_b=2
-rem for /l %%a in (1,1,250) do set num_a=!num_a!1
-rem for /l %%a in (1,1,250) do set num_b=!num_b!1
-rem set /a test = num_a + num_b
+rem for /l %%a in (1,1,500) do set num_a=!num_a!1
 call :bignum_div_single %num_a% %num_b% quotient
 echo %quotient%
 exit
@@ -22,14 +21,21 @@ exit
     set num_a=%1
     set num_b=%2
     call :length %num_a% len_a
-    set /a max = len_a
-    for /l %%n in ( 1, 1, %max% ) do (
-        set /a e = !num_a:~-%%n,1!
+    set /a max = len_a, mod = 0
+    for /l %%n in ( %len_a%, -1, 1 ) do (
+        set /a e = !num_a:~-%%n,1! + mod*10
+        if !e! gtr !num_b! (
+            set /a buff[%%n] = e/num_b, mod = e %% num_b
+        ) else (
+            set /a buff[%%n] = 0, mod = e
+        )
     )
+    if !buff[%max%]! == 0 (set /a max-=1)
 
-    if "!buff[%next%]!" gtr "0" set /a max+=1
-    for /l %%a in (%max%, -1, 1) do set /p inp="!buff[%%a]!"<nul
+    set quotaint=
+    for /l %%a in (%max%, -1, 1) do set quotaint=!quotaint!!buff[%%a]!
     call :time_used %time_a% %time%
+    endlocal &set %3=%quotaint%
     goto :eof
     
 :length %str% %vname%
@@ -52,7 +58,7 @@ exit
     set dt=%dt:-=%
     set dt=0000%dt%
     set dt=%dt:~-4%
-    echo %ta% %tb%, time used: %dt:~0,2%.%dt:~2,2%s
+    echo time used: %dt:~0,2%.%dt:~2,2%s
     endlocal
     goto :eof
 
