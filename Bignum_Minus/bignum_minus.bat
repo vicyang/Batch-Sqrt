@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
 set num_a=100000
-set num_b=9
+set num_b=99999
 rem for /l %%a in (1,1,500) do set num_a=!num_a!1
 call :bignum_minus %num_a% %num_b% delta
 echo %delta%
@@ -28,21 +28,20 @@ exit
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
             set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
-            if !dt! lss 0 (
-                set /a buff[%%n] = dt + 10, minus=1
-            ) else (
-                set /a buff[%%n] = dt, minus=0
-            )
         ) else (
-            set /a buff[%%n] = !num_a:~-%%n,1! - minus, minus = 0
+            set /a dt = !num_a:~-%%n,1! - minus
+        )
+        if !dt! lss 0 (
+            set /a buff[%%n] = dt + 10, minus=1
+        ) else (
+            set /a buff[%%n] = dt, minus=0
         )
     )
 
-    if !buff[%max%]! equ 0 ( set /a max-=1 )
-    set delta=
-    for /l %%a in (%max%, -1, 1) do set delta=!delta!!buff[%%a]!
+    set delta=#
+    for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
     call :time_used %time_a% %time%
-    endlocal &set %3=%delta%
+    endlocal &set %3=%delta:#=%
     goto :eof
 
 :length %str% %vname%
