@@ -33,6 +33,7 @@ exit
         for %%a in ( %ele_a% ) do (
             set /a mp = %%a * %%b
             if "%mp%" geq "10" (
+                echo a
                 set /a next = sid + 1
                 set /a foo = mp/10, bar = mp %% 10
                 set /a buff[!sid!] += bar, ^
