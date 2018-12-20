@@ -1,3 +1,6 @@
+:: 523066680/vicyang
+:: 2018-12
+
 @echo off
 setlocal enabledelayedexpansion
 :init
@@ -5,20 +8,54 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num=12345679012320987654321
+set num=226
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
+if %cmp% equ 0 (
+    set root=%int_root%
+    call :last
+)
+
+set precision=10
+call :get_dec_of_root %num% %int_root% %precision% dec_root
+exit
 
 :last
-    echo num = %num%, int_root = %int_root%, %cmp%
-    if %cmp% neq 0 ( echo this value is the integer part of root )
-    rem pause
-    exit /b
+    echo num = %num%, root = %root%, %cmp%
+    exit
+
+:get_dec_of_root
+    setlocal
+    set num=%1
+    set int_root=%2
+    set precision=%3
+    echo num = %num%, int_root = %int_root%
+    set root=%int_root%
+
+    :decroot_lp
+    set /a min=0, max=10, mid=(max+min)/2, quit = 0, prev_pow = 0
+    :decroot_bin_search
+        call :bignum_mp %root%%mid% %root%%mid% product
+        call :cmp %product% %num%00 cmp
+        rem echo %root%%mid% %product% %cmp% %max% %min%
+        set /a range=max-min
+        if %cmp% gtr 0 ( set /a max=mid, mid=^(max+min^)/2 )
+        if %cmp% lss 0 ( set /a min=mid, mid=^(max+min^)/2 )
+        if %cmp% equ 0 ( set quit=1 )
+        if %range% leq 1 ( set quit=1 )
+    if %quit% equ 0 goto :decroot_bin_search
+    set root=%root%%mid%
+    set num=%num%00
+    echo %root%
+    goto :decroot_lp
+
+    endlocal
+    goto :eof
 
 :get_int_of_root
     rem get the integer part of root
     setlocal
-    set num = %1
+    set num=%1
     call :length %num% len
     rem initial min and max number
     set /a min = 1, max = 9, root_len = len / 2 + len %% 2
@@ -32,23 +69,14 @@ call :get_int_of_root %num% int_root cmp
         call :bignum_mp %mid% %mid% product
         call :cmp %product% %num% cmp
         call :bignum_minus %max% %min% range
-        rem echo %max% %min% %range% %mid%
 
         if !cmp! equ 0 (
             set /a quit = 1, cmp=0
         ) else (
-            if !cmp! gtr 0 (
-                set max=!mid!
-                set cmp=1
-                call :bignum_plus !min! !mid! sum
-                call :bignum_div_single !sum! 2 mid
-            )
-            if !cmp! lss 0 (
-                set min=!mid!
-                set cmp=-1
-                call :bignum_plus !max! !mid! sum
-                call :bignum_div_single !sum! 2 mid
-            )
+            if !cmp! gtr 0 ( set max=!mid!& set cmp=1)
+            if !cmp! lss 0 ( set min=!mid!& set cmp=-1)
+            call :bignum_plus !max! !min! sum
+            call :bignum_div_single !sum! 2 mid
         )
         if !range! leq 1 (set quit=1)
     if %quit% == 0 goto :binary_search
