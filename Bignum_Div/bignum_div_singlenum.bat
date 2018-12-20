@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
 set num_a=314159
-set num_a=222
+rem set num_a=222
 set num_b=2
 rem for /l %%a in (1,1,500) do set num_a=!num_a!1
 call :bignum_div_single %num_a% %num_b% quotient
@@ -24,11 +24,7 @@ exit
     set /a max = len_a, mod = 0
     for /l %%n in ( %len_a%, -1, 1 ) do (
         set /a e = !num_a:~-%%n,1! + mod*10
-        if !e! gtr !num_b! (
-            set /a buff[%%n] = e/num_b, mod = e %% num_b
-        ) else (
-            set /a buff[%%n] = 0, mod = e
-        )
+        set /a buff[%%n] = e/num_b, mod = e %% num_b
     )
     if !buff[%max%]! == 0 (set /a max-=1)
 
