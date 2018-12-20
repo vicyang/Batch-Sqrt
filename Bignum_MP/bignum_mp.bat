@@ -31,17 +31,7 @@ exit
     for %%b in ( %ele_b% ) do (
         set /a sid = id, id += 1
         for %%a in ( %ele_a% ) do (
-            set /a mp = %%a * %%b
-            if "%mp%" geq "10" (
-                echo a
-                set /a next = sid + 1
-                set /a foo = mp/10, bar = mp %% 10
-                set /a buff[!sid!] += bar, ^
-                        buff[!next!] += foo, ^
-                        sid += 1, maxid = sid
-            ) else (
-                set /a buff[!sid!] += mp, sid += 1, maxid = sid
-            )
+            set /a buff[!sid!] += %%a * %%b, sid += 1, maxid = sid
         )
     )
 
