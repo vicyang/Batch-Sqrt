@@ -5,8 +5,11 @@ setlocal enabledelayedexpansion
   set /a maxlen=1000
   for /l %%a in (1,1,%maxlen%) do set mod=!mod!#
 
-set /a num=5
+set /a num=900
 call :get_int_of_root %num% int_root cmp
+
+if %cmp% == 0 goto :last
+
 set /a a=int_root, b=0, count=0
 set /p inp="%a%"<nul
 
@@ -23,11 +26,13 @@ set /p inp="%a%"<nul
     ) else (
         set /a b+=1
     )
+    if %count% lss 50 goto :lp
+    goto :eof
 
-if %count% lss 50 goto :lp
-rem echo %num% %a% %res%
-pause
-exit
+:last
+    echo num = %num%, root = %int_root%, %res%
+    pause
+    exit /b
 
 :get_int_of_root
     rem get the integer part of root
