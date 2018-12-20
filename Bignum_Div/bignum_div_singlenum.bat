@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
 set num_a=314159
-rem set num_a=18
+set num_a=222
 set num_b=2
 rem for /l %%a in (1,1,500) do set num_a=!num_a!1
 call :bignum_div_single %num_a% %num_b% quotient
