@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num=226
+set num=2
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
@@ -16,7 +16,8 @@ if %cmp% equ 0 (
     call :last
 )
 
-set precision=10
+set /p inp="%int_root%."<nul
+set precision=80
 call :get_dec_of_root %num% %int_root% %precision% dec_root
 exit
 
@@ -29,25 +30,36 @@ exit
     set num=%1
     set int_root=%2
     set precision=%3
-    echo num = %num%, int_root = %int_root%
     set root=%int_root%
+    call :bignum_mp %root% %root% prev_pow
 
+    set /a dec_len=0
     :decroot_lp
-    set /a min=0, max=10, mid=(max+min)/2, quit = 0, prev_pow = 0
+    set /a min=0, max=10, mid=(max+min)/2, quit = 0, dec_len+=1
     :decroot_bin_search
-        call :bignum_mp %root%%mid% %root%%mid% product
-        call :cmp %product% %num%00 cmp
+        rem calc [a*10]^2 + b^2 + 2*[a*10]*b , part1 part2 part3
+        set /a sum = 0
+        set part1=%prev_pow%00
+        set /a part3 = mid * mid
+        set /a double_mid = mid * 2
+        call :bignum_mp %root%0 %double_mid% part2
+        call :bignum_plus %part1% %part2% sum
+        call :bignum_plus %sum% %part3% sum
+
+        rem compare
+        call :cmp %sum% %num%00 cmp
         rem echo %root%%mid% %product% %cmp% %max% %min%
         set /a range=max-min
         if %cmp% gtr 0 ( set /a max=mid, mid=^(max+min^)/2 )
         if %cmp% lss 0 ( set /a min=mid, mid=^(max+min^)/2 )
-        if %cmp% equ 0 ( set quit=1 )
-        if %range% leq 1 ( set quit=1 )
-    if %quit% equ 0 goto :decroot_bin_search
+        if %cmp% equ 0 ( set /a quit=1 )
+        if %range% leq 1 ( set /a quit=1 )
+        if %quit% equ 0 goto :decroot_bin_search
+    set prev_pow=%sum%
     set root=%root%%mid%
     set num=%num%00
-    echo %root%
-    goto :decroot_lp
+    set /p inp="%mid%"<nul
+    if %dec_len% lss %precision% goto :decroot_lp
 
     endlocal
     goto :eof
