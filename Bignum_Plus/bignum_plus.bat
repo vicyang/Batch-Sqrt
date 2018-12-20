@@ -12,9 +12,15 @@ set num_a=99999
 set num_b=999
 for /l %%a in (1,1,250) do set num_a=!num_a!1
 for /l %%a in (1,1,250) do set num_b=!num_b!1
+call :bignum_plus %num_a% %num_b% sum
+echo %sum%
 rem set /a test = num_a + num_b
+exit
 
 :bignum_plus
+    setlocal
+    set num_a=%1
+    set num_b=%2
     set time_a=%time%
     call :length %num_a% len_a
     call :length %num_b% len_b
@@ -36,8 +42,10 @@ rem set /a test = num_a + num_b
     )
 
     if "!buff[%next%]!" gtr "0" set /a max+=1
-    for /l %%a in (%max%, -1, 1) do set /p inp="!buff[%%a]!"<nul
+    set sum=
+    for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
     call :time_used %time_a% %time%
+    endlocal &set %3=%sum%
     goto :eof
     
 :length %str% %vname%
@@ -58,7 +66,7 @@ rem set /a test = num_a + num_b
     set dt=%dt:-=%
     set dt=0000%dt%
     set dt=%dt:~-4%
-    echo,&echo time used: %dt:~0,2%.%dt:~2,2%s
+    echo time used: %dt:~0,2%.%dt:~2,2%s
     endlocal
     goto :eof
 
