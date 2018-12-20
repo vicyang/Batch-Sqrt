@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num=12345679012320987654321
+set num=99999999999999999
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
 
@@ -38,17 +38,15 @@ call :get_int_of_root %num% int_root cmp
             set /a quit = 1, cmp=0
         ) else (
             if !cmp! gtr 0 (
-                set max=!mid!
+                call :bignum_minus !mid! 1 max
                 set cmp=1
-                call :bignum_plus !min! !mid! sum
-                call :bignum_div_single !sum! 2 mid
             )
             if !cmp! lss 0 (
-                set min=!mid!
+                call :bignum_plus !mid! 1 min
                 set cmp=-1
-                call :bignum_plus !max! !mid! sum
-                call :bignum_div_single !sum! 2 mid
             )
+            call :bignum_plus !max! !min! sum
+            call :bignum_div_single !sum! 2 mid
         )
         if !range! leq 1 (set quit=1)
     if %quit% == 0 goto :binary_search
