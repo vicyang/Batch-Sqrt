@@ -12,7 +12,7 @@ setlocal enabledelayedexpansion
     set time_a=%time%
 
 set num=1234561654321
-rem set num=12321
+rem set num=2
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
     set root=%int_root%
@@ -74,7 +74,7 @@ exit
     set num=%1
     call :length %num% len
     rem initial min and max number
-    set /a min = 1, max = 10, root_len = len / 2 + len %% 2
+    set /a min = 1, max = 9, root_len = len / 2 + len %% 2
     for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
     call :bignum_plus %min% %max% sum
     rem middle_number = sum / 2
@@ -89,8 +89,14 @@ exit
         if !cmp! equ 0 (
             set /a quit = 1, cmp=0
         ) else (
-            if !cmp! gtr 0 ( set max=!mid!& set cmp=1)
-            if !cmp! lss 0 ( set min=!mid!& set cmp=-1)
+            if !cmp! gtr 0 (
+                call :bignum_minus !mid! 1 max
+                set cmp=1
+            )   
+            if !cmp! lss 0 ( 
+                call :bignum_plus !mid! 1 min
+                set cmp=-1
+            )
             call :bignum_plus !max! !min! sum
             call :bignum_div_single !sum! 2 mid
         )
