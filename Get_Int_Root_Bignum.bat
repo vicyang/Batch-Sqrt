@@ -5,8 +5,8 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-rem set num=1234567654320
-set num=12321
+set num=12345679012320987654321
+rem set num=12321
 call :get_int_of_root %num% int_root cmp
 
 :last
@@ -31,8 +31,7 @@ call :get_int_of_root %num% int_root cmp
     :binary_search
         call :bignum_mp %mid% %mid% product
         call :cmp %product% %num% cmp
-        rem call :bignum_minus %max% %min% range
-        set /a range=max-min
+        call :bignum_minus %max% %min% range
         rem echo %max% %min% %range% %mid%
 
         if !cmp! equ 0 (
@@ -43,7 +42,6 @@ call :get_int_of_root %num% int_root cmp
                 set cmp=1
                 call :bignum_plus !min! !mid! sum
                 call :bignum_div_single !sum! 2 mid
-                echo !max! !min! !mid!
             )
             if !cmp! lss 0 (
                 set min=!mid!
@@ -151,11 +149,7 @@ call :get_int_of_root %num% int_root cmp
     set /a max = len_a, mod = 0
     for /l %%n in ( %len_a%, -1, 1 ) do (
         set /a e = !num_a:~-%%n,1! + mod*10
-        if !e! gtr !num_b! (
-            set /a buff[%%n] = e/num_b, mod = e %% num_b
-        ) else (
-            set /a buff[%%n] = 0, mod = e
-        )
+        set /a buff[%%n] = e/num_b, mod = e %% num_b
     )
     if !buff[%max%]! == 0 (set /a max-=1)
 
