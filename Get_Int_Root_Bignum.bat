@@ -19,20 +19,33 @@ call :get_int_of_root %num% int_root cmp
     setlocal
     set num = %1
     call :length %num% len
+    rem initial min and max number
     set /a min = 1, max = 9, root_len = len / 2 + len %% 2
     for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
-    set /a mid = (min+max)/2
+    call :bignum_plus %min% %max% sum
+    rem middle_number = sum / 2
+    call :bignum_div_single %sum% 2 mid
+    
     set /a quit = 0
-
     :binary_search
         call :bignum_mp %mid% %mid% product
         call :cmp %product% %num% cmp
-        set /a range = max - min
+        call :bignum_minus %max% %min% range
+        echo %max% %min% %range%
+
         if !cmp! equ 0 (
             set /a quit = 1, cmp=0
         ) else (
-            if !cmp! gtr 0 set /a max = mid, mid = ^(mid+min^)/2, cmp=1
-            if !cmp! lss 0 set /a min = mid, mid = ^(mid+max^)/2, cmp=-1
+            if !cmp! gtr 0 (
+                set /a max = mid, cmp = 1
+                call :bignum_plus %min% %mid% sum
+                call :bignum_div_single %sum% 2 mid
+            )
+            if !cmp! lss 0 (
+                set /a min = mid, cmp = -1
+                call :bignum_plus %max% %mid% sum
+                call :bignum_div_single %sum% 2 mid
+            )
         )
         if !range! leq 1 (set quit=1)
     if %quit% == 0 goto :binary_search
@@ -66,6 +79,85 @@ call :get_int_of_root %num% int_root cmp
     set product=
     for /l %%n in (%maxid%, -1, 0) do set product=!product!!buff[%%n]!
     endlocal &set %3=%product%
+    goto :eof
+
+:bignum_plus
+    setlocal
+    set num_a=%1
+    set num_b=%2
+    call :length %num_a% len_a
+    call :length %num_b% len_b
+    set /a max = len_a
+    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
+
+    for /l %%n in ( 1, 1, %max% ) do (
+        if %%n leq %len_b% (
+            set /a buff[%%n] = !num_a:~-%%n,1! + !num_b:~-%%n,1!
+        ) else (
+            set buff[%%n]=!num_a:~-%%n,1!
+        )
+    )
+
+    set /a id = 0
+    for /l %%c in ( 0, 1, %max% ) do (
+        set /a next = %%c+1
+        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
+    )
+
+    if "!buff[%next%]!" gtr "0" set /a max+=1
+    set sum=
+    for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
+    endlocal &set %3=%sum%
+    goto :eof
+
+:bignum_minus
+    setlocal
+    set num_a=%1
+    set num_b=%2
+    call :length %num_a% len_a
+    call :length %num_b% len_b
+    set /a max = len_a
+    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
+
+    set /a minus = 0
+    for /l %%n in ( 1, 1, %max% ) do (
+        if %%n leq %len_b% (
+            set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
+            if !dt! lss 0 (
+                set /a buff[%%n] = dt + 10, minus=1
+            ) else (
+                set /a buff[%%n] = dt, minus=0
+            )
+        ) else (
+            set /a buff[%%n] = !num_a:~-%%n,1! - minus, minus = 0
+        )
+    )
+
+    if !buff[%max%]! equ 0 ( set /a max-=1 )
+    set delta=
+    for /l %%a in (%max%, -1, 1) do set delta=!delta!!buff[%%a]!
+    endlocal &set %3=%delta%
+    goto :eof
+
+:bignum_div_single
+    setlocal
+    set num_a=%1
+    set num_b=%2
+    call :length %num_a% len_a
+    set /a max = len_a, mod = 0
+    for /l %%n in ( %len_a%, -1, 1 ) do (
+        set /a e = !num_a:~-%%n,1! + mod*10
+        if !e! gtr !num_b! (
+            set /a buff[%%n] = e/num_b, mod = e %% num_b
+        ) else (
+            set /a buff[%%n] = 0, mod = e
+        )
+    )
+    if !buff[%max%]! == 0 (set /a max-=1)
+
+    set quotaint=
+    for /l %%a in (%max%, -1, 1) do set quotaint=!quotaint!!buff[%%a]!
+    endlocal &set %3=%quotaint%
     goto :eof
 
 :length %str% %vname%

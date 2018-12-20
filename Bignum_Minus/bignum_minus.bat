@@ -7,8 +7,8 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num_a=123456
-set num_b=99999
+set num_a=1171859
+set num_b=1085929
 rem for /l %%a in (1,1,500) do set num_a=!num_a!1
 call :bignum_minus %num_a% %num_b% delta
 echo %delta%
