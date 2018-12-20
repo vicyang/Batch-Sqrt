@@ -6,10 +6,10 @@ setlocal enabledelayedexpansion
   set "mod=" &set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num_a=123456
-set num_b=9999
-set num_a=1234569999999999999999999999999999999999999999999999999999999999999999999999999
-set num_b=9999999999999999999999999999999999999999999999999999999999999999999999999999999
+set num_a=56
+set num_b=99
+rem set num_a=1234569999999999999999999999999999999999999999999999999999999999999999999999999
+rem set num_b=9999999999999999999999999999999999999999999999999999999999999999999999999999999
 
 rem set num_a=100
 rem set num_b=1000
@@ -27,29 +27,20 @@ exit
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
-    set /a id = 0, sid = 0, maxid = 0
+    set /a id = 0, sid = 0, maxid = 0, pool = 0
     for %%b in ( %ele_b% ) do (
         set /a sid = id, id += 1
         for %%a in ( %ele_a% ) do (
-            set /a mp = %%a * %%b
-            if "%mp%" geq "10" (
-                set /a next = sid + 1
-                set /a foo = mp/10, bar = mp %% 10
-                set /a buff[!sid!] += bar, ^
-                        buff[!next!] += foo, ^
+            set /a val = %%a * %%b + pool
+            if !val! geq 10 (
+                set /a foo = val/10, bar = val %% 10
+                set /a buff[!sid!] = bar, pool = foo, ^
                         sid += 1, maxid = sid
             ) else (
-                set /a buff[!sid!] += mp, sid += 1, maxid = sid
+                set /a buff[!sid!] = val, pool = 0, sid += 1, maxid = sid 
             )
         )
     )
-
-    :merge
-        set /a id = 0
-        for /l %%c in ( 0, 1, %maxid% ) do (
-            set /a next = %%c+1
-            set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
-        )
 
     if "!buff[%maxid%]!" == "0" set /a maxid-=1
     set product=
