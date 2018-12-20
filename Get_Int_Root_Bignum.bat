@@ -5,7 +5,8 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num=1234567654320
+rem set num=1234567654320
+set num=12321
 call :get_int_of_root %num% int_root cmp
 
 :last
@@ -30,21 +31,25 @@ call :get_int_of_root %num% int_root cmp
     :binary_search
         call :bignum_mp %mid% %mid% product
         call :cmp %product% %num% cmp
-        call :bignum_minus %max% %min% range
-        echo %max% %min% %range%
+        rem call :bignum_minus %max% %min% range
+        set /a range=max-min
+        rem echo %max% %min% %range% %mid%
 
         if !cmp! equ 0 (
             set /a quit = 1, cmp=0
         ) else (
             if !cmp! gtr 0 (
-                set /a max = mid, cmp = 1
-                call :bignum_plus %min% %mid% sum
-                call :bignum_div_single %sum% 2 mid
+                set max=!mid!
+                set cmp=1
+                call :bignum_plus !min! !mid! sum
+                call :bignum_div_single !sum! 2 mid
+                echo !max! !min! !mid!
             )
             if !cmp! lss 0 (
-                set /a min = mid, cmp = -1
-                call :bignum_plus %max% %mid% sum
-                call :bignum_div_single %sum% 2 mid
+                set min=!mid!
+                set cmp=-1
+                call :bignum_plus !max! !mid! sum
+                call :bignum_div_single !sum! 2 mid
             )
         )
         if !range! leq 1 (set quit=1)
@@ -123,20 +128,19 @@ call :get_int_of_root %num% int_root cmp
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
             set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
-            if !dt! lss 0 (
-                set /a buff[%%n] = dt + 10, minus=1
-            ) else (
-                set /a buff[%%n] = dt, minus=0
-            )
         ) else (
-            set /a buff[%%n] = !num_a:~-%%n,1! - minus, minus = 0
+            set /a dt = !num_a:~-%%n,1! - minus
+        )
+        if !dt! lss 0 (
+            set /a buff[%%n] = dt + 10, minus=1
+        ) else (
+            set /a buff[%%n] = dt, minus=0
         )
     )
 
-    if !buff[%max%]! equ 0 ( set /a max-=1 )
-    set delta=
-    for /l %%a in (%max%, -1, 1) do set delta=!delta!!buff[%%a]!
-    endlocal &set %3=%delta%
+    set delta=#
+    for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
+    endlocal &set %3=%delta:#=%
     goto :eof
 
 :bignum_div_single
