@@ -61,8 +61,8 @@ rem ´ÖÂÔÅÐ¶Ï×Ö·û´®³¤¶È
 :cmp %str1% %str2% %vname%
   call :length %1 len_a
   call :length %2 len_b
-  if "%len_a%" gtr "%len_b%" (set %3=1&goto :eof)
-  if "%len_a%" lss "%len_b%" (set %3=-1&goto :eof)
+  if %len_a% gtr %len_b% (set %3=1&goto :eof)
+  if %len_a% lss %len_b% (set %3=-1&goto :eof)
   set str1=%1
   set str2=%2
   if %len_a% equ %len_b% (
