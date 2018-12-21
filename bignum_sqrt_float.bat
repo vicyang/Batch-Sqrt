@@ -17,12 +17,13 @@ set time_a=%time%
 set main_ta=%time%
 call :get_int_of_root %num% int_root cmp
 call :time_delta %time_a% %time% ir_tu
-echo int_root_tu = %ir_tu%
+echo int_root = %int_root% int_root_tu = %ir_tu%
 if %cmp% equ 0 (
     set root=%int_root%
     echo num = %num%, root = !root!, !cmp!
     exit /b
 )
+exit /b
 
 set precision=25
 call :check_first %num% %precision%
@@ -100,8 +101,8 @@ exit /b
     
     set /a quit = 0
     :binary_search
-        call :bignum_mp %mid% %mid% product
-        call :cmp %product% %num% cmp
+        call :bignum_mp %mid% %mid% %root_len% %root_len% product pd_len
+        call :cmp %product% %num% %pd_len% %len% cmp
         call :bignum_minus %max% %min% range
 
         if !cmp! equ 0 (
@@ -128,8 +129,8 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
+    set len_a=%3
+    set len_b=%4
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
@@ -150,7 +151,8 @@ exit /b
     if "!buff[%maxid%]!" == "0" set /a maxid-=1
     set product=
     for /l %%n in (%maxid%, -1, 0) do set product=!product!!buff[%%n]!
-    endlocal &set %3=%product%
+    endlocal &set %5=%product%&set /a %6=%maxid%+1
+    rem set /a %6=%maxid%+1 因为这个数组以0为起点
     goto :eof
 
 :bignum_plus
@@ -238,18 +240,20 @@ exit /b
 
 :cmp %str1% %str2% %vname%
     setlocal
-    call :length %1 len_a
-    call :length %2 len_b
-    if %len_a% gtr %len_b% (endlocal &set %3=1&goto :eof)
-    if %len_a% lss %len_b% (endlocal &set %3=-1&goto :eof)
+    set len_a=%3
+    set len_b=%4
+    rem call :length %1 len_a
+    rem call :length %2 len_b
+    if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
+    if %len_a% lss %len_b% (endlocal &set %5=-1&goto :eof)
     set str1=%1
     set str2=%2
     if %len_a% equ %len_b% (
         for /l %%n in (0, 1, %len_a%) do (
-            if "!str1:~%%n,1!" gtr "!str2:~%%n,1!" (endlocal &set %3=1&goto :eof)
-            if "!str1:~%%n,1!" lss "!str2:~%%n,1!" (endlocal &set %3=-1&goto :eof)
+            if "!str1:~%%n,1!" gtr "!str2:~%%n,1!" (endlocal &set %5=1&goto :eof)
+            if "!str1:~%%n,1!" lss "!str2:~%%n,1!" (endlocal &set %5=-1&goto :eof)
         )
-        endlocal &set %3=0
+        endlocal &set %5=0
     )
     goto :eof
 
