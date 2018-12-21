@@ -13,22 +13,24 @@ setlocal enabledelayedexpansion
 
 set num=123456787654322
 rem set num=10
+set time_a=%time%
 call :get_int_of_root %num% int_root cmp
+call :time_delta %time_a% %time% ir_tu
+echo int_root_tu = %ir_tu%
 if %cmp% equ 0 (
     set root=%int_root%
     echo num = %num%, root = !root!, !cmp!
     exit /b
 )
 
-set precision=20
+set precision=25
 call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% dec_root
 call :time_used %time_a% %time%
-echo mp_time = %mp_time%
 exit /b
 
 :check_first
-    perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
+    perl -Mbignum=a,100 -le "printf qq(%%s\n), sqrt(%1)" 2>nul
     goto :eof
 
 :get_dec_of_root
@@ -43,38 +45,43 @@ exit /b
 
     set /a dec_len=0
     :decroot_lp
-    set /a min=0, max=10, mid=(max+min)/2, quit = 0, dec_len+=1
-    :decroot_bin_search
-        rem calc [a*10]^2 + 2*[a*10]*b + b^2, part1 part2 part3
-        set /a sum = 0
-        set part1=%prev_pow%00
-        set /a part3 = mid * mid
-        set /a double_mid = mid * 2
+        set /a min=0, max=10, mid=(max+min)/2, quit = 0, dec_len+=1
+        :decroot_bin_search
+            rem calc [a*10]^2 + 2*[a*10]*b + b^2, part1 part2 part3
+            set /a sum = 0
+            set part1=%prev_pow%00
+            set /a part3 = mid * mid
+            set /a double_mid = mid * 2
 
-        rem set time_a=%time%
-        call :bignum_mp %root%0 %double_mid% part2
-        rem call :time_delta %time_a% %time% mp_time
+            set time_a=%time%
+            call :bignum_mp %root%0 %double_mid% part2
+            call :time_delta %time_a% %time% mp_tu
 
-        call :bignum_plus %part1% %part2% sum
-        call :bignum_plus %sum% %part3% sum
+            set time_a=%time%
+            call :bignum_plus %part1% %part2% sum
+            call :bignum_plus %sum% %part3% sum
+            call :time_delta %time_a% %time% plus_tu
 
-        rem compare
-        call :cmp %sum% %num%00 cmp
-        rem echo %root%%mid% %sum% %num%00 min:%min% max:%max% %cmp% 
-        set /a range=max-min
-        if %cmp% gtr 0 ( set /a max=mid )
-        if %cmp% lss 0 ( set /a min=mid )
-        if %cmp% equ 0 ( set /a quit=1 )
-        if %range% leq 1 ( set /a quit=1 )
-        set /a mid=(max+min)/2
-    if %quit% equ 0 goto :decroot_bin_search
-
-    set prev_pow=%sum%
-    set root=%root%%mid%
-    set num=%num%00
-    set /p inp="%mid%"<nul
+            rem compare
+            set time_a=%time%
+            call :cmp %sum% %num%00 cmp
+            call :time_delta %time_a% %time% cmp_tu
+            rem echo %root%%mid% %sum% %num%00 min:%min% max:%max% %cmp% 
+            set /a range=max-min
+            if %cmp% gtr 0 ( set /a max=mid )
+            if %cmp% lss 0 ( set /a min=mid )
+            if %cmp% equ 0 ( set /a quit=1 )
+            if %range% leq 1 ( set /a quit=1 )
+            set /a mid=(max+min)/2
+            
+        if %quit% equ 0 goto :decroot_bin_search
+        set prev_pow=%sum%
+        set root=%root%%mid%
+        set num=%num%00
+        set /p inp="%mid%"<nul
     if %dec_len% lss %precision% goto :decroot_lp
     echo,
+    echo mp_tu = %mp_tu%, plus_tu = %plus_tu%, cmp_tu = %cmp_tu%
     endlocal
     goto :eof
 
