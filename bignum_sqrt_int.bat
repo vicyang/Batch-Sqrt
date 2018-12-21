@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
   set /a maxlen=2000, half=maxlen/2
   for /l %%a in (1,1,%half%) do set mod=!mod!##
 
-set num=99999999999999999
+set num=10
 rem set num=12321
 call :get_int_of_root %num% int_root cmp
 
