@@ -7,13 +7,11 @@ for /l %%a in (1,1,9) do (
 )
 exit /b
 
-
 :bin_search
     setlocal
     set /a expect = %1
     set /a min = 1, max = 9, mid = (min+max)/2
     set /a quit = 0
-
     :loop
         set /p inp="min=%min% max=%max% mid=%mid%"<nul
         if %mid% equ %expect% set /a quit=1, cmp=0
