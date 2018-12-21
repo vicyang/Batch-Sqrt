@@ -31,6 +31,27 @@
   由于加了双引号所以按字符串判断处理，判定 "9" gtr "10"
   将双引号去掉后问题解决
 
+* sqrt_float_SpeecUpA
+  优化笔记
+  get_int_of_root 中
+  set /a min = 1, max = 10, root_len = len / 2 + len %% 2
+  for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
+  如果长度是10, 实际得到 
+  min=1000000000
+  max=10999999999
+  应改为set max=!max!0
+  min=1000000000
+  max=10000000000
+
+  去掉大量求字符串长度的调用，期间犯了几个不容易发现的错误，
+  :cmp 函数等若干函数中 从传参获取长度，
+  set len_a=%3
+  set len_b=%4
+  因为修改后提供的参数可能是 %var%+1 %var%+2 需要计算公式，所以应该改为
+  set /a len_a=%3
+  set /a len_b=%4
+
+
 
 
 
