@@ -53,7 +53,7 @@ exit
 
         rem compare
         call :cmp %sum% %num%00 cmp
-        rem echo %root%%mid% %sum% min:%min% max:%max% %cmp% 
+        rem echo %root%%mid% %sum% %num%00 min:%min% max:%max% %cmp% 
         set /a range=max-min
         if %cmp% gtr 0 ( set /a max=mid )
         if %cmp% lss 0 ( set /a min=mid )
@@ -66,7 +66,6 @@ exit
     set root=%root%%mid%
     set num=%num%00
     set /p inp="%mid%"<nul
-    rem echo,
     if %dec_len% lss %precision% goto :decroot_lp
     echo,
     endlocal
@@ -225,8 +224,8 @@ exit
     setlocal
     call :length %1 len_a
     call :length %2 len_b
-    if "%len_a%" gtr "%len_b%" (endlocal &set %3=1&goto :eof)
-    if "%len_a%" lss "%len_b%" (endlocal &set %3=-1&goto :eof)
+    if %len_a% gtr %len_b% (endlocal &set %3=1&goto :eof)
+    if %len_a% lss %len_b% (endlocal &set %3=-1&goto :eof)
     set str1=%1
     set str2=%2
     if %len_a% equ %len_b% (
