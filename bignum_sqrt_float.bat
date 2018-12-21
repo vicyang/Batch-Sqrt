@@ -11,6 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
+perl -Mbignum=a,50 -le "print sqrt(10)" 2>nul
 set num=10
 rem set num=2
 call :get_int_of_root %num% int_root cmp
@@ -52,17 +53,20 @@ exit
 
         rem compare
         call :cmp %sum% %num%00 cmp
-        rem echo %root%%mid% %product% %cmp% %max% %min%
+        rem echo %root%%mid% %sum% min:%min% max:%max% %cmp% 
         set /a range=max-min
-        if %cmp% gtr 0 ( set /a max=mid, mid=^(max+min^)/2 )
-        if %cmp% lss 0 ( set /a min=mid, mid=^(max+min^)/2 )
+        if %cmp% gtr 0 ( set /a max=mid )
+        if %cmp% lss 0 ( set /a min=mid )
         if %cmp% equ 0 ( set /a quit=1 )
         if %range% leq 1 ( set /a quit=1 )
-        if %quit% equ 0 goto :decroot_bin_search
+        set /a mid=(max+min)/2
+    if %quit% equ 0 goto :decroot_bin_search
+
     set prev_pow=%sum%
     set root=%root%%mid%
     set num=%num%00
     set /p inp="%mid%"<nul
+    rem echo,
     if %dec_len% lss %precision% goto :decroot_lp
     echo,
     endlocal
@@ -74,7 +78,7 @@ exit
     set num=%1
     call :length %num% len
     rem initial min and max number
-    set /a min = 1, max = 9, root_len = len / 2 + len %% 2
+    set /a min = 1, max = 10, root_len = len / 2 + len %% 2
     for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
     call :bignum_plus %min% %max% sum
     rem middle_number = sum / 2
@@ -90,11 +94,11 @@ exit
             set /a quit = 1, cmp=0
         ) else (
             if !cmp! gtr 0 (
-                call :bignum_minus !mid! 1 max
+                set max=!mid!
                 set cmp=1
             )   
             if !cmp! lss 0 ( 
-                call :bignum_plus !mid! 1 min
+                set min=!mid!
                 set cmp=-1
             )
             call :bignum_plus !max! !min! sum
