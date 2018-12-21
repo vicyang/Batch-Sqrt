@@ -18,7 +18,7 @@ call :get_int_of_root %num% int_root cmp
 :get_int_of_root
     rem get the integer part of root
     setlocal
-    set num = %1
+    set num=%1
     call :length %num% len
     rem initial min and max number
     set /a min = 1, max = 10, root_len = len / 2 + len %% 2
