@@ -11,20 +11,20 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-set num=10
-rem set num=2
+set num=123456787654322
+rem set num=10
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
     set root=%int_root%
-    echo num = %num%, root = %root%, %cmp%
-    exit
+    echo num = %num%, root = !root!, !cmp!
+    exit /b
 )
 
 set precision=80
 call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% dec_root
 call :time_used %time_a% %time%
-exit
+exit /b
 
 :check_first
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
