@@ -15,19 +15,18 @@ set num=123456787654322
 rem set num=10
 set time_a=%time%
 set main_ta=%time%
-call :get_int_of_root %num% int_root cmp
+call :get_int_of_root %num% int_root root_len cmp
 call :time_delta %time_a% %time% ir_tu
-echo int_root = %int_root% int_root_tu = %ir_tu%
 if %cmp% equ 0 (
     set root=%int_root%
     echo num = %num%, root = !root!, !cmp!
     exit /b
 )
-exit /b
+echo num = %num%, root = !int_root!, !cmp!
 
 set precision=25
 call :check_first %num% %precision%
-call :get_dec_of_root %num% %int_root% %precision% dec_root
+call :get_dec_of_root %num% %int_root% %precision% %root_len% dec_root
 call :time_used %main_ta% %time%
 exit /b
 
@@ -38,12 +37,14 @@ exit /b
 :get_dec_of_root
     setlocal
     set num=%1
+    call :length %num% num_len
     set int_root=%2
     set precision=%3
+    set root_len=%4
     set root=%int_root%
     rem Show int_root first
     set /p inp="%int_root%."<nul
-    call :bignum_mp %root% %root% prev_pow
+    call :bignum_mp %root% %root% %root_len% %root_len% prev_pow pd_len
 
     set /a dec_len=0
     :decroot_lp
@@ -54,21 +55,22 @@ exit /b
             set part1=%prev_pow%00
             set /a part3 = mid * mid
             set /a double_mid = mid * 2
+            if %double_mid% geq 10 (set /a db_mid_len=2) else (set /a db_mid_len=1)
+            if %part3% geq 10 (set /a part3_len=2) else (set /a part3_len=1)
 
             set time_a=%time%
-            call :bignum_mp %root%0 %double_mid% part2
-            call :time_delta %time_a% %time% mp_tu
+            call :bignum_mp %root%0 %double_mid% %root_len%+1 %db_mid_len% part2 part2_len
+            rem call :time_delta %time_a% %time% mp_tu
 
             set time_a=%time%
-            call :bignum_plus %part1% %part2% sum
-            call :bignum_plus %sum% %part3% sum
-            call :time_delta %time_a% %time% plus_tu
+            call :bignum_plus %part1% %part2% %pd_len%+2 %part2_len% sum sum_len
+            call :bignum_plus %sum%   %part3% %sum_len% %part3_len% sum sum_len
+            rem call :time_delta %time_a% %time% plus_tu
 
             rem compare
             set time_a=%time%
-            call :cmp %sum% %num%00 cmp
-            call :time_delta %time_a% %time% cmp_tu
-            rem echo %root%%mid% %sum% %num%00 min:%min% max:%max% %cmp% 
+            call :cmp %sum% %num%00 %sum_len% %num_len%+2 cmp
+            rem call :time_delta %time_a% %time% cmp_tu
             set /a range=max-min
             if %cmp% gtr 0 ( set /a max=mid )
             if %cmp% lss 0 ( set /a min=mid )
@@ -80,6 +82,7 @@ exit /b
         set prev_pow=%sum%
         set root=%root%%mid%
         set num=%num%00
+        set /a num_len+=2, pd_len=sum_len, root_len+=1
         set /p inp="%mid%"<nul
     if %dec_len% lss %precision% goto :decroot_lp
     echo,
@@ -94,8 +97,8 @@ exit /b
     call :length %num% len
     rem initial min and max number
     set /a min = 1, max = 10, root_len = len / 2 + len %% 2
-    for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
-    call :bignum_plus %min% %max% sum
+    for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!0)
+    call :bignum_plus %min% %max% %root_len% %root_len%+1 sum sum_len
     rem middle_number = sum / 2
     call :bignum_div_single %sum% 2 mid
     
@@ -116,21 +119,22 @@ exit /b
                 set min=!mid!
                 set cmp=-1
             )
-            call :bignum_plus !max! !min! sum
+            call :bignum_plus !max! !min! %root_len% %root_len% sum sum_len
             call :bignum_div_single !sum! 2 mid
             rem Using !var!, because we are inside the brackets
         )
         if %range% leq 1 (set quit=1)
     if %quit% == 0 goto :binary_search
-    endlocal &set %2=%mid%& set %3=%cmp%
+    endlocal &set %2=%mid%& set %3=%root_len%& set %4=%cmp%
     goto :eof
 
 :bignum_mp
     setlocal
     set num_a=%1
     set num_b=%2
-    set len_a=%3
-    set len_b=%4
+    rem len_a len_b 可以接受公式计算，例如 %var%+1
+    set /a len_a=%3
+    set /a len_b=%4
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
@@ -159,8 +163,10 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
+    set /a len_a=%3
+    set /a len_b=%4
+    rem call :length %num_a% len_a
+    rem call :length %num_b% len_b
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
@@ -181,7 +187,7 @@ exit /b
     if "!buff[%next%]!" gtr "0" set /a max+=1
     set sum=
     for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
-    endlocal &set %3=%sum%
+    endlocal &set %5=%sum%& set /a %6=%max%
     goto :eof
 
 :bignum_minus
@@ -240,8 +246,8 @@ exit /b
 
 :cmp %str1% %str2% %vname%
     setlocal
-    set len_a=%3
-    set len_b=%4
+    set /a len_a=%3
+    set /a len_b=%4
     rem call :length %1 len_a
     rem call :length %2 len_b
     if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
