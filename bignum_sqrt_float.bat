@@ -14,6 +14,7 @@ setlocal enabledelayedexpansion
 set num=123456787654322
 rem set num=10
 set time_a=%time%
+set main_ta=%time%
 call :get_int_of_root %num% int_root cmp
 call :time_delta %time_a% %time% ir_tu
 echo int_root_tu = %ir_tu%
@@ -26,7 +27,7 @@ if %cmp% equ 0 (
 set precision=25
 call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% dec_root
-call :time_used %time_a% %time%
+call :time_used %main_ta% %time%
 exit /b
 
 :check_first
