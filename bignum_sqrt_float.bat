@@ -80,7 +80,7 @@ exit /b
     call :length %num% len
     rem initial min and max number
     set /a min = 1, max = 10, root_len = len / 2 + len %% 2
-    for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!9)
+    for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!0)
     call :bignum_plus %min% %max% sum
     rem middle_number = sum / 2
     call :bignum_div_single %sum% 2 mid
