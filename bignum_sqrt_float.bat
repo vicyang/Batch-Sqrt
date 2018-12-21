@@ -22,9 +22,8 @@ if %cmp% equ 0 (
     echo num = %num%, root = !root!, !cmp!
     exit /b
 )
-echo num = %num%, root = !int_root!, !cmp!
 
-set precision=25
+set precision=80
 call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% %root_len% dec_root
 call :time_used %main_ta% %time%
