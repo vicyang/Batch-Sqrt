@@ -1,10 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /l %%a in (1,1,100) do (
+set echo=rem
+for /l %%a in (0,1,100) do (
     call :get_int_of_root %%a root cmp
     perl -e "printf qq(num=%%3d r=%%2d f=%%4.1f cmp=%%2s\n), %%a, !root!, sqrt(%%a), !cmp!"
 )
+
+set echo=echo
+echo,
+call :get_int_of_root 10 root cmp
 exit
 
 
@@ -19,19 +24,15 @@ exit
     set /a quit = 0
 
     :binary_search
-        rem not support big number now
-        set /a product=mid*mid, delta=product-num, range=max-min
-        rem echo mid:%mid% delta:%delta% %min% %max%
-        rem if product overflow
-        if not "%product:-=%" == "%product%" set delta=1
-        if !delta! equ 0 (
-            set /a quit = 1, cmp=0
-        ) else (
-            if !delta! gtr 0 set /a max = mid, mid = ^(mid+min^)/2, cmp=1
-            if !delta! lss 0 set /a min = mid, mid = ^(mid+max^)/2, cmp=-1
-        )
-        if !range! leq 1 (set quit=1)
+        set /a product=mid*mid, range=max-min
+        if %product% equ %num% set /a quit = 1, cmp=0
+        if %product% gtr %num% set /a max = mid-1, cmp=1
+        if %product% lss %num% set /a min = mid+1, cmp=-1
+        if %range% leq 1 (set quit=1)
+        %echo% tg=%num% pow=%product% min:%min% max:%max% mid:%mid% %cmp%
+        set /a mid=(min+max)/2
     if %quit% == 0 goto :binary_search
+    %echo% tg=%num% pow=%product% min:%min% max:%max% mid:%mid%
     endlocal &set %2=%mid%& set %3=%cmp%
     goto :eof
 
