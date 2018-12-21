@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-set num=1234561654321
+set num=10
 rem set num=2
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
