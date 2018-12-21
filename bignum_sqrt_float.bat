@@ -20,10 +20,11 @@ if %cmp% equ 0 (
     exit /b
 )
 
-set precision=80
+set precision=20
 call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% dec_root
 call :time_used %time_a% %time%
+echo mp_time = %mp_time%
 exit /b
 
 :check_first
@@ -49,7 +50,11 @@ exit /b
         set part1=%prev_pow%00
         set /a part3 = mid * mid
         set /a double_mid = mid * 2
+
+        rem set time_a=%time%
         call :bignum_mp %root%0 %double_mid% part2
+        rem call :time_delta %time_a% %time% mp_time
+
         call :bignum_plus %part1% %part2% sum
         call :bignum_plus %sum% %part3% sum
 
@@ -254,4 +259,24 @@ exit /b
     echo time used: %dt:~0,2%.%dt:~2,2%s
     endlocal
     goto :eof
+
+:time_delta %time_a% %time_b% %var_name%
+    setlocal
+    set ta=%1& set tb=%2
+    rem 前置数字1避免前置0被识别为八进制
+    set sec_a=1%ta:~-5,2%
+    set sec_b=1%tb:~-5,2%
+    set dec_a=1%ta:~-2%
+    set dec_b=1%tb:~-2%
+    set /a dec=dec_b-dec_a, sec=sec_b-sec_a
+    rem 秒数取绝对值
+    set sec=%sec:-=%
+    rem echo %sec% %dec% 
+    if %dec% lss 0 (set /a sec-=1, dec=100+dec_b-dec_a)
+    rem echo %sec% %dec% 
+    set /a t_used=sec*100+dec
+    if defined %3 set /a t_used += %3
+    endlocal&set %3=%t_used%
+    goto :eof
+
 
