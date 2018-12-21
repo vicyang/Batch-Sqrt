@@ -9,7 +9,10 @@ for /l %%a in (0,1,100) do (
 
 set echo=echo
 echo,
-call :get_int_of_root 10 root cmp
+call :get_int_of_root 0 root cmp
+
+echo,
+call :get_int_of_root 82 root cmp
 exit
 
 
@@ -26,8 +29,8 @@ exit
     :binary_search
         set /a product=mid*mid, range=max-min
         if %product% equ %num% set /a quit = 1, cmp=0
-        if %product% gtr %num% set /a max = mid-1, cmp=1
-        if %product% lss %num% set /a min = mid+1, cmp=-1
+        if %product% gtr %num% set /a max = mid, cmp=1
+        if %product% lss %num% set /a min = mid, cmp=-1
         if %range% leq 1 (set quit=1)
         %echo% tg=%num% pow=%product% min:%min% max:%max% mid:%mid% %cmp%
         set /a mid=(min+max)/2
