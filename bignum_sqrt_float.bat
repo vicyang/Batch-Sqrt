@@ -5,30 +5,30 @@
 @echo off
 setlocal enabledelayedexpansion
 :init
-    rem template for counting string lengt
+    rem template for counting string length
     set mod=
     set /a maxlen=2000, half=maxlen/2
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-perl -Mbignum=a,50 -le "print sqrt(10)" 2>nul
 set num=10
 rem set num=2
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
     set root=%int_root%
-    call :last
+    echo num = %num%, root = %root%, %cmp%
+    exit
 )
 
-set /p inp="%int_root%."<nul
 set precision=80
+call :check_first %num% %precision%
 call :get_dec_of_root %num% %int_root% %precision% dec_root
 call :time_used %time_a% %time%
 exit
 
-:last
-    echo num = %num%, root = %root%, %cmp%
-    exit
+:check_first
+    perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
+    goto :eof
 
 :get_dec_of_root
     setlocal
@@ -36,6 +36,8 @@ exit
     set int_root=%2
     set precision=%3
     set root=%int_root%
+    rem Show int_root first
+    set /p inp="%int_root%."<nul
     call :bignum_mp %root% %root% prev_pow
 
     set /a dec_len=0
@@ -102,8 +104,9 @@ exit
             )
             call :bignum_plus !max! !min! sum
             call :bignum_div_single !sum! 2 mid
+            rem Using !var!, because we are inside the brackets
         )
-        if !range! leq 1 (set quit=1)
+        if %range% leq 1 (set quit=1)
     if %quit% == 0 goto :binary_search
     endlocal &set %2=%mid%& set %3=%cmp%
     goto :eof
