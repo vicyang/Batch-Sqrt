@@ -1,17 +1,17 @@
 @echo off
-title è®¡ç®—æ•´æ•°å¹³æ–¹æ ¹çš„å€¼
+title ¼ÆËãÕûÊýÆ½·½¸ùµÄÖµ
 color f0
 PUSHD %~dp0
 cd /d %~dp0
 setlocal enabledelayedexpansion
 cls
 echo ------------------
-echo è®¡ç®—æ•´æ•°å¹³æ–¹æ ¹çš„å€¼
+echo ¼ÆËãÕûÊýÆ½·½¸ùµÄÖµ
 echo ------------------
 
 :start
-echo.&echo è¯·è¾“å…¥è¢«å¼€æ–¹æ•°ï¼ˆä»…é™æ•´æ•°ï¼‰,ç„¶åŽæŒ‰å›žè½¦é”®ï¼š
-echo ï¼ˆè¢«å¼€æ–¹æ•°æœ€é«˜ä¸º2147483646ï¼Œè¶…å‡ºèŒƒå›´ï¼Œä¼šè®¡ç®—å‡ºé”™ï¼‰
+echo.&echo ÇëÊäÈë±»¿ª·½Êý£¨½öÏÞÕûÊý£©,È»ºó°´»Ø³µ¼ü£º
+echo £¨±»¿ª·½Êý×î¸ßÎª2147483646£¬³¬³ö·¶Î§£¬»á¼ÆËã³ö´í£©
 set number=
 set /p "number="
 goto next
@@ -27,11 +27,11 @@ goto then
 
 :then
 cls
-echo.&echo è¯·è¾“å…¥ç²¾ç¡®ä½æ•°,ç„¶åŽæŒ‰å›žè½¦é”®ï¼š
-echo ï¼ˆæŒ‡ç²¾ç¡®åˆ°å°æ•°ç‚¹åŽç¬¬å‡ ä½ï¼‰
-echo ï¼ˆè¯¥ç¨‹åºä¸ä¼šå¯¹æœ€åŽä¸€ä½è¿›è¡Œå››èˆäº”å…¥ï¼‰
-echo ï¼ˆç²¾ç¡®ä½æ•°æœ€é«˜ä¸º6544ï¼Œè¶…å‡ºèŒƒå›´ï¼Œç»“æžœè¾“å‡ºä¼šå‡ºé”™ï¼‰
-echo ï¼ˆå¯¹äºŽç»“æžœä¸ºæ•´æ•°çš„ï¼Œç¨‹åºä¼šèˆåŽ»å°æ•°éƒ¨åˆ†ï¼‰
+echo.&echo ÇëÊäÈë¾«È·Î»Êý,È»ºó°´»Ø³µ¼ü£º
+echo £¨Ö¸¾«È·µ½Ð¡ÊýµãºóµÚ¼¸Î»£©
+echo £¨¸Ã³ÌÐò²»»á¶Ô×îºóÒ»Î»½øÐÐËÄÉáÎåÈë£©
+echo £¨¾«È·Î»Êý×î¸ßÎª6544£¬³¬³ö·¶Î§£¬½á¹ûÊä³ö»á³ö´í£©
+echo £¨¶ÔÓÚ½á¹ûÎªÕûÊýµÄ£¬³ÌÐò»áÉáÈ¥Ð¡Êý²¿·Ö£©
 set bit=
 set /p "bit="
 goto other
@@ -49,10 +49,10 @@ goto main
 :error_a
 cls
 color fc
-echo é”™è¯¯ï¼šè¾“å…¥çš„è¢«å¼€æ–¹æ•°ä¸æ˜¯æ•´æ•°ï¼Œè¯·é‡æ–°è¾“å…¥ï¼
-echo å…¶ç»å¯¹å€¼ä¸å¾—è¶…è¿‡æ‰¹å¤„ç†æ”¯æŒçš„æœ€å¤§å€¼ï¼ˆ2147483647ï¼‰ï¼
-echo è¯·ä¸è¦åœ¨æ•´æ•°å‰åŠ ä¸Šæ­£å·ï¼ˆ+ï¼‰æˆ–å¤šä½™çš„é›¶ï¼
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo ´íÎó£ºÊäÈëµÄ±»¿ª·½Êý²»ÊÇÕûÊý£¬ÇëÖØÐÂÊäÈë£¡
+echo Æä¾ø¶ÔÖµ²»µÃ³¬¹ýÅú´¦ÀíÖ§³ÖµÄ×î´óÖµ£¨2147483647£©£¡
+echo Çë²»ÒªÔÚÕûÊýÇ°¼ÓÉÏÕýºÅ£¨+£©»ò¶àÓàµÄÁã£¡
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 color f0
 cls
 goto start
@@ -60,8 +60,8 @@ goto start
 :error_b
 cls
 color fc
-echo é”™è¯¯ï¼šå¹³æ–¹æ ¹ä¸­è¢«å¼€æ–¹æ•°ä¸èƒ½å°äºŽ0ï¼Œè¯·é‡æ–°è¾“å…¥ï¼
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo ´íÎó£ºÆ½·½¸ùÖÐ±»¿ª·½Êý²»ÄÜÐ¡ÓÚ0£¬ÇëÖØÐÂÊäÈë£¡
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 color f0
 cls
 goto start
@@ -69,8 +69,8 @@ goto start
 :error_c
 cls
 color fc
-echo é”™è¯¯ï¼šè¢«å¼€æ–¹æ•°ä¸èƒ½å¤§äºŽ2147483646ï¼Œè¯·é‡æ–°è¾“å…¥ï¼
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo ´íÎó£º±»¿ª·½Êý²»ÄÜ´óÓÚ2147483646£¬ÇëÖØÐÂÊäÈë£¡
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 color f0
 cls
 goto start
@@ -78,10 +78,10 @@ goto start
 :error_d
 cls
 color fc
-echo é”™è¯¯ï¼šè¾“å…¥çš„ç²¾ç¡®ä½æ•°ä¸æ˜¯æ­£æ•´æ•°ï¼Œè¯·é‡æ–°è¾“å…¥ï¼
-echo å…¶ç»å¯¹å€¼ä¸å¾—è¶…è¿‡æ‰¹å¤„ç†æ”¯æŒçš„æœ€å¤§å€¼ï¼ˆ2147483647ï¼‰ï¼
-echo è¯·ä¸è¦åœ¨æ•´æ•°å‰åŠ ä¸Šæ­£å·ï¼ˆ+ï¼‰æˆ–å¤šä½™çš„é›¶ï¼
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo ´íÎó£ºÊäÈëµÄ¾«È·Î»Êý²»ÊÇÕýÕûÊý£¬ÇëÖØÐÂÊäÈë£¡
+echo Æä¾ø¶ÔÖµ²»µÃ³¬¹ýÅú´¦ÀíÖ§³ÖµÄ×î´óÖµ£¨2147483647£©£¡
+echo Çë²»ÒªÔÚÕûÊýÇ°¼ÓÉÏÕýºÅ£¨+£©»ò¶àÓàµÄÁã£¡
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 color f0
 cls
 goto then
@@ -89,18 +89,18 @@ goto then
 :error_e
 cls
 color fc
-echo é”™è¯¯ï¼šç²¾ç¡®ä½æ•°ä¸èƒ½å¤§äºŽ6544ï¼Œè¯·é‡æ–°è¾“å…¥ï¼
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo ´íÎó£º¾«È·Î»Êý²»ÄÜ´óÓÚ6544£¬ÇëÖØÐÂÊäÈë£¡
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 color f0
 cls
 goto then
 
 :main
 cls
-echo.&echo  å·²ç»å¼€å§‹è®¡ç®—ã€‚
-echo  æ¯è®¡ç®—ä¸€ä½ï¼Œéƒ½ä¼šå¯¹ç»“æžœæ›´æ–°ï¼
-echo  è¶Šå¾€åŽè®¡ç®—ï¼Œç»“æžœæ˜¾ç¤ºè¶Šæ…¢ï¼è¯·è€å¿ƒç­‰å¾…æœ¬ç¨‹åºè®¡ç®—å®Œæˆã€‚
-echo.&echo è¢«å¼€æ–¹æ•°ï¼š%number%
+echo.&echo  ÒÑ¾­¿ªÊ¼¼ÆËã¡£
+echo  Ã¿¼ÆËãÒ»Î»£¬¶¼»á¶Ô½á¹û¸üÐÂ£¡
+echo  Ô½Íùºó¼ÆËã£¬½á¹ûÏÔÊ¾Ô½Âý£¡ÇëÄÍÐÄµÈ´ý±¾³ÌÐò¼ÆËãÍê³É¡£
+echo.&echo ±»¿ª·½Êý£º%number%
 if not "%start%"=="yes" (
 set /a num+=1
 set /a tga=!num!-%allbit%-1
@@ -116,11 +116,11 @@ set nun=%nun%%main:~-1%
 )
 set /a temp=%tga%+1
 if "!temp!"=="%bit%" goto end
-echo.&echo è®¡ç®—ç»“æžœï¼ˆæœªå¯¹å…¶ç»“æžœè¿›è¡Œå››èˆäº”å…¥ï¼‰ï¼š
+echo.&echo ¼ÆËã½á¹û£¨Î´¶ÔÆä½á¹û½øÐÐËÄÉáÎåÈë£©£º
 echo.&echo %nun%
 goto js
 ) else (
-echo.&echo è¯·ç¨å€™â€¦â€¦
+echo.&echo ÇëÉÔºò¡­¡­
 goto temp
 )
 
@@ -184,20 +184,20 @@ goto main
 
 :end
 cls
-echo.&echo è®¡ç®—å®Œæ¯•ï¼
-echo.&echo è¢«å¼€æ–¹æ•°ï¼š%number%
-echo.&echo è®¡ç®—ç»“æžœï¼ˆæœªå¯¹å…¶ç»“æžœè¿›è¡Œå››èˆäº”å…¥ï¼‰ï¼š
+echo.&echo ¼ÆËãÍê±Ï£¡
+echo.&echo ±»¿ª·½Êý£º%number%
+echo.&echo ¼ÆËã½á¹û£¨Î´¶ÔÆä½á¹û½øÐÐËÄÉáÎåÈë£©£º
 echo !nun!
-echo.&echo æŒ‰ä»»æ„é”®ç»§ç»­ï¼š&pause>nul
+echo.&echo °´ÈÎÒâ¼ü¼ÌÐø£º&pause>nul
 cls
-echo è¯·é€‰æ‹©æŽ¥ä¸‹æ¥çš„æ“ä½œã€‚
+echo ÇëÑ¡Ôñ½ÓÏÂÀ´µÄ²Ù×÷¡£
 echo ---------------------
-echo 0ï¼šé€€å‡º
-echo 1ï¼šè¿”å›žé‡æ–°è®¡ç®—
-echo 2ï¼šå°†ç»“æžœä¿å­˜è‡³æ¡Œé¢ã€‚
+echo 0£ºÍË³ö
+echo 1£º·µ»ØÖØÐÂ¼ÆËã
+echo 2£º½«½á¹û±£´æÖÁ×ÀÃæ¡£
 echo ---------------------
 set "choice="
-set /p "choice=è¯·è¾“å…¥æ“ä½œåºå·ï¼Œç„¶åŽæŒ‰å›žè½¦é”®ï¼š"
+set /p "choice=ÇëÊäÈë²Ù×÷ÐòºÅ£¬È»ºó°´»Ø³µ¼ü£º"
 if "%choice%"=="0" exit /b
 if "%choice%"=="1" (
 cls
@@ -208,42 +208,42 @@ goto end
 
 :save_and_exit
 if "%bit%"=="0" (
-set info=ï¼ˆä¿ç•™æ•´æ•°ï¼‰
+set info=£¨±£ÁôÕûÊý£©
 ) else (
-set info=ï¼ˆç²¾ç¡®åˆ°å°æ•°ç‚¹åŽç¬¬%bit%ä½ï¼‰
+set info=£¨¾«È·µ½Ð¡ÊýµãºóµÚ%bit%Î»£©
 )
 cd /d "%UserProfile%\desktop"
-set "fname=%number%çš„å¹³æ–¹æ ¹çš„ç»“æžœ%info%.txt"
-rem è‹¥å­˜åœ¨åŒåæ–‡ä»¶ï¼ŒèŽ·å–æƒé™
+set "fname=%number%µÄÆ½·½¸ùµÄ½á¹û%info%.txt"
+rem Èô´æÔÚÍ¬ÃûÎÄ¼þ£¬»ñÈ¡È¨ÏÞ
 if exist "%fname%" (
 takeown /f "%fname%" >nul
 del /f /s /q "%fname%" >nul
     if exist "%fname%" (
-    echo.&echo ä¿å­˜å¤±è´¥ï¼
-    echo.&echo è¯·æ‰‹åŠ¨åˆ é™¤æˆ–è½¬ç§»æ¡Œé¢ä¸Šçš„æ–‡ä»¶ï¼š"%fname%"ï¼Œå¹¶æŒ‰ä»»æ„é”®ç»§ç»­
+    echo.&echo ±£´æÊ§°Ü£¡
+    echo.&echo ÇëÊÖ¶¯É¾³ý»ò×ªÒÆ×ÀÃæÉÏµÄÎÄ¼þ£º"%fname%"£¬²¢°´ÈÎÒâ¼ü¼ÌÐø
     pause>nul
     goto end
     )
 )
 >"%fname%" (
-echo %number%çš„å¹³æ–¹æ ¹çš„ç»“æžœï¼š
+echo %number%µÄÆ½·½¸ùµÄ½á¹û£º
 echo %info%
-echo ï¼ˆæœªå¯¹å…¶ç»“æžœè¿›è¡Œå››èˆäº”å…¥ï¼‰
+echo £¨Î´¶ÔÆä½á¹û½øÐÐËÄÉáÎåÈë£©
 echo %nun%
 )
 goto exit
 
 :exit
 cls
-echo.&echo ä¿å­˜å®Œæ¯•ã€‚
-echo è¯·é€‰æ‹©æŽ¥ä¸‹æ¥çš„æ“ä½œã€‚
+echo.&echo ±£´æÍê±Ï¡£
+echo ÇëÑ¡Ôñ½ÓÏÂÀ´µÄ²Ù×÷¡£
 echo --------------------------
-echo 0ï¼šé€€å‡º
-echo 1ï¼šè¿”å›žé‡æ–°è®¡ç®—
-echo 2ï¼šæ‰“å¼€ä¿å­˜åˆ°çš„æ–‡ä»¶å¹¶é€€å‡º
+echo 0£ºÍË³ö
+echo 1£º·µ»ØÖØÐÂ¼ÆËã
+echo 2£º´ò¿ª±£´æµ½µÄÎÄ¼þ²¢ÍË³ö
 echo --------------------------
 set "choice="
-set /p "choice=è¯·è¾“å…¥æ“ä½œåºå·ï¼Œç„¶åŽæŒ‰å›žè½¦é”®ï¼š"
+set /p "choice=ÇëÊäÈë²Ù×÷ÐòºÅ£¬È»ºó°´»Ø³µ¼ü£º"
 if "%choice%"=="0" exit /b
 if "%choice%"=="1" (
 cls
@@ -320,10 +320,10 @@ set tgc=0
 if %tga% geq 50 (
 if %tga% geq 100 (
 set /p=<nul
-set /p=æ€»è¿›åº¦^:%u%^(æœ€å°‘3^,æœ€å¤š4^)^,å‰¯è¿›åº¦^:%%i^(å…±%tgb%^)^ ^ ^ ^ <nul
+set /p=×Ü½ø¶È^:%u%^(×îÉÙ3^,×î¶à4^)^,¸±½ø¶È^:%%i^(¹²%tgb%^)^ ^ ^ ^ <nul
 ) else (
 set /p=<nul
-set /p=æ€»è¿›åº¦^:%u%^(æœ€å°‘3^,æœ€å¤š4^)^ ^ ^ ^ <nul
+set /p=×Ü½ø¶È^:%u%^(×îÉÙ3^,×î¶à4^)^ ^ ^ ^ <nul
 )
 ))
 set /a tgd-=1
