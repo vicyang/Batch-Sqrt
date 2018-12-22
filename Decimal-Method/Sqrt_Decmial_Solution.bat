@@ -28,6 +28,12 @@ exit /b
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
     goto :eof
 
+:decimal_solution
+    setlocal
+    
+    endlocal
+    goto :eof
+
 :get_int_of_root
     rem get the integer part of root
     setlocal
