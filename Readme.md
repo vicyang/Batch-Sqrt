@@ -41,6 +41,12 @@
                                The square root of 2 is about 1.4142
   ```
 
+  * 大数除法 long division
+    [long division](https://en.wikipedia.org/wiki/Long_division)
+    
+
+
+
 * 关于二分搜索
   预判数值范围，通过 min max mid 三个变量迭代演化
   规则：如果 mid^2 gtr num 则max=mid（向下缩小范围），如果 lss num 则min=mid（向上缩小范围）
