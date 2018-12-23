@@ -31,26 +31,34 @@ exit /b
 
 :decimal_solution
     setlocal
+    set num=%1
+    set tnum=%1
     call :length %num% len
-    set /a mod=len %% 2, tlen=len
-    :loop
-        if %mod% equ 1 (
-            set /a part=%num:~0,1%
-        ) else (
-            set /a part=%num:~0,2%
-        )
+    set /a mod=len %% 2, tlen=len, base=0
+    if %mod% equ 1 (set /a skip=1) else (set /a skip=2)
+    set target=!tnum:~0,%skip%!
+    set tnum=!tnum:~%skip%!
 
-        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0
+    :loop
+        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0
         :dec_bin_search
-            set /a mp=mid * mid
-            if %mp% equ %part% (set /a quit=1 )
-            if %mp% gtr %part% (set /a max=mid )
-            if %mp% lss %part% (set /a min=mid )
+            set /a mp = (base*10+mid) * mid
+            if %mp% equ %target% (set /a quit=1, equ=1)
+            if %mp% gtr %target% (set /a max=mid )
+            if %mp% lss %target% (set /a min=mid )
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        :dec_search_out
-        echo %mid%  
+
+        echo b=%base% tg=%target% mp=%mp% mid=%mid%
+        set /a target=target-mp
+        if %skip% geq %len% (
+            set target=%target%00
+        ) else (
+            set target=!target!!tnum:~0,2!
+        )
+        set /a base=base*10+mid*2, skip+=2
+    if %base% lss 10000000 ( if %equ% equ 0 (goto :loop))
 
     endlocal
     goto :eof
