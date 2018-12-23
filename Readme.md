@@ -43,6 +43,12 @@
 
   * 大数除法 long division
     [long division](https://en.wikipedia.org/wiki/Long_division)
+
+  * 求解立方根以及五次方、七次方根的手算方法
+    [Paper-and-pencil nth roots](https://en.wikipedia.org/wiki/Shifting_nth_root_algorithm)
+    
+
+    
     
 
 
