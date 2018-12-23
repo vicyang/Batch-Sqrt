@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=120
+set num=5
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=80
@@ -34,9 +34,9 @@ exit /b
     set tnum=!tnum:~%skip%!
     set mp_0=0
 
-    set /a iter = 0
+    set /a prec = 0
     :dec_loop
-        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0, iter+=1
+        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0
         :dec_bin_search
             rem mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -56,12 +56,25 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
 
         set /p inp="%mid%"<nul
-        echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        if "%tnum%"=="" (
+            if %cmp% == 0 ( 
+                goto :dec_loop_out
+            ) else (
+                if %prec% equ 0 set /p inp="."<nul
+                set /a prec+=1
+            )
+        )
+
+        rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
         ) else (
-            set target=!target!!tnum:~0,2!
+            if "%target%" == "0" (
+                set target=!tnum:~0,2!
+            ) else (
+                set target=!target!!tnum:~0,2!
+            )
             set tnum=!tnum:~2!
             set /a skip+=2
         )
@@ -74,47 +87,10 @@ exit /b
             call :bignum_plus !base!0 !db_mid! base
         )
 
-    if %iter% leq %precision% (goto :dec_loop)
+    if %prec% leq %precision% (goto :dec_loop)
+    :dec_loop_out
 
     endlocal
-    goto :eof
-
-:get_int_of_root
-    rem get the integer part of root
-    setlocal
-    set num=%1
-    call :length %num% len
-    rem initial min and max number
-    set /a min = 1, max = 10, root_len = len / 2 + len %% 2
-    for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!0)
-    call :bignum_plus %min% %max% sum
-    rem middle_number = sum / 2
-    call :bignum_div_single %sum% 2 mid
-    
-    set /a quit = 0
-    :binary_search
-        call :bignum_mp %mid% %mid% product
-        call :cmp %product% %num% cmp
-        call :bignum_minus %max% %min% range
-
-        if !cmp! equ 0 (
-            set /a quit = 1, cmp=0
-        ) else (
-            if !cmp! gtr 0 (
-                set max=!mid!
-                set cmp=1
-            )   
-            if !cmp! lss 0 ( 
-                set min=!mid!
-                set cmp=-1
-            )
-            call :bignum_plus !max! !min! sum
-            call :bignum_div_single !sum! 2 mid
-            rem Using !var!, because we are inside the brackets
-        )
-        if %range% leq 1 (set quit=1)
-    if %quit% == 0 goto :binary_search
-    endlocal &set %2=%mid%& set %3=%cmp%
     goto :eof
 
 :bignum_mp
