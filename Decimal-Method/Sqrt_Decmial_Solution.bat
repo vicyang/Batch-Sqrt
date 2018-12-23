@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=4
+set num=120
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=80
@@ -35,7 +35,7 @@ exit /b
     set mp_0=0
 
     set /a iter = 0
-    :loop
+    :dec_loop
         set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0, iter+=1
         :dec_bin_search
             rem mp = [base*10+mid] * mid
@@ -56,7 +56,7 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
 
         set /p inp="%mid%"<nul
-        rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
@@ -74,7 +74,7 @@ exit /b
             call :bignum_plus !base!0 !db_mid! base
         )
 
-    if %iter% leq %precision% ( if %equ% equ 0 (goto :loop))
+    if %iter% leq %precision% (goto :dec_loop)
 
     endlocal
     goto :eof
