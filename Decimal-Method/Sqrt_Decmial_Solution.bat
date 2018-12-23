@@ -39,23 +39,17 @@ exit /b
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
 
+    set /a iter = 0
     :loop
-        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0
+        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0, iter+=1
         :dec_bin_search
             rem mp = [base*10+mid] * mid
-            set /a mid_square = mid*mid
             if "%base%" == "0" (
                 set /a tbase = mid
             ) else (
-                echo call :bignum_plus %base%0 %mid% tbase
+                call :bignum_plus %base%0 %mid% tbase
             )
-
-            echo call :bignum_mp %tbase% %mid_square% mp
-            call :bignum_mp 5 10 mp
-            echo %mp%
-            exit
-
-            echo %tbase% %mp%
+            call :bignum_mp %tbase% %mid% mp
             call :cmp %mp% %target% cmp
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
@@ -65,14 +59,25 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
 
         echo b=%base% tg=%target% mp=%mp% mid=%mid%
-        set /a target=target-mp
+
+        call :bignum_minus %target% %mp% target
         if %skip% geq %len% (
             set target=%target%00
         ) else (
             set target=!target!!tnum:~0,2!
+            set tnum=!tnum:~2!
+            set /a skip+=2
         )
-        set /a base=base*10+mid*2, skip+=2
-    if %base% lss 10000000 ( if %equ% equ 0 (goto :loop))
+
+        rem base=base*10+mid*2
+        if "%base%" == "0" (
+            set /a base=mid*2
+        ) else (
+            set /a db_mid=mid*2
+            call :bignum_plus !base!0 !db_mid! base
+        )
+
+    if %iter% leq 10 ( if %equ% equ 0 (goto :loop))
 
     endlocal
     goto :eof
@@ -121,9 +126,6 @@ exit /b
     set num_b=%2
     call :length %num_a% len_a
     call :length %num_b% len_b
-
-    echo %num_a% %num_b% %len_a% %len_b%
-
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
