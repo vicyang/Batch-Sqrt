@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set mod=!mod!##
     set time_a=%time%
 
-set num=123456787654322
+set num=2
 rem set num=10
 call :get_int_of_root %num% int_root cmp
 if %cmp% equ 0 (
@@ -22,6 +22,7 @@ if %cmp% equ 0 (
 
 set precision=80
 call :check_first %num% %precision%
+call :decimal_solution %num%
 exit /b
 
 :check_first
@@ -30,7 +31,27 @@ exit /b
 
 :decimal_solution
     setlocal
-    
+    call :length %num% len
+    set /a mod=len %% 2, tlen=len
+    :loop
+        if %mod% equ 1 (
+            set /a part=%num:~0,1%
+        ) else (
+            set /a part=%num:~0,2%
+        )
+
+        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0
+        :dec_bin_search
+            set /a mp=mid * mid
+            if %mp% equ %part% (set /a quit=1 )
+            if %mp% gtr %part% (set /a max=mid )
+            if %mp% lss %part% (set /a min=mid )
+            if %range% leq 1 ( set /a quit=1 )
+            set /a mid=(max+min)/2, range=max-mid
+        if %quit% == 0 goto :dec_bin_search
+        :dec_search_out
+        echo %mid%  
+
     endlocal
     goto :eof
 
