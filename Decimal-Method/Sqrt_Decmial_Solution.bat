@@ -11,15 +11,9 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=3
+set num=4
 rem set num=10
-call :get_int_of_root %num% int_root cmp
-if %cmp% equ 0 (
-    set root=%int_root%
-    echo num = %num%, root = !root!, !cmp!
-    exit /b
-)
-
+rem call :get_int_of_root %num% int_root cmp
 set precision=80
 call :check_first %num% %precision%
 call :decimal_solution %num%
@@ -38,6 +32,7 @@ exit /b
     if %mod% equ 1 (set /a skip=1) else (set /a skip=2)
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
+    set mp_0=0
 
     set /a iter = 0
     :loop
@@ -60,11 +55,9 @@ exit /b
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
 
-        if %mid% equ 0 pause
-        echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        set /p inp="%mid%"<nul
+        rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         call :bignum_minus %target% !mp_%mid%! target
-        if %mid% equ 0 set mp_
-        if %mid% equ 0 pause
         if %skip% geq %len% (
             set target=%target%00
         ) else (
@@ -208,23 +201,6 @@ exit /b
     set delta=#
     for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
     endlocal &set %3=%delta:#=%
-    goto :eof
-
-:bignum_div_single
-    setlocal
-    set num_a=%1
-    set num_b=%2
-    call :length %num_a% len_a
-    set /a max = len_a, mod = 0
-    for /l %%n in ( %len_a%, -1, 1 ) do (
-        set /a e = !num_a:~-%%n,1! + mod*10
-        set /a buff[%%n] = e/num_b, mod = e %% num_b
-    )
-    if !buff[%max%]! == 0 (set /a max-=1)
-
-    set quotaint=
-    for /l %%a in (%max%, -1, 1) do set quotaint=!quotaint!!buff[%%a]!
-    endlocal &set %3=%quotaint%
     goto :eof
 
 :length %str% %vname%
