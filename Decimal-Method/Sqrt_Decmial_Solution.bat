@@ -49,7 +49,9 @@ exit /b
             ) else (
                 call :bignum_plus %base%0 %mid% tbase
             )
+
             call :bignum_mp %tbase% %mid% mp
+            echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% cmp
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
@@ -58,7 +60,7 @@ exit /b
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
 
-        echo b=%base% tg=%target% mp=%mp% mid=%mid%
+        echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
 
         call :bignum_minus %target% %mp% target
         if %skip% geq %len% (
