@@ -51,7 +51,8 @@ exit /b
             )
 
             call :bignum_mp %tbase% %mid% mp
-            echo call :bignum_mp %tbase% %mid% %mp%
+            set mp_%mid%=%mp%
+            rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% cmp
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
@@ -62,7 +63,7 @@ exit /b
 
         echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
 
-        call :bignum_minus %target% %mp% target
+        call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
         ) else (
