@@ -6,9 +6,9 @@
 setlocal enabledelayedexpansion
 :init
     rem template for counting string length
-    set mod=
+    set sharp=
     set /a maxlen=2000, half=maxlen/2
-    for /l %%a in (1,1,%half%) do set mod=!mod!##
+    for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
 set num=2
@@ -42,10 +42,24 @@ exit /b
     :loop
         set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0
         :dec_bin_search
-            set /a mp = (base*10+mid) * mid
-            if %mp% equ %target% (set /a quit=1, equ=1)
-            if %mp% gtr %target% (set /a max=mid )
-            if %mp% lss %target% (set /a min=mid )
+            rem mp = [base*10+mid] * mid
+            set /a mid_square = mid*mid
+            if "%base%" == "0" (
+                set /a tbase = mid
+            ) else (
+                echo call :bignum_plus %base%0 %mid% tbase
+            )
+
+            echo call :bignum_mp %tbase% %mid_square% mp
+            call :bignum_mp 5 10 mp
+            echo %mp%
+            exit
+
+            echo %tbase% %mp%
+            call :cmp %mp% %target% cmp
+            if %cmp% equ 0 (set /a quit=1, equ=1)
+            if %cmp% equ 1 (set /a max=mid )
+            if %cmp% equ -1 (set /a min=mid )
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
@@ -107,6 +121,9 @@ exit /b
     set num_b=%2
     call :length %num_a% len_a
     call :length %num_b% len_b
+
+    echo %num_a% %num_b% %len_a% %len_b%
+
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
@@ -206,7 +223,7 @@ exit /b
 
 :length %str% %vname%
     setlocal
-    set test=%~1_%mod%
+    set test=%~1_%sharp%
     set test=!test:~0,%maxlen%!
     set test=%test:*_=%
     set /a len=maxlen-(%test:#=1+%1)
