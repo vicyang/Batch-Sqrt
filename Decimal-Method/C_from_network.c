@@ -13,7 +13,8 @@ int work(int o, char *num, int ID)
     {
         for ( id = 0; tnum[id]; id++ )
         {
-            tnum[ id++ ]-=120;
+            tnum[ id ]-=120;
+            id++;
             tnum[ id ]-=110;
             while ( !work(0, num, id) )
             {
@@ -28,8 +29,9 @@ int work(int o, char *num, int ID)
     {
         c = o + (tnum[ID]+82)%10 - (ID>id/2) * (tnum[ID-id+ID]+72)/10-9;
         tnum[ID]+=ID < 0 ? 0 : !( o = work(c/10, num, ID-1) ) * ( (c+999)%10-(tnum[ID]+92) % 10 );
-    }  
-    return o;  
+    }
+    
+    return o;
 }
 
 int main()  
