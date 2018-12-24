@@ -1,3 +1,4 @@
+use strict;
 STDOUT->autoflush(1);
 
 bignum_plus("999999", "999999999");
@@ -12,6 +13,7 @@ sub bignum_plus
     my $len_b = length($num_b);
     my $max_len = $len_a > $len_b ? $len_a : $len_b;
 
+    my (@buff, $ea, $eb, $t);
     my @buff;
     my $plus = 0;
     for my $c ( 1 .. $max_len )
