@@ -5,31 +5,37 @@
 @echo off
 setlocal enabledelayedexpansion
 :init
-    rem template for counting string length
-    set mod=
+    :: 模板，用于快速计算字符串长度
+    set sharp=
     set /a maxlen=2000, half=maxlen/2
-    for /l %%a in (1,1,%half%) do set mod=!mod!##
+    for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=123456787654322
-rem set num=10
+set num=1099511627776
+:: set num=10
+:: 获取根的整数部分（大范围二分搜索）
 call :get_int_of_root %num% int_root cmp
+
+:: 如果cmp返回值为0说明整数根是完整解，无需计算小数部分
 if %cmp% equ 0 (
     set root=%int_root%
     echo num = %num%, root = !root!, !cmp!
+    pause
     exit /b
 )
 
+:: 设置精度
 set precision=80
-call :check_first %num% %precision%
+:: 获取根的小数部分，逐位测试并输出（小范围二分搜索，0-9）
 call :get_dec_of_root %num% %int_root% %precision% dec_root
-call :time_used %time_a% %time%
+pause
 exit /b
 
 :check_first
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
     goto :eof
 
+rem 获取根的小数部分，逐位获取。二分搜索
 :get_dec_of_root
     setlocal
     set num=%1
@@ -38,13 +44,15 @@ exit /b
     set root=%int_root%
     rem Show int_root first
     set /p inp="%int_root%."<nul
+
+    :: 之前的整数根的平方结果
     call :bignum_mp %root% %root% prev_pow
 
     set /a dec_len=0
     :decroot_lp
     set /a min=0, max=10, mid=(max+min)/2, quit = 0, dec_len+=1
     :decroot_bin_search
-        rem calc [a*10]^2 + 2*[a*10]*b + b^2, part1 part2 part3
+        rem 公式分解 [a*10]^2 + 2*[a*10]*b + b^2, part1 part2 part3
         set /a sum = 0
         set part1=%prev_pow%00
         set /a part3 = mid * mid
@@ -64,25 +72,28 @@ exit /b
         set /a mid=(max+min)/2
     if %quit% equ 0 goto :decroot_bin_search
 
+    :: 更新当前root精度，以及对应的平方值 prev_pow
     set prev_pow=%sum%
     set root=%root%%mid%
     set num=%num%00
     set /p inp="%mid%"<nul
+
+    :: 如果达到指定精度，退出循环
     if %dec_len% lss %precision% goto :decroot_lp
     echo,
     endlocal
     goto :eof
 
+:: 获取根的整数解（大范围二分搜索）
 :get_int_of_root
-    rem get the integer part of root
     setlocal
     set num=%1
     call :length %num% len
-    rem initial min and max number
+    :: 预判根的整数位数 初始化搜索范围的最小值和最大值
     set /a min = 1, max = 10, root_len = len / 2 + len %% 2
     for /l %%n in (2,1,%root_len%) do (set min=!min!0& set max=!max!0)
     call :bignum_plus %min% %max% sum
-    rem middle_number = sum / 2
+    :: 中间值 = sum / 2
     call :bignum_div_single %sum% 2 mid
     
     set /a quit = 0
@@ -92,16 +103,10 @@ exit /b
         call :bignum_minus %max% %min% range
 
         if !cmp! equ 0 (
-            set /a quit = 1, cmp=0
+            set /a quit = 1
         ) else (
-            if !cmp! gtr 0 (
-                set max=!mid!
-                set cmp=1
-            )   
-            if !cmp! lss 0 ( 
-                set min=!mid!
-                set cmp=-1
-            )
+            if !cmp! gtr 0 (set max=!mid!)
+            if !cmp! lss 0 (set min=!mid!)
             call :bignum_plus !max! !min! sum
             call :bignum_div_single !sum! 2 mid
             rem Using !var!, because we are inside the brackets
@@ -111,6 +116,7 @@ exit /b
     endlocal &set %2=%mid%& set %3=%cmp%
     goto :eof
 
+::大数乘法
 :bignum_mp
     setlocal
     set num_a=%1
@@ -119,7 +125,6 @@ exit /b
     call :length %num_b% len_b
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
-    rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
     set /a id = 0, sid = 0, maxid = 0
     for %%b in ( %ele_b% ) do (
         set /a sid = id, id += 1
@@ -127,7 +132,8 @@ exit /b
             set /a buff[!sid!] += %%a * %%b, sid += 1, maxid = sid
         )
     )
-    rem Merge
+    
+    :: 更新每一位的"溢出"值
     set /a id = 0
     for /l %%c in ( 0, 1, %maxid% ) do (
         set /a next = %%c+1
@@ -140,6 +146,7 @@ exit /b
     endlocal &set %3=%product%
     goto :eof
 
+::大数加法
 :bignum_plus
     setlocal
     set num_a=%1
@@ -169,6 +176,7 @@ exit /b
     endlocal &set %3=%sum%
     goto :eof
 
+::大数减法
 :bignum_minus
     setlocal
     set num_a=%1
@@ -197,6 +205,7 @@ exit /b
     endlocal &set %3=%delta:#=%
     goto :eof
 
+::大数除法（仅限于单个数字的除数）
 :bignum_div_single
     setlocal
     set num_a=%1
@@ -214,15 +223,17 @@ exit /b
     endlocal &set %3=%quotaint%
     goto :eof
 
+::判断字符串长度
 :length %str% %vname%
     setlocal
-    set test=%~1_%mod%
+    set test=%~1_%sharp%
     set test=!test:~0,%maxlen%!
     set test=%test:*_=%
     set /a len=maxlen-(%test:#=1+%1)
     endlocal &set %2=%len%
     goto :eof
 
+::比较数字大小（支持长数字）
 :cmp %str1% %str2% %vname%
     setlocal
     call :length %1 len_a
@@ -240,6 +251,7 @@ exit /b
     )
     goto :eof
 
+::时间计算函数，有BUG
 :time_used %time_a% %time_b%
     rem only for few seconds, not consider minutes
     setlocal
