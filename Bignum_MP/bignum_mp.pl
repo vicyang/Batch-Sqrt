@@ -1,9 +1,8 @@
-use Encode;
-use List::Util qw/max/;
+use strict;
 STDOUT->autoflush(1);
 
-my $num_a = 123456;
-my $num_b = 9999;  #single num
+my $num_a = 999999;
+my $num_b = 999999;  #single num
 printf "%d\n", $num_a * $num_b;
 
 bignum_mp( $num_a, $num_b );
@@ -13,42 +12,29 @@ sub bignum_mp
     my ($num_a, $num_b) = @_;
     my @buff;
     my $sid;
+    my ($len_a, $len_b) = (length($num_a), length($num_b));
 
-    for my $ia ( 1 .. length($num_a) ) {
-        $sid = $ia-1;
-        for my $ib ( 1 .. length($num_b) ) {
-            $buff[$sid++] += substr($num_a, -$ia, 1) * substr($num_b, -$ib, 1);
+    for my $a ( 1 .. $len_a ) {
+        $sid = $a-1;
+        for my $b ( 1 .. $len_b ) {
+            $buff[$sid++] += substr($num_a,-$a,1) * substr($num_b,-$b,1);
         }
     }
 
-
-    # for my $eb ( @ele_b )
-    # {
-    #     $sid = $id;
-    #     for my $ea ( @ele_a )
-    #     {
-    #         $buff[$sid] += $ea * $eb;
-    #         $sid++;
-    #     }
-    #     $id++;
-    # }
-
     for my $id ( 0 .. $#buff )
     {
-        printf "%s%s\n", " "x$id, scalar reverse( "${buff[$id]}");
+        printf "%s%4s\n", " "x($sid-$id), scalar ( "${buff[$id]}");
     }
 
-    MERGE: #合并
+    MERGE:
     for my $id ( 0 .. $#buff )
     {
-        if ( $buff[$id] >= 10 )
-        {
-            $buff[$id+1] += int($buff[$id] / 10);
-            $buff[$id] = $buff[$id] % 10;
-        }
+        next if ( $buff[$id] < 10 );
+        $buff[$id+1] += int($buff[$id] / 10);
+        $buff[$id] = $buff[$id] % 10;
     }
 
-    printf "%s\n", join("", @buff);
+    printf "%s\n", join("", reverse @buff);
 }
 
 
