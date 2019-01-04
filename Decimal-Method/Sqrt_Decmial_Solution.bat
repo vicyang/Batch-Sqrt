@@ -95,32 +95,83 @@ exit /b
 
 :bignum_mp
     setlocal
-    set num_a=%1
-    set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
-    for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
-    for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
-    rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
-    set /a id = 0, sid = 0, maxid = 0
-    for %%b in ( %ele_b% ) do (
-        set /a sid = id, id += 1
-        for %%a in ( %ele_a% ) do (
-            set /a buff[!sid!] += %%a * %%b, sid += 1, maxid = sid
+    set A=%1
+    set B=%2
+    REM 浮点计数
+    for /f "tokens=1,2 delims=." %%a in ("!A!") do (
+        set A1=%%a&set A=!A1!%%b
+        if "%%b"=="" (set PA=0) else (
+            set A2=%%b
+            for %%i in (512 256 128 64 32 16 8 4 2 1) do (
+                    if not "!A2:~%%i!"=="" (
+                    set/a PA+=%%i
+                    set "A2=!A2:~%%i!"
+                )
+            )
+            if "!A2:~1!"=="" (set/a PA+=1)
         )
     )
-    rem Merge
-    set /a id = 0
-    for /l %%c in ( 0, 1, %maxid% ) do (
-        set /a next = %%c+1
-        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
+    for /f "tokens=1,2 delims=." %%a in ("!B!") do (
+        set B1=%%a&set B=!B1!%%b
+        if "%%b"=="" (set PB=0) else (
+            set B2=%%b
+            for %%i in (512 256 128 64 32 16 8 4 2 1) do (
+                    if not "!B2:~%%i!"=="" (
+                    set/a PB+=%%i
+                    set "B2=!B2:~%%i!"
+                )
+            )
+            if "!B2:~1!"=="" (set/a PB+=1)
+        )
+    )
+    set/a PO=PA+PB
+    REM 位数信息
+    CALL :CUT !A! A NA
+    CALL :CUT !B! B NB
+    set/a N=NA+NB,NA*=3,NB*=3
+    REM 核心乘法
+    for /l %%i in (1 1 !N!) do (
+        for /l %%j in (1 1 %%i) do (
+            set/a j=%%i-%%j+1
+            if defined A[%%j] (
+                if defined B[!j!] (
+                    set/a sum=A[%%j]*B[!j!]+sum
+                )
+            )
+        )
+        set/a s=sum+1000
+        set sum=!sum:~0,-3!
+        set pul=!s:~-3!!pul!
     )
 
-    if "!buff[%maxid%]!" == "0" set /a maxid-=1
-    set product=
-    for /l %%n in (%maxid%, -1, 0) do set product=!product!!buff[%%n]!
-    endlocal &set %3=%product%
+    :Display
+    for /l %%i in (1 1 5) do (
+        if "!pul:~0,1!"=="0" (
+            set pul=!pul:~1!
+        )
+    )
+    endlocal&set %3=%pul%
     goto :eof
+
+:CUT 分割数组
+    set num=%1
+    :: 如果不超过3位数字
+    if "!num:~-3!"=="!num:~-4!" (
+        set %2[1]=!num!
+        set %3=1
+        goto :eof
+    )
+
+    :: 数字转数组，每三个数字切割为一个元素
+    for /l %%i in (1 1 365) do (
+        if "!num:~0,-3!"=="" (
+            set/a %2[%%i]=!num!
+            set %3=%%i
+            goto :eof
+        )
+        set/a %2[%%i]=1!num:~-3!-1000
+        set num=!num:~0,-3%!
+    )
 
 :bignum_plus
     setlocal
