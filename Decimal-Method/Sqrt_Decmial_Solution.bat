@@ -36,13 +36,14 @@ exit /b
 
     set /a prec = 0
     :dec_loop
-        set /a min=0, max=10, mid=(min+max)/2, range=max-min, quit=0, equ=0
+        set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         :dec_bin_search
             rem mp = [base*10+mid] * mid
             if "%base%" == "0" (
                 set /a tbase = mid
             ) else (
-                call :bignum_plus %base%0 %mid% tbase
+                rem call :bignum_plus %base%0 %mid% tbase
+                set tbase=!base!!mid!
             )
             call :bignum_mp %tbase% %mid% mp
             set mp_%mid%=%mp%
