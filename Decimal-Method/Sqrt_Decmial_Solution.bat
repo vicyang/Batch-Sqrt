@@ -112,6 +112,7 @@ exit /b
     echo,
     echo %bs_tu%
     echo %else_tu%
+    echo cmp time used: %cmp_tu%
 
     endlocal
     goto :eof
