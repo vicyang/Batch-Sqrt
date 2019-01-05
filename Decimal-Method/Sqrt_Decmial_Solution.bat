@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=300
+set precision=80
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -37,7 +37,6 @@ exit /b
     set /a prec = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
-
         :guess
         set /a t_head = %target:~0,2%, b_head = %base:~0,1%
         for /l %%a in (0,1,9) do (
@@ -52,6 +51,7 @@ exit /b
         :: echo,
         :: echo %base% %max% %target%
 
+        set ta=%time%
         :dec_bin_search
             rem mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -70,6 +70,7 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
+        call :time_delta %ta% %time% bs_tu
 
         set /p inp="%mid%"<nul
         if "%tnum%"=="" (
@@ -105,6 +106,9 @@ exit /b
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
+
+    echo,
+    echo %bs_tu%
 
     endlocal
     goto :eof
@@ -219,5 +223,24 @@ exit /b
         )
         endlocal &set %3=0
     )
+    goto :eof
+
+:time_delta %time_a% %time_b% %var_name%
+    setlocal
+    set ta=%1& set tb=%2
+    rem 前置数字1避免前置0被识别为八进制
+    set sec_a=1%ta:~-5,2%
+    set sec_b=1%tb:~-5,2%
+    set dec_a=1%ta:~-2%
+    set dec_b=1%tb:~-2%
+    set /a dec=dec_b-dec_a, sec=sec_b-sec_a
+    rem 秒数取绝对值
+    set sec=%sec:-=%
+    rem echo %sec% %dec% 
+    if %dec% lss 0 (set /a sec-=1, dec=100+dec_b-dec_a)
+    rem echo %sec% %dec% 
+    set /a t_used=sec*100+dec
+    if defined %3 set /a t_used += %3
+    endlocal&set %3=%t_used%
     goto :eof
 
