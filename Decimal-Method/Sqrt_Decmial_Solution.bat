@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=5
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=80
+set precision=300
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -42,7 +42,8 @@ exit /b
             if "%base%" == "0" (
                 set /a tbase = mid
             ) else (
-                call :bignum_plus %base%0 %mid% tbase
+                set tbase=%base%%mid%
+                rem call :bignum_plus %base%0 %mid% tbase
             )
             call :bignum_mp %tbase% %mid% mp
             set mp_%mid%=%mp%
