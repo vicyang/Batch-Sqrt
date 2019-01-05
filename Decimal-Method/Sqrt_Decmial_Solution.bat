@@ -11,10 +11,10 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=10000000000000000
+set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=300
+set precision=80
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -34,8 +34,9 @@ exit /b
     set tnum=!tnum:~%skip%!
     set mp_0=0
 
+    rem prec - current precision
     set /a prec = 0
-    set /a tbase_len = 0
+    set /a tbase_len = 0, equ = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         :guess
@@ -64,6 +65,7 @@ exit /b
             set ta=%time%
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
+            echo, &echo mplen: %mp_len%
             rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% %mp_len% %target_len% cmp
             rem call :time_delta %ta% %time% bs_tu
@@ -76,17 +78,19 @@ exit /b
         
         set ta=%time%
         set /p inp="%mid%"<nul
-        if "%tnum%"=="" (
-            if !cmp! == 0 (
-                pause
+        rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
+        if "%tnum%" == "" (
+            if %cmp% == 0 (
                 goto :dec_loop_out
             ) else (
+                rem current precision
                 if %prec% equ 0 set /p inp="."<nul
                 set /a prec+=1
             )
         )
 
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        echo, &echo mplen !mp_len_%mid%!
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
@@ -113,8 +117,8 @@ exit /b
     :dec_loop_out
 
     echo,
-    echo %bs_tu%
-    echo %else_tu%
+    echo bs_tu: %bs_tu%
+    echo else_tu: %else_tu%
     echo cmp time used: %cmp_tu%
 
     endlocal
