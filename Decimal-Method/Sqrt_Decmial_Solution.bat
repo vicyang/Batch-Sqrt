@@ -1,6 +1,7 @@
 :: Bignum(integer) Square Root
+:: https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
 :: 523066680/vicyang
-:: 2018-12
+:: 2019-01
 
 @echo off
 setlocal enabledelayedexpansion
@@ -15,7 +16,7 @@ set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=80
-call :check_first %num% %precision%
+rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
 
@@ -65,7 +66,7 @@ exit /b
             set ta=%time%
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
-            echo, &echo mplen: %mp_len%
+            set mplen_%mid%=%mp_len%
             rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% %mp_len% %target_len% cmp
             rem call :time_delta %ta% %time% bs_tu
@@ -90,7 +91,6 @@ exit /b
         )
 
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
-        echo, &echo mplen !mp_len_%mid%!
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
