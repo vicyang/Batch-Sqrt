@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=80
+set precision=300
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -39,11 +39,11 @@ exit /b
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
 
         :guess
-        set /a head = %target:~0,2%
+        set /a t_head = %target:~0,2%, b_head = %base:~0,1%
         for /l %%a in (0,1,9) do (
-            set /a t = %%a * %base:~0,1%
+            set /a t = %%a * b_head
             rem echo !t! !target:~0,2! %%a
-            if !t! gtr %head% (
+            if !t! gtr %t_head% (
                 set /a max = %%a, mid = ^(min+max^)/2
                 goto :out_of_guess
             )
