@@ -53,6 +53,7 @@ exit /b
         :: echo %base% %max% %target%
 
         set /a tbase_len+=1
+        call :length %target% target_len
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -64,7 +65,7 @@ exit /b
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
             rem echo call :bignum_mp %tbase% %mid% %mp%
-            call :cmp %mp% %target% cmp
+            call :cmp %mp% %target% %mp_len% %target_len% cmp
             call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
@@ -216,15 +217,16 @@ exit /b
 
 :cmp %str1% %str2% %vname%
     setlocal
-    call :length %1 len_a
-    call :length %2 len_b
-    if %len_a% gtr %len_b% (endlocal &set %3=1&goto :eof)
-    if %len_a% lss %len_b% (endlocal &set %3=-1&goto :eof)
+    set /a len_a=%3, len_b=%4
+    rem call :length %1 len_a
+    rem call :length %2 len_b
+    if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
+    if %len_a% lss %len_b% (endlocal &set %5=-1&goto :eof)
     rem 如果长度相同，直接按字符串对比
     if "%1" gtr "%2" (
-        endlocal &set %3=1
+        endlocal &set %5=1
     ) else (
-        endlocal &set %3=-1
+        endlocal &set %5=-1
     )
     goto :eof
 
