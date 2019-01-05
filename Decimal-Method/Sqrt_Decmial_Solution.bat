@@ -24,6 +24,7 @@ exit /b
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
     goto :eof
 
+::手算开根方案
 :decimal_solution
     setlocal
     set num=%1
@@ -53,7 +54,6 @@ exit /b
         :out_of_guess
         :: echo,
         :: echo %base% %max% %target%
-
         set /a tbase_len+=1
         call :length %target% target_len
         :dec_bin_search
@@ -124,16 +124,14 @@ exit /b
     endlocal
     goto :eof
 
+::大数乘法
 :bignum_mp
     setlocal
     set num_a=%1
     set num_b=%2
     set /a len_a=%3, len_b=%4
-    rem call :length %num_a% len_a
-    rem call :length %num_b% len_b
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
-    rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
     set /a id = 0, sid = 0, maxid = 0
     for %%b in ( %ele_b% ) do (
         set /a sid = id, id += 1
@@ -154,6 +152,7 @@ exit /b
     endlocal &set %5=%product%&set /a %6=%maxid%+1
     goto :eof
 
+::大数加法
 :bignum_plus
     setlocal
     set num_a=%1
@@ -183,6 +182,7 @@ exit /b
     endlocal &set %3=%sum%
     goto :eof
 
+::大数减法
 :bignum_minus
     setlocal
     set num_a=%1
@@ -220,18 +220,19 @@ exit /b
     endlocal &set %2=%len%
     goto :eof
 
-:cmp %str1% %str2% %vname%
+::数值对比
+:cmp %str1% %str2% %len1% %len2% varname
     setlocal
     set /a len_a=%3, len_b=%4
     if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
     if %len_a% lss %len_b% (endlocal &set %5=-1&goto :eof)
-    rem 如果长度相同，直接按字符串对比
+    :: 如果长度相同，直接按字符串对比
     if "%1" gtr "%2" (endlocal &set %5=1&goto :eof)
     if "%1" lss "%2" (endlocal &set %5=-1&goto :eof)
     if "%1" equ "%2" (endlocal &set %5=0&goto :eof)
     goto :eof
 
-:: etM --求 %1--%2 时间差，时间跨度在1分钟内可调用之；用于测试一般bat运行时间
+:: plp626的时间差函数 时间跨度在1分钟内可调用之；用于测试一般bat运行时间
 :time_delta <beginTimeVar> <endTimeVar> <retVar> // code by plp626
     setlocal
     set ta=%1&set tb=%2
