@@ -11,10 +11,10 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%half%) do set sharp=!sharp!##
     set time_a=%time%
 
-set num=2
+set num=10000000000000000
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=80
+set precision=300
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -66,7 +66,7 @@ exit /b
             set mp_%mid%=%mp%
             rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% %mp_len% %target_len% cmp
-            call :time_delta %ta% %time% bs_tu
+            rem call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
             if %cmp% equ -1 (set /a min=mid )
@@ -77,7 +77,8 @@ exit /b
         set ta=%time%
         set /p inp="%mid%"<nul
         if "%tnum%"=="" (
-            if %cmp% == 0 ( 
+            if !cmp! == 0 (
+                pause
                 goto :dec_loop_out
             ) else (
                 if %prec% equ 0 set /p inp="."<nul
@@ -107,7 +108,7 @@ exit /b
             call :bignum_plus !base!0 !db_mid! base
         )
 
-        call :time_delta %ta% %time% else_tu
+        rem call :time_delta %ta% %time% else_tu
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
 
@@ -218,16 +219,12 @@ exit /b
 :cmp %str1% %str2% %vname%
     setlocal
     set /a len_a=%3, len_b=%4
-    rem call :length %1 len_a
-    rem call :length %2 len_b
     if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
     if %len_a% lss %len_b% (endlocal &set %5=-1&goto :eof)
     rem 如果长度相同，直接按字符串对比
-    if "%1" gtr "%2" (
-        endlocal &set %5=1
-    ) else (
-        endlocal &set %5=-1
-    )
+    if "%1" gtr "%2" (endlocal &set %5=1&goto :eof)
+    if "%1" lss "%2" (endlocal &set %5=-1&goto :eof)
+    if "%1" equ "%2" (endlocal &set %5=0&goto :eof)
     goto :eof
 
 :: etM --求 %1--%2 时间差，时间跨度在1分钟内可调用之；用于测试一般bat运行时间
