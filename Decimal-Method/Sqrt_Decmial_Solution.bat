@@ -1,4 +1,4 @@
-:: Bignum(integer) Square Root
+:: Bignum(integer) Square Root, Decimal Solution
 :: https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
 :: 523066680/vicyang
 :: 2019-01
@@ -6,16 +6,15 @@
 @echo off
 setlocal enabledelayedexpansion
 :init
-    rem template for counting string length
-    set sharp=
-    set /a maxlen=2000, half=maxlen/2
-    for /l %%a in (1,1,%half%) do set sharp=!sharp!##
-    set time_a=%time%
+    rem 创建用于计算字符串长度的模板，长度限制为 2^pow
+    set "sharp=#"
+    set /a pow=11, maxlen=1^<^<pow
+    for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=80
+set precision=100
 rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -24,7 +23,7 @@ exit /b
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
     goto :eof
 
-::手算开根方案
+:: 手算开根方案
 :decimal_solution
     setlocal
     set num=%1
@@ -36,21 +35,23 @@ exit /b
     set tnum=!tnum:~%skip%!
     set mp_0=0
 
-    rem prec - current precision
+    rem prec 精度
     set /a prec = 0
     set /a tbase_len = 0, equ = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         set /a tbase_len+=1
         call :length %target% target_len
+
+        :: 预估下一个可能的数，并限制二分搜索的最大值
         :guess
-        ::if %target_len% gtr 3 (
+        if %target_len% gtr 3 (
         if %target_len% equ %tbase_len% (
-            set /a t_head = %target:~0,1%, b_head = %base:~0,1%
+            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
         ) else (
-            set /a t_head = %target:~0,2%, b_head = %base:~0,1%
+            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
         )
-        ::) else (goto :out_of_guess)
+        ) else (goto :out_of_guess)
 
         for /l %%a in (0,1,9) do (
             set /a t = %%a * b_head
@@ -74,7 +75,6 @@ exit /b
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
-            rem echo call :bignum_mp %tbase% %mid% %mp%
             rem call :cmp %mp% %target% %mp_len% %target_len% cmp
 
             :: 比较 - 判断是否超出
@@ -109,6 +109,7 @@ exit /b
         )
 
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        set ta=%time%
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
@@ -129,16 +130,12 @@ exit /b
             set /a db_mid=mid*2
             call :bignum_plus !base!0 !db_mid! base
         )
+        call :time_delta %ta% %time% minus_tu
 
-        rem call :time_delta %ta% %time% else_tu
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
-
     echo,
-    echo bs_tu: %bs_tu%
-    echo else_tu: %else_tu%
-    echo cmp time used: %cmp_tu%
-
+    echo minus_tu %minus_tu%
     endlocal
     goto :eof
 
@@ -237,18 +234,6 @@ exit /b
     set test=%test:*_=%
     set /a len=maxlen-(%test:#=1+%1)
     endlocal &set %2=%len%
-    goto :eof
-
-::数值对比
-:cmp %str1% %str2% %len1% %len2% varname
-    setlocal
-    set /a len_a=%3, len_b=%4
-    if %len_a% gtr %len_b% (endlocal &set %5=1&goto :eof)
-    if %len_a% lss %len_b% (endlocal &set %5=-1&goto :eof)
-    :: 如果长度相同，直接按字符串对比
-    if "%1" gtr "%2" (endlocal &set %5=1&goto :eof)
-    if "%1" lss "%2" (endlocal &set %5=-1&goto :eof)
-    if "%1" equ "%2" (endlocal &set %5=0&goto :eof)
     goto :eof
 
 :: plp626的时间差函数 时间跨度在1分钟内可调用之；用于测试一般bat运行时间
