@@ -41,8 +41,17 @@ exit /b
     set /a tbase_len = 0, equ = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
+        set /a tbase_len+=1
+        call :length %target% target_len
         :guess
-        set /a t_head = %target:~0,2%, b_head = %base:~0,1%
+        ::if %target_len% gtr 3 (
+        if %target_len% equ %tbase_len% (
+            set /a t_head = %target:~0,1%, b_head = %base:~0,1%
+        ) else (
+            set /a t_head = %target:~0,2%, b_head = %base:~0,1%
+        )
+        ::) else (goto :out_of_guess)
+
         for /l %%a in (0,1,9) do (
             set /a t = %%a * b_head
             rem echo !t! !target:~0,2! %%a
@@ -52,10 +61,8 @@ exit /b
             )
         )
         :out_of_guess
-        :: echo,
-        :: echo %base% %max% %target%
-        set /a tbase_len+=1
-        call :length %target% target_len
+        rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
+
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -68,7 +75,18 @@ exit /b
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
             rem echo call :bignum_mp %tbase% %mid% %mp%
-            call :cmp %mp% %target% %mp_len% %target_len% cmp
+            rem call :cmp %mp% %target% %mp_len% %target_len% cmp
+
+            :: 比较 - 判断是否超出
+            :cmp_begin
+            if %mp_len% gtr %target_len% (set /a cmp=1&goto :cmp_end)
+            if %mp_len% lss %target_len% (set /a cmp=-1&goto :cmp_end)
+            :: 如果长度相同，直接按字符串对比
+            if "%mp%" gtr "%target%" (set /a cmp=1&goto :cmp_end)
+            if "%mp%" lss "%target%" (set /a cmp=-1&goto :cmp_end)
+            if "%mp%" equ "%target%" (set /a cmp=0&goto :cmp_end)
+            :cmp_end
+
             rem call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
@@ -211,6 +229,7 @@ exit /b
     endlocal &set %3=%delta:#=%
     goto :eof
 
+::字符串长度计算
 :length %str% %vname%
     setlocal
     set test=%~1_%sharp%
