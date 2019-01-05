@@ -51,27 +51,28 @@ exit /b
         :: echo,
         :: echo %base% %max% %target%
 
-        set ta=%time%
         :dec_bin_search
-            rem mp = [base*10+mid] * mid
+            :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
                 set /a tbase = mid
             ) else (
-                :: call :bignum_plus %base%0 %mid% tbase
                 set tbase=!base!!mid!
             )
+            set ta=%time%
             call :bignum_mp %tbase% %mid% mp
             set mp_%mid%=%mp%
             rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% cmp
+            call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid )
             if %cmp% equ -1 (set /a min=mid )
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        call :time_delta %ta% %time% bs_tu
+        
 
+        set ta=%time%
         set /p inp="%mid%"<nul
         if "%tnum%"=="" (
             if %cmp% == 0 ( 
@@ -104,11 +105,13 @@ exit /b
             call :bignum_plus !base!0 !db_mid! base
         )
 
+        call :time_delta %ta% %time% else_tu
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
 
     echo,
     echo %bs_tu%
+    echo %else_tu%
 
     endlocal
     goto :eof
@@ -214,14 +217,11 @@ exit /b
     call :length %2 len_b
     if %len_a% gtr %len_b% (endlocal &set %3=1&goto :eof)
     if %len_a% lss %len_b% (endlocal &set %3=-1&goto :eof)
-    set str1=%1
-    set str2=%2
-    if %len_a% equ %len_b% (
-        for /l %%n in (0, 1, %len_a%) do (
-            if "!str1:~%%n,1!" gtr "!str2:~%%n,1!" (endlocal &set %3=1&goto :eof)
-            if "!str1:~%%n,1!" lss "!str2:~%%n,1!" (endlocal &set %3=-1&goto :eof)
-        )
-        endlocal &set %3=0
+    rem 如果长度相同，直接按字符串对比
+    if "%1" gtr "%2" (
+        endlocal &set %3=1
+    ) else (
+        endlocal &set %3=-1
     )
     goto :eof
 
