@@ -39,24 +39,25 @@ exit /b
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
 
         :guess
-        for /l %%a in (1,1,9) do (
-            set /a t = %%a * %base:~0,1%, head = %target:~0,2%
+        set /a head = %target:~0,2%
+        for /l %%a in (0,1,9) do (
+            set /a t = %%a * %base:~0,1%
             rem echo !t! !target:~0,2! %%a
-            if !t! gtr !head! (
+            if !t! gtr %head% (
                 set /a max = %%a, mid = ^(min+max^)/2
                 goto :out_of_guess
             )
         )
         :out_of_guess
-        rem echo,
-        rem echo %base% %max% %target%
+        :: echo,
+        :: echo %base% %max% %target%
 
         :dec_bin_search
             rem mp = [base*10+mid] * mid
             if "%base%" == "0" (
                 set /a tbase = mid
             ) else (
-                rem call :bignum_plus %base%0 %mid% tbase
+                :: call :bignum_plus %base%0 %mid% tbase
                 set tbase=!base!!mid!
             )
             call :bignum_mp %tbase% %mid% mp
