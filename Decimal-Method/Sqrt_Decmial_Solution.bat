@@ -35,6 +35,7 @@ exit /b
     set mp_0=0
 
     set /a prec = 0
+    set /a tbase_len = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         :guess
@@ -51,6 +52,7 @@ exit /b
         :: echo,
         :: echo %base% %max% %target%
 
+        set /a tbase_len+=1
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -59,7 +61,7 @@ exit /b
                 set tbase=!base!!mid!
             )
             set ta=%time%
-            call :bignum_mp %tbase% %mid% mp
+            call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
             rem echo call :bignum_mp %tbase% %mid% %mp%
             call :cmp %mp% %target% cmp
@@ -71,7 +73,6 @@ exit /b
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
         
-
         set ta=%time%
         set /p inp="%mid%"<nul
         if "%tnum%"=="" (
@@ -121,8 +122,9 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
+    set /a len_a=%3, len_b=%4
+    rem call :length %num_a% len_a
+    rem call :length %num_b% len_b
     for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
     for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
     rem for /l %%a in (0, 1, %attemplen%) do set buff[%%a]=0
@@ -143,7 +145,7 @@ exit /b
     if "!buff[%maxid%]!" == "0" set /a maxid-=1
     set product=
     for /l %%n in (%maxid%, -1, 0) do set product=!product!!buff[%%n]!
-    endlocal &set %3=%product%
+    endlocal &set %5=%product%&set /a %6=%maxid%+1
     goto :eof
 
 :bignum_plus
