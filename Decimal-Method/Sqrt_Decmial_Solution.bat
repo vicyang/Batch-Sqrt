@@ -200,17 +200,17 @@ exit /b
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
     set /a pool=0
+    set res=
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
             set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
         ) else (
             set /a t = !num_a:~-%%n,1! + pool
         )
-        set /a buff[%%n] = t %% 10, pool = t / 10
+        set /a mod = t %% 10, pool = t / 10
+        set res=!mod!!res!
     )
-
-    if %pool% gtr 0 (set /a max+=1,res=1) else (set res=)
-    for /l %%a in (%max%, -1, 1) do set res=!res!!buff[%%a]!
+    if %pool% gtr 0 (set /a max+=1 &set res=1%res%)
     endlocal &set %5=%res%&set %6=%max%
     goto :eof
 
