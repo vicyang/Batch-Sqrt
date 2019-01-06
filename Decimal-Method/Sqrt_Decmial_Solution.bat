@@ -15,7 +15,7 @@ set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=100
-call :check_first %num% %precision%
+rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
 
@@ -148,47 +148,17 @@ exit /b
     set num_a=%1
     set num_b=%2
     set /a pool = 0, maxid = %3
+    set "res="
     for /l %%a in ( 1, 1, %maxid% ) do (
-        set /a mp = !num_a:~-%%a,1! * num_b + pool
-        set /a buff[%%a] = mp %% 10, pool = mp / 10
+        set /a mp = !num_a:~-%%a,1! * num_b + pool, t = mp %% 10, pool = mp / 10
+        set res=!t!!res!
     )
 
     if %pool% neq 0 (
         set /a maxid+=1
-        set /a buff[!maxid!]=pool
+        set res=!pool!!res!
     )
-
-    set res=
-    for /l %%n in (%maxid%, -1, 0) do set res=!res!!buff[%%n]!
     endlocal&set %5=%res%&set %6=%maxid%
-    goto :eof
-
-::大数乘法
-:bignum_mp
-    setlocal
-    set num_a=%1
-    set num_b=%2
-    set /a len_a=%3, len_b=%4
-    for /l %%b in ( 1, 1, %len_b% ) do ( set ele_b=!ele_b! !num_b:~-%%b,1! )
-    for /l %%a in ( 1, 1, %len_a% ) do ( set ele_a=!ele_a! !num_a:~-%%a,1! )
-    set /a id = 0, sid = 0, maxid = 0
-    for %%b in ( %ele_b% ) do (
-        set /a sid = id, id += 1
-        for %%a in ( %ele_a% ) do (
-            set /a buff[!sid!] += %%a * %%b, sid += 1, maxid = sid
-        )
-    )
-    rem Merge
-    set /a id = 0
-    for /l %%c in ( 0, 1, %maxid% ) do (
-        set /a next = %%c+1
-        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
-    )
-
-    if "!buff[%maxid%]!" == "0" set /a maxid-=1
-    set product=
-    for /l %%n in (%maxid%, -1, 0) do set product=!product!!buff[%%n]!
-    endlocal &set %5=%product%&set /a %6=%maxid%+1
     goto :eof
 
 ::大数加法
