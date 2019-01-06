@@ -65,6 +65,16 @@ exit /b
         )
         :out_of_guess
 
+        :: 做大致的除法预估 mid 值
+        :estimate
+        if %target_len% gtr 5 (
+            if %target_len% gtr %tbase_len% (
+                set /a est=!target:~0,6!/!base:~0,5!
+                set /a mid=!est:~0,1!, max=mid, min=mid
+                rem echo,&echo %base% !target! !est! !mid! !target:~0,5!/!base:~0,5!
+            )
+        )
+
         :: 如果预估max等于1，说明结果只能为0，跳过 bin_search
         if %max% equ 1 (set /a mid=0& goto :out_bin_search )
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
