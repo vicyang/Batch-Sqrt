@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num=2
+set num=99
 rem set num=10
 set precision=100
 call :check_first %num% %precision%
@@ -40,10 +40,10 @@ exit /b
 
     rem prec 精度
     set /a prec = 0
-    set /a tbase_len = 0, equ = 0, target_len=skip
+    set /a base_len=0, equ=0, target_len=skip
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
-        set /a tbase_len+=1
+        set /a tbase_len=base_len+1
         rem call :length %target% target_len
 
         :: 预估下一个可能的数，并限制二分搜索的最大值
