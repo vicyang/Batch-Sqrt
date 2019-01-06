@@ -10,8 +10,8 @@ setlocal enabledelayedexpansion
 
 set num_a=99999
 set num_b=999
-for /l %%a in (1,1,250) do set num_a=!num_a!1
-for /l %%a in (1,1,250) do set num_b=!num_b!1
+for /l %%a in (1,1,2000) do set num_a=!num_a!1
+for /l %%a in (1,1,1000) do set num_b=!num_b!1
 call :bignum_plus %num_a% %num_b% sum
 echo %sum%
 rem set /a test = num_a + num_b
