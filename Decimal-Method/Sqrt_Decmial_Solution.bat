@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=100
+set precision=305
 call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -195,6 +195,7 @@ exit /b
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
     set /a minus = 0
+    set "res="
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
             set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
@@ -202,15 +203,15 @@ exit /b
             set /a dt = !num_a:~-%%n,1! - minus
         )
         if !dt! lss 0 (
-            set /a buff[%%n] = dt + 10, minus=1
+            set /a t = dt + 10, minus=1
         ) else (
-            set /a buff[%%n] = dt, minus=0
+            set /a t = dt, minus=0
         )
+        set res=!t!!res!
+        if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
-    :: 消除前置0
-    set delta=#
-    for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
-    endlocal &set %5=%delta:#=%
+    set res=!res:~%zero%!
+    endlocal &set %5=%res%
     goto :eof
 
 ::字符串长度计算
