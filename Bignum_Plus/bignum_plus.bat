@@ -3,10 +3,9 @@ rem bignum plus by 523066680
 setlocal enabledelayedexpansion
 
 :init
-    rem template for calculating strlen
-    rem @ http://bbs.bathome.net/redirect.php?goto=findpost&pid=210336
-    set mod=#0#1#2#3#4#5#6#7#8#9#A#B#C#D#E#F
-    set "mod=!%mod:#=!!mod:#=%!"
+    set "sharp=#"
+    set /a pow=11, maxlen=1^<^<pow
+    for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set num_a=99999
 set num_b=999
@@ -21,7 +20,7 @@ exit
     setlocal
     set num_a=%1
     set num_b=%2
-    set time_a=%time%
+    set ta=%time%
     call :length %num_a% len_a
     call :length %num_b% len_b
     set /a max = len_a
@@ -44,29 +43,24 @@ exit
     if "!buff[%next%]!" gtr "0" set /a max+=1
     set sum=
     for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
-    call :time_used %time_a% %time%
+    call :time_delta %ta% %time% tu
+    echo time used: %tu%
     endlocal &set %3=%sum%
     goto :eof
     
 :length %str% %vname%
     setlocal
-    set "str=%mod%%~1%~1"
-    set /a len=0x!str:~-512,2!
+    set test=%~1_%sharp%
+    set test=!test:~0,%maxlen%!
+    set test=%test:*_=%
+    set /a len=maxlen-(%test:#=1+%1)
     endlocal &set %2=%len%
     goto :eof
 
-:time_used %time_a% %time_b%
-    rem only for few seconds, not consider minutes
+:time_delta <beginTimeVar> <endTimeVar> <retVar> // code by plp626
     setlocal
-    set ta=%1& set tb=%2
-    set ta=#%ta:~-5%& set tb=#%tb:~-5%
-    set ta=%ta:#0=%& set tb=%tb:#0=%
-    set ta=%ta:#=%& set tb=%tb:#=%
-    set /a dt = %tb:.=% - %ta:.=%
-    set dt=%dt:-=%
-    set dt=0000%dt%
-    set dt=%dt:~-4%
-    echo time used: %dt:~0,2%.%dt:~2,2%s
-    endlocal
-    goto :eof
-
+    set ta=%1&set tb=%2
+    set /a "c=1!tb:~-5,2!!tb:~-2!-1!ta:~-5,2!!ta:~-2!,c+=-6000*(c>>31)"
+    if defined %3 set /a c+=!%3!
+    endlocal&set %3=%c%
+    goto:eof
