@@ -10,8 +10,8 @@ setlocal enabledelayedexpansion
 
 set num_a=100000
 set num_b=99999
-for /l %%a in (1,1,2000) do set num_a=!num_a!1
-for /l %%a in (1,1,2000) do set num_b=!num_a!2
+for /l %%a in (1,1,2000) do set num_a=!num_a!0
+for /l %%a in (1,1,2000) do set num_b=!num_b!9
 call :check_first %num_a%-%num_b%
 call :bignum_minus %num_a% %num_b% delta
 echo %delta%
@@ -45,8 +45,9 @@ exit
             set /a t = dt, minus=0
         )
         set res=!t!!res!
+        if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
-
+    set res=!res:~%zero%!
     call :time_delta %ta% %time% tu
     echo time used %tu%
     endlocal &set %3=%res%
