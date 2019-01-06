@@ -12,14 +12,15 @@ set num_b=9
 
 for /l %%a in (1,1,1000) do (set num_a=!num_a!2)
 
+set ta=%time%
 call :bignum_mp_single %num_a% %num_b% product
+call :time_delta %ta% %time% tu
 echo %product%
-pause
+echo time used: %tu%
 exit
 
 :bignum_mp_single
     setlocal
-    set time_a=%time%
     set num_a=%1
     set num_b=%2
     call :length %num_a% len
@@ -38,7 +39,6 @@ exit
         set /a buff[!maxid!] = pool
     )
 
-    call :time_used %time_a% %time%
     set res=
     for /l %%n in (%maxid%, -1, 0) do set res=!res!!buff[%%n]!
     endlocal&set %3=%res%
@@ -53,18 +53,10 @@ exit
     endlocal &set %2=%len%
     goto :eof
 
-:time_used %time_a% %time_b%
-    rem only for few seconds, not consider minutes
+:time_delta <beginTimeVar> <endTimeVar> <retVar> // code by plp626
     setlocal
-    set ta=%1& set tb=%2
-    set ta=#%ta:~-5%& set tb=#%tb:~-5%
-    set ta=%ta:#0=%& set tb=%tb:#0=%
-    set ta=%ta:#=%& set tb=%tb:#=%
-    set /a dt = %tb:.=% - %ta:.=%
-    set dt=%dt:-=%
-    set dt=0000%dt%
-    set dt=%dt:~-4%
-    echo time used: %dt:~0,2%.%dt:~2,2%s
-    endlocal
-    goto :eof
-
+    set ta=%1&set tb=%2
+    set /a "c=1!tb:~-5,2!!tb:~-2!-1!ta:~-5,2!!ta:~-2!,c+=-6000*(c>>31)"
+    if defined %3 set /a c+=!%3!
+    endlocal&set %3=%c%
+    goto:eof
