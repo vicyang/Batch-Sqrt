@@ -64,7 +64,6 @@ exit /b
         :out_of_guess
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
-        
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
