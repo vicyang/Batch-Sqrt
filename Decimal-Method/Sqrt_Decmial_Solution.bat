@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num=2
+set num=26
 rem set num=10
 set precision=100
 call :check_first %num% %precision%
