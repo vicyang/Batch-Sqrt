@@ -8,6 +8,7 @@ setlocal enabledelayedexpansion
 :init
     rem 创建用于计算字符串长度的模板，长度限制为 2^pow
     set "sharp=#"
+    set "model=9876543210"
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
@@ -15,7 +16,7 @@ set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=100
-rem call :check_first %num% %precision%
+call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
 
@@ -39,29 +40,30 @@ exit /b
     set /a prec = 0
     set /a tbase_len = 0, equ = 0
     :dec_loop
-        set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
-        set /a tbase_len+=1
+        if %tbase_len% lss 1 (set /a max=10) else (set /a max=100)
+        set /a min=0, mid=^(min+max^)/2, range=max-min, quit=0, equ=0
+        if %tbase_len% lss 1 (set /a tbase_len+=1) else (set /a tbase_len+=2)
         call :length %target% target_len
 
         :: 预估下一个可能的数，并限制二分搜索的最大值
-        :guess
-        if %target_len% gtr 3 (
-        if %target_len% equ %tbase_len% (
-            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        ) else (
-            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        )
-        ) else (goto :out_of_guess)
+        rem :guess
+        rem if %target_len% gtr 3 (
+        rem if %target_len% equ %tbase_len% (
+        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
+        rem ) else (
+        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
+        rem )
+        rem ) else (goto :out_of_guess)
 
-        for /l %%a in (0,1,9) do (
-            set /a t = %%a * b_head
-            rem echo !t! !target:~0,2! %%a
-            if !t! gtr %t_head% (
-                set /a max = %%a, mid = ^(min+max^)/2
-                goto :out_of_guess
-            )
-        )
-        :out_of_guess
+        rem for /l %%a in (0,1,9) do (
+        rem     set /a t = %%a * b_head
+        rem     rem echo !t! !target:~0,2! %%a
+        rem     if !t! gtr %t_head% (
+        rem         set /a max = %%a, mid = ^(min+max^)/2
+        rem         goto :out_of_guess
+        rem     )
+        rem )
+        rem :out_of_guess
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
         :dec_bin_search
@@ -71,11 +73,12 @@ exit /b
             ) else (
                 set tbase=!base!!mid!
             )
-            set ta=%time%
-            call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
+            set mid_len=%mid%%model%
+            set mid_len=%mid_len:~9,1%
+
+            call :bignum_mp %tbase% %mid% %tbase_len% %mid_len% mp mp_len
             set mp_%mid%=%mp%
-            set mplen_%mid%=%mp_len%
-            rem call :cmp %mp% %target% %mp_len% %target_len% cmp
+            rem echo,&echo tbase %tbase%, mid %mid%, mp %mp%, tg %target%, midlen %mid_len%
 
             :: 比较 - 判断是否超出
             :cmp_begin
@@ -94,8 +97,7 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        
-        set ta=%time%
+
         set /p inp="%mid%"<nul
         rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
         if "%tnum%" == "" (
@@ -104,7 +106,7 @@ exit /b
             ) else (
                 rem current precision
                 if %prec% equ 0 set /p inp="."<nul
-                set /a prec+=1
+                set /a prec+=2
             )
         )
 
@@ -112,15 +114,15 @@ exit /b
         set ta=%time%
         call :bignum_minus %target% !mp_%mid%! target
         if %skip% geq %len% (
-            set target=%target%00
+            set target=%target%0000
         ) else (
             if "%target%" == "0" (
-                set target=!tnum:~0,2!
+                set target=!tnum:~0,4!
             ) else (
-                set target=!target!!tnum:~0,2!
+                set target=!target!!tnum:~0,4!
             )
-            set tnum=!tnum:~2!
-            set /a skip+=2
+            set tnum=!tnum:~4!
+            set /a skip+=4
         )
 
         rem base=base*10+mid*2
@@ -128,14 +130,13 @@ exit /b
             set /a base=mid*2
         ) else (
             set /a db_mid=mid*2
-            call :bignum_plus !base!0 !db_mid! base
+            call :bignum_plus !base!00 !db_mid! base
         )
-        call :time_delta %ta% %time% minus_tu
+
+        rem echo, &echo base: %base%
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
-    echo,
-    echo minus_tu %minus_tu%
     endlocal
     goto :eof
 
