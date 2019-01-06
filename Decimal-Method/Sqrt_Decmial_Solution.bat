@@ -13,10 +13,13 @@ setlocal enabledelayedexpansion
 
 set num=2
 rem set num=10
-rem call :get_int_of_root %num% int_root cmp
-set precision=305
+set precision=100
 call :check_first %num% %precision%
+set ta=%time%
 call :decimal_solution %num%
+call :time_delta %ta% %time% tu
+echo time used: %tu%
+rem pause
 exit /b
 
 :check_first
@@ -55,13 +58,15 @@ exit /b
 
         for /l %%a in (0,1,9) do (
             set /a t = %%a * b_head
-            rem echo !t! !target:~0,2! %%a
             if !t! gtr %t_head% (
                 set /a max = %%a, mid = ^(min+max^)/2
                 goto :out_of_guess
             )
         )
         :out_of_guess
+
+        :: 如果预估max等于1，说明结果只能为0，跳过 bin_search
+        if %max% equ 1 (set /a mid=0& goto :out_bin_search )
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
         set ta=%time%
@@ -95,10 +100,12 @@ exit /b
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
         rem call :time_delta %ta% %time% bs_tu
+        :out_bin_search
 
         set /p inp="%mid%"<nul
-        rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
         if "%tnum%" == "" (
+            :: 如果target只剩下 00，方案结束
+            if "%target%" == "00" ( goto :dec_loop_out )
             if %cmp% == 0 (
                 goto :dec_loop_out
             ) else (
@@ -128,7 +135,6 @@ exit /b
         if "%base%" == "0" (
             set /a base=mid*2
             if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)
-
         ) else (
             set /a db_mid=mid*2
             if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
@@ -139,7 +145,7 @@ exit /b
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
-    echo bs_tu %bs_tu% minus_tu %minus_tu%
+    rem echo bs_tu %bs_tu% minus_tu %minus_tu%
     endlocal
     goto :eof
 
