@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=305
+set precision=100
 rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -33,7 +33,7 @@ exit /b
     if %mod% equ 1 (set /a skip=1) else (set /a skip=2)
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
-    set mp_0=0
+    set /a mp_0=0, mplen_0=1
 
     rem prec ¾«¶È
     set /a prec = 0
@@ -64,7 +64,7 @@ exit /b
         :out_of_guess
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
-        set ta=%time%
+        
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -73,7 +73,9 @@ exit /b
                 set tbase=!base!!mid!
             )
 
+            set ta=%time%
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
+            call :time_delta %ta% %time% bs_tu
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
             rem call :cmp %mp% %target% %mp_len% %target_len% cmp
@@ -95,7 +97,6 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        rem call :time_delta %ta% %time% bs_tu
 
         set /p inp="%mid%"<nul
         rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
@@ -112,6 +113,7 @@ exit /b
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         set ta=%time%
         call :bignum_minus %target% !mp_%mid%! %target_len% !mplen_%mid%! target
+
         if %skip% geq %len% (
             set target=%target%00
         ) else (
@@ -134,7 +136,7 @@ exit /b
             if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
-        rem call :time_delta %ta% %time% minus_tu
+        call :time_delta %ta% %time% minus_tu
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
