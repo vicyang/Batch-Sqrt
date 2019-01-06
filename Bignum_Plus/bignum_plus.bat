@@ -32,13 +32,14 @@ exit
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
-    set /a pool=0
-    for /l %%n in ( 1, 1, %max% ) do (
-        if %%n leq %len_b% (
-            set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
-        ) else (
-            set /a t = !num_a:~-%%n,1! + pool
-        )
+    set /a pool=0, part2=len_b+1
+    for /l %%n in ( 1, 1, %len_b% ) do (
+        set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
+        set /a buff[%%n] = t %% 10, pool = t / 10
+    )
+
+    for /l %%n in ( %part2%, 1, %max% ) do (
+        set /a t = !num_a:~-%%n,1! + pool
         set /a buff[%%n] = t %% 10, pool = t / 10
     )
 
