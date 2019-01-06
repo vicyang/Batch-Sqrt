@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num=999
+set num=99
 rem set num=10
 set precision=100
 call :check_first %num% %precision%
@@ -46,31 +46,31 @@ exit /b
         set /a tbase_len=base_len+1
         rem call :length %target% target_len
 
-        rem :: 预估下一个可能的数，并限制二分搜索的最大值
-        rem :guess
-        rem if %target_len% gtr 3 (
-        rem if %target_len% equ %tbase_len% (
-        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        rem ) else (
-        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        rem )
-        rem ) else (goto :out_of_guess)
+        :: 评估二分搜索的最大值
+        :guess
+        if %target_len% gtr 3 (
+        if %target_len% equ %tbase_len% (
+            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
+        ) else (
+            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
+        )
+        ) else (goto :out_of_guess)
 
-        rem for /l %%a in (0,1,9) do (
-        rem     set /a t = %%a * b_head
-        rem     if !t! gtr %t_head% (
-        rem         set /a max = %%a, mid = ^(min+max^)/2
-        rem         goto :out_of_guess
-        rem     )
-        rem )
-        rem :out_of_guess
+        for /l %%a in (0,1,9) do (
+            set /a t = %%a * b_head
+            if !t! gtr %t_head% (
+                set /a max = %%a
+                goto :out_of_guess
+            )
+        )
+        :out_of_guess
 
         :: 做大致的除法预估 mid 值
         :estimate
         if %target_len% gtr 5 (
             if %target_len% gtr %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
-                set /a mid=!est:~0,1!, max=mid+1, min=mid
+                set /a mid=!est:~0,1!
                 rem echo,&echo %base% !target! !est! !mid! !target:~0,5!/!base:~0,5!
             )
         )
