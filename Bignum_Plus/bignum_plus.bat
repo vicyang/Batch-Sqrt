@@ -12,10 +12,15 @@ set num_a=99999
 set num_b=999
 for /l %%a in (1,1,2000) do set num_a=!num_a!1
 for /l %%a in (1,1,1000) do set num_b=!num_b!1
+call :check_first %num_a%+%num_b%
 call :bignum_plus %num_a% %num_b% sum
 echo %sum%
 rem set /a test = num_a + num_b
 exit
+
+:check_first
+    perl -Mbignum -le "print %1" 2>nul
+    goto :eof
 
 :bignum_plus
     setlocal
@@ -27,26 +32,22 @@ exit
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
+    set /a pool=0
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
-            set /a buff[%%n] = !num_a:~-%%n,1! + !num_b:~-%%n,1!
+            set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
         ) else (
-            set buff[%%n]=!num_a:~-%%n,1!
+            set /a t = !num_a:~-%%n,1! + pool
         )
+        set /a buff[%%n] = t %% 10, pool = t / 10
     )
 
-    set /a id = 0
-    for /l %%c in ( 0, 1, %max% ) do (
-        set /a next = %%c+1
-        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
-    )
+    if %pool% gtr 0 (set /a max+=1,res=1) else (set res=)
+    for /l %%a in (%max%, -1, 1) do set res=!res!!buff[%%a]!
 
-    if "!buff[%next%]!" gtr "0" set /a max+=1
-    set sum=
-    for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
     call :time_delta %ta% %time% tu
     echo time used: %tu%
-    endlocal &set %3=%sum%
+    endlocal &set %3=%res%
     goto :eof
     
 :length %str% %vname%
