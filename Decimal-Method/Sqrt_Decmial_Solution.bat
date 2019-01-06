@@ -40,11 +40,11 @@ exit /b
 
     rem prec 精度
     set /a prec = 0
-    set /a tbase_len = 0, equ = 0
+    set /a tbase_len = 0, equ = 0, target_len=skip
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         set /a tbase_len+=1
-        call :length %target% target_len
+        rem call :length %target% target_len
 
         :: 预估下一个可能的数，并限制二分搜索的最大值
         :guess
@@ -94,8 +94,14 @@ exit /b
 
             rem call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
-            if %cmp% equ 1 (set /a max=mid )
-            if %cmp% equ -1 (set /a min=mid )
+            if %cmp% equ 1 (
+                set /a max=mid
+            )
+            if %cmp% equ -1 (
+                set /a min=mid
+                rem call :bignum_minus %target% %mp% %target_len% %mp_len% delta delta_len
+                rem echo,&echo dt:!delta! !delta_len!
+            )
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
@@ -117,7 +123,7 @@ exit /b
 
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         set ta=%time%
-        call :bignum_minus %target% !mp_%mid%! %target_len% !mplen_%mid%! target
+        call :bignum_minus %target% !mp_%mid%! %target_len% !mplen_%mid%! target target_len
 
         if %skip% geq %len% (
             set target=%target%00
@@ -130,6 +136,7 @@ exit /b
             set tnum=!tnum:~2!
             set /a skip+=2
         )
+        set /a target_len+=2
 
         rem base=base*10+mid*2
         if "%base%" == "0" (
@@ -217,7 +224,7 @@ exit /b
         if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
     set res=!res:~%zero%!
-    endlocal &set %5=%res%
+    endlocal &set %5=%res%&set /a %6=%max%-%zero%
     goto :eof
 
 ::字符串长度计算
