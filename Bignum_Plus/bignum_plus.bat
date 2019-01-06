@@ -3,6 +3,7 @@ rem bignum plus by 523066680
 setlocal enabledelayedexpansion
 
 :init
+    rem 创建用于计算字符串长度的模板，长度限制为 2^pow
     set "sharp=#"
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
@@ -57,6 +58,7 @@ exit
     endlocal &set %2=%len%
     goto :eof
 
+:: plp626的时间差函数 时间跨度在1分钟内可调用之；用于测试一般bat运行时间
 :time_delta <beginTimeVar> <endTimeVar> <retVar> // code by plp626
     setlocal
     set ta=%1&set tb=%2
