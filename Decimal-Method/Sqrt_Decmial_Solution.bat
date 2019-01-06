@@ -15,7 +15,7 @@ set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
 set precision=100
-rem call :check_first %num% %precision%
+call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
 
@@ -143,6 +143,7 @@ exit /b
     endlocal
     goto :eof
 
+:: 大数 乘以 单位数
 :bignum_mp_single
     setlocal
     set num_a=%1
