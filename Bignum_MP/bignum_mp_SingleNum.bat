@@ -7,7 +7,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=1999999999
+set num_a=123456
 set num_b=9
 
 for /l %%a in (1,1,2000) do (set num_a=!num_a!9)
@@ -31,10 +31,11 @@ exit
     set num_a=%1
     set num_b=%2
     call :length %num_a% len
-    set /a pool = 0, maxid = len
-    for /l %%a in ( 1, 1, %len% ) do (
-        set /a mp = !num_a:~-%%a,1! * num_b + pool
-        set /a buff[%%a] = mp %% 10, pool = mp / 10
+    set /a pool = 0, maxid = len, bar=0, foo=1
+    for /l %%a in ( 2, 2, %len% ) do (
+        set /a mp = !num_a:~-%%a, 2! * num_b + pool
+        set /a buff[!bar!] = mp %% 10, pool = mp/100, ^
+                buff[!foo!] = ^(mp/10^) %% 10, f=buff[!foo!], foo+=2, bar+=2
     )
 
     if %pool% neq 0 set /a maxid+=1, buff[!maxid!] = pool
