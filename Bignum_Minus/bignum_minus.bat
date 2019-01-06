@@ -3,28 +3,36 @@ rem bignum plus by 523066680
 setlocal enabledelayedexpansion
 
 :init
-  set mod=
-  set /a maxlen=2000, half=maxlen/2
-  for /l %%a in (1,1,%half%) do set mod=!mod!##
+    rem 创建用于计算字符串长度的模板，长度限制为 2^pow
+    set "sharp=#"
+    set /a pow=11, maxlen=1^<^<pow
+    for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set num_a=100000
 set num_b=99999
-rem for /l %%a in (1,1,500) do set num_a=!num_a!1
+for /l %%a in (1,1,2000) do set num_a=!num_a!1
+for /l %%a in (1,1,2000) do set num_b=!num_a!2
+call :check_first %num_a%-%num_b%
 call :bignum_minus %num_a% %num_b% delta
 echo %delta%
 exit
+
+:check_first
+    perl -Mbignum -le "print %1" 2>nul
+    goto :eof
 
 :bignum_minus
     setlocal
     set num_a=%1
     set num_b=%2
-    set time_a=%time%
+    set ta=%time%
     call :length %num_a% len_a
     call :length %num_b% len_b
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
     set /a minus = 0
+    set "res="
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
             set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
@@ -32,39 +40,33 @@ exit
             set /a dt = !num_a:~-%%n,1! - minus
         )
         if !dt! lss 0 (
-            set /a buff[%%n] = dt + 10, minus=1
+            set /a t = dt + 10, minus=1
         ) else (
-            set /a buff[%%n] = dt, minus=0
+            set /a t = dt, minus=0
         )
+        set res=!t!!res!
     )
 
-    set delta=#
-    for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
-    call :time_used %time_a% %time%
-    endlocal &set %3=%delta:#=%
+    call :time_delta %ta% %time% tu
+    echo time used %tu%
+    endlocal &set %3=%res%
     goto :eof
 
+::字符串长度计算
 :length %str% %vname%
     setlocal
-    set test=%~1_%mod%
+    set test=%~1_%sharp%
     set test=!test:~0,%maxlen%!
     set test=%test:*_=%
     set /a len=maxlen-(%test:#=1+%1)
     endlocal &set %2=%len%
     goto :eof
 
-:time_used %time_a% %time_b%
-    rem only for few seconds, not consider minutes
+:: plp626的时间差函数 时间跨度在1分钟内可调用之；用于测试一般bat运行时间
+:time_delta <beginTimeVar> <endTimeVar> <retVar> // code by plp626
     setlocal
-    set ta=%1& set tb=%2
-    rem insert 1 befeore 00.00 if first num is zero
-    set ta=1%ta:~-5%
-    set tb=1%tb:~-5%
-    set /a dt = %tb:.=% - %ta:.=%
-    set dt=%dt:-=%
-    set dt=0000%dt%
-    set dt=%dt:~-4%
-    echo time used: %dt:~0,2%.%dt:~2,2%s
-    endlocal
-    goto :eof
-
+    set ta=%1&set tb=%2
+    set /a "c=1!tb:~-5,2!!tb:~-2!-1!ta:~-5,2!!ta:~-2!,c+=-6000*(c>>31)"
+    if defined %3 set /a c+=!%3!
+    endlocal&set %3=%c%
+    goto:eof
