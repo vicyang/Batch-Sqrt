@@ -14,8 +14,8 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=80
-rem call :check_first %num% %precision%
+set precision=100
+call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
 
@@ -64,6 +64,7 @@ exit /b
         :out_of_guess
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
+        set ta=%time%
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -72,9 +73,7 @@ exit /b
                 set tbase=!base!!mid!
             )
 
-            set ta=%time%
             call :bignum_mp_single %tbase% %mid% %tbase_len% 1 mp mp_len
-            rem call :time_delta %ta% %time% bs_tu
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
 
@@ -95,6 +94,7 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
+        rem call :time_delta %ta% %time% bs_tu
 
         set /p inp="%mid%"<nul
         rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
@@ -199,25 +199,19 @@ exit /b
     set /a len_a=%3, len_b=%4
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
-
+    set /a pool=0
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
-            set /a buff[%%n] = !num_a:~-%%n,1! + !num_b:~-%%n,1!
+            set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
         ) else (
-            set buff[%%n]=!num_a:~-%%n,1!
+            set /a t = !num_a:~-%%n,1! + pool
         )
+        set /a buff[%%n] = t %% 10, pool = t / 10
     )
 
-    set /a id = 0
-    for /l %%c in ( 0, 1, %max% ) do (
-        set /a next = %%c+1
-        set /a buff[!next!] += buff[%%c]/10, buff[%%c] = buff[%%c] %% 10
-    )
-
-    if "!buff[%next%]!" gtr "0" set /a max+=1
-    set sum=
-    for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
-    endlocal &set %5=%sum%&set %6=%max%
+    if %pool% gtr 0 (set /a max+=1,res=1) else (set res=)
+    for /l %%a in (%max%, -1, 1) do set res=!res!!buff[%%a]!
+    endlocal &set %5=%res%&set %6=%max%
     goto :eof
 
 ::´óÊý¼õ·¨
