@@ -7,7 +7,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=1999999999
+set num_a=123456
 set num_b=9
 
 for /l %%a in (1,1,2000) do (set num_a=!num_a!9)
