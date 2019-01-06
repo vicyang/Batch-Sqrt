@@ -94,9 +94,7 @@ exit /b
 
             rem call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
-            if %cmp% equ 1 (
-                set /a max=mid
-            )
+            if %cmp% equ 1 (set /a max=mid)
             if %cmp% equ -1 (
                 set /a min=mid
                 rem call :bignum_minus %target% %mp% %target_len% %mp_len% delta delta_len
