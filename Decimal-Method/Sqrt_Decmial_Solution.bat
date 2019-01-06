@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=100
+set precision=80
 rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -73,11 +73,10 @@ exit /b
             )
 
             set ta=%time%
-            call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
-            call :time_delta %ta% %time% bs_tu
+            call :bignum_mp_single %tbase% %mid% %tbase_len% 1 mp mp_len
+            rem call :time_delta %ta% %time% bs_tu
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
-            rem call :cmp %mp% %target% %mp_len% %target_len% cmp
 
             :: 比较 - 判断是否超出
             :cmp_begin
@@ -135,13 +134,33 @@ exit /b
             if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
-        call :time_delta %ta% %time% minus_tu
+        rem call :time_delta %ta% %time% minus_tu
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
     echo bs_tu %bs_tu% minus_tu %minus_tu%
     endlocal
+    goto :eof
+
+:bignum_mp_single
+    setlocal
+    set num_a=%1
+    set num_b=%2
+    set /a pool = 0, maxid = %3
+    for /l %%a in ( 1, 1, %maxid% ) do (
+        set /a mp = !num_a:~-%%a,1! * num_b + pool
+        set /a buff[%%a] = mp %% 10, pool = mp / 10
+    )
+
+    if %pool% neq 0 (
+        set /a maxid+=1
+        set /a buff[!maxid!]=pool
+    )
+
+    set res=
+    for /l %%n in (%maxid%, -1, 0) do set res=!res!!buff[%%n]!
+    endlocal&set %5=%res%&set %6=%maxid%
     goto :eof
 
 ::大数乘法
