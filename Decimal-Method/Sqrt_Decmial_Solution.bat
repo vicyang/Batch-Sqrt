@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 set num=2
 rem set num=10
 rem call :get_int_of_root %num% int_root cmp
-set precision=100
+set precision=305
 rem call :check_first %num% %precision%
 call :decimal_solution %num%
 exit /b
@@ -64,6 +64,7 @@ exit /b
         :out_of_guess
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
+        set ta=%time%
         :dec_bin_search
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
@@ -71,7 +72,7 @@ exit /b
             ) else (
                 set tbase=!base!!mid!
             )
-            set ta=%time%
+
             call :bignum_mp %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
@@ -94,15 +95,15 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        
-        set ta=%time%
+        rem call :time_delta %ta% %time% bs_tu
+
         set /p inp="%mid%"<nul
         rem echo, &echo tnum %tnum%, cmp %cmp%, equ %equ%, tg %target%
         if "%tnum%" == "" (
             if %cmp% == 0 (
                 goto :dec_loop_out
             ) else (
-                rem current precision
+                :: 当前精度
                 if %prec% equ 0 set /p inp="."<nul
                 set /a prec+=1
             )
@@ -110,7 +111,7 @@ exit /b
 
         rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         set ta=%time%
-        call :bignum_minus %target% !mp_%mid%! target
+        call :bignum_minus %target% !mp_%mid%! %target_len% !mplen_%mid%! target
         if %skip% geq %len% (
             set target=%target%00
         ) else (
@@ -126,16 +127,19 @@ exit /b
         rem base=base*10+mid*2
         if "%base%" == "0" (
             set /a base=mid*2
+            if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)
+
         ) else (
             set /a db_mid=mid*2
-            call :bignum_plus !base!0 !db_mid! base
+            if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
+            call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
-        call :time_delta %ta% %time% minus_tu
+        rem call :time_delta %ta% %time% minus_tu
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
-    echo minus_tu %minus_tu%
+    echo bs_tu %bs_tu% minus_tu %minus_tu%
     endlocal
     goto :eof
 
@@ -172,8 +176,7 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
+    set /a len_a=%3, len_b=%4
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
@@ -194,7 +197,7 @@ exit /b
     if "!buff[%next%]!" gtr "0" set /a max+=1
     set sum=
     for /l %%a in (%max%, -1, 1) do set sum=!sum!!buff[%%a]!
-    endlocal &set %3=%sum%
+    endlocal &set %5=%sum%&set %6=%max%
     goto :eof
 
 ::大数减法
@@ -202,8 +205,7 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    call :length %num_a% len_a
-    call :length %num_b% len_b
+    set /a len_a=%3, len_b=%4
     set /a max = len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
@@ -220,10 +222,10 @@ exit /b
             set /a buff[%%n] = dt, minus=0
         )
     )
-
+    :: 消除前置0
     set delta=#
     for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
-    endlocal &set %3=%delta:#=%
+    endlocal &set %5=%delta:#=%
     goto :eof
 
 ::字符串长度计算
