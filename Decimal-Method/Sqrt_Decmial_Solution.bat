@@ -40,10 +40,10 @@ exit /b
 
     rem prec 精度
     set /a prec = 0
-    set /a tbase_len = 0, equ = 0
+    set /a tbase_len = 0, base_len=0, equ = 0
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
-        set /a tbase_len+=1
+        set /a tbase_len=base_len+1
         call :length %target% target_len
 
         :: 预估下一个可能的数，并限制二分搜索的最大值
@@ -66,7 +66,7 @@ exit /b
         :out_of_guess
 
         :: 如果预估max等于1，说明结果只能为0，跳过 bin_search
-        if %max% equ 1 (set /a mid=0& goto :out_bin_search )
+        rem if %max% equ 1 (set /a mid=0& goto :out_bin_search )
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
         set ta=%time%
@@ -79,6 +79,7 @@ exit /b
             )
 
             call :bignum_mp_single %tbase% %mid% %tbase_len% 1 mp mp_len
+            rem echo call :bignum_mp_single %tbase% %mid% %tbase_len% 1 mp mp_len
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
 
@@ -115,7 +116,7 @@ exit /b
             )
         )
 
-        rem echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
+        rem echo, &echo b=%base% tb=%tbase% tg=%target% mp=%mp% mid=%mid%
         set ta=%time%
         call :bignum_minus %target% !mp_%mid%! %target_len% !mplen_%mid%! target
 
