@@ -64,7 +64,7 @@ exit /b
         :estimate
         if %base_len% gtr 5 (
             call :cmp %target% %base%0 %target_len% %tbase_len% cmp
-            if !cmp! equ -1 (set mid=0&goto :out_bin_search)
+            if !cmp! equ -1 (set /a est=0,mid=0&goto :out_bin_search)
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!, max=mid+1
