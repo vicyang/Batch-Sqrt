@@ -59,7 +59,7 @@ exit /b
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         set /a tbase_len=base_len+1
-        
+
         :: 做大致的除法预估 mid 值
         :estimate
         if %base_len% gtr 5 (
@@ -72,8 +72,6 @@ exit /b
             )
         )
 
-        :: 如果预估max等于1，说明结果只能为0，跳过 bin_search
-        if %max% equ 1 (set /a mid=0& goto :out_bin_search )
         rem if %mid% equ 1 (
         rem     set mp_%mid%=%base%%mid%
         rem     set /a mplen_%mid%=base_len+1
