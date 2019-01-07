@@ -82,6 +82,8 @@ exit /b
         :: 做大致的除法预估 mid 值
         :estimate
         if %base_len% gtr 5 (
+            call :cmp %target% %base%0 %target_len% %tbase_len% cmp
+            if !cmp! equ -1 (set mid=0&goto :out_bin_search)
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!
@@ -113,6 +115,7 @@ exit /b
             set mplen_%mid%=%mp_len%
 
             :: 比较 - 判断是否超出
+            rem call :cmp %mp% %target% %mp_len% %target_len% cmp
             :cmp_begin
             if %mp_len% gtr %target_len% (set /a cmp=1&goto :cmp_end)
             if %mp_len% lss %target_len% (set /a cmp=-1&goto :cmp_end)
