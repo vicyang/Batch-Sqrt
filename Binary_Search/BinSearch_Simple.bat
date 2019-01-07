@@ -20,7 +20,7 @@ exit /b
         if %max% leq %min% (set quit=1)
         echo  %cmp%
     if %quit% == 0 goto :loop
-    echo min=%min% max=%max% mid=%mid% %cmp%
+    rem echo min=%min% max=%max% mid=%mid% %cmp%
 
     endlocal&set %2=%mid%
     goto :eof
