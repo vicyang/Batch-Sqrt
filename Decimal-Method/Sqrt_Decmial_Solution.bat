@@ -95,7 +95,7 @@ exit /b
             if %est% geq 100 (
                 for /l %%a in (0,1,9) do (
                     set /a mp=%base%%%a*%%a
-                    if !mp! gtr !target! (set /a est=%%a &goto :out_est_for)
+                    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
             :out_est_for
@@ -110,8 +110,9 @@ exit /b
 
             set /a mid=!est:~0,1!
             call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
+            echo !base!!mid! !mid! !tbase_len! 1
             call :cmp !mp! !target! !mplen! !target_len! cmp
-            rem echo !mp! !target! !mplen! !target_len! !cmp!
+            echo !mp! !target! !mplen! !target_len! !cmp!
             :: 如果mp超出目标范围
             if !cmp! equ 1 (
                 set /a mid-=1
