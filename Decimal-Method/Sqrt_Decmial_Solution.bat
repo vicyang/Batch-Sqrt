@@ -74,11 +74,6 @@ exit /b
             )
         )
 
-        rem if %mid% equ 1 (
-        rem     set mp_%mid%=%base%%mid%
-        rem     set /a mplen_%mid%=base_len+1
-        rem     goto :out_bin_search
-        rem )
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
         set ta=%time%
