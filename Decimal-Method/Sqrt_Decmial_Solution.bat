@@ -13,12 +13,16 @@ setlocal enabledelayedexpansion
 
 set precision=80
 set num=29
-set ta=!time!
-call :check_first !num! !precision!
-call :decimal_solution !num!
-call :time_delta !ta! !time! tu
-echo time used: !tu!
+call :check_one %num%
 exit /b
+
+:check_one
+    set ta=!time!
+    call :check_first %1 !precision!
+    call :decimal_solution %1
+    call :time_delta !ta! !time! tu
+    echo time used: !tu!
+    goto :eof
 
 :check_all
     for /l %%a in (1,1,99) do (
