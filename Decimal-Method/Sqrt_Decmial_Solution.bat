@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=20
-call :check_one 3
+call :check_one 29
 exit /b
 
 :: 独立测试
@@ -90,6 +90,16 @@ exit /b
             ) else (
                 set /a est=target/base
             )
+
+            :: 如果est大于100（比如target=200, base=2），需要做完整的测试
+            if %est% geq 100 (
+                for /l %%a in (0,1,9) do (
+                    set /a mp=%base%%%a*%%a
+                    if !mp! gtr !target! (set /a est=%%a &goto :out_est_for)
+                )
+            )
+            :out_est_for
+
             call :cmp %target% %base%0 %target_len% %tbase_len% cmp
             if !cmp! equ -1 (
                 set /a mid=0
@@ -97,18 +107,17 @@ exit /b
                 set mplen=0
                 goto :out_estimate
             )
-            if %target_len% geq %tbase_len% (
-                set /a mid=!est:~0,1!
+
+            set /a mid=!est:~0,1!
+            call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
+            call :cmp !mp! !target! !mplen! !target_len! cmp
+            rem echo !mp! !target! !mplen! !target_len! !cmp!
+            :: 如果mp超出目标范围
+            if !cmp! equ 1 (
+                set /a mid-=1
                 call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
-                call :cmp !mp! !target! !mplen! !target_len! cmp
-                rem echo !mp! !target! !mplen! !target_len! !cmp!
-                :: 如果mp超出目标范围
-                if !cmp! equ 1 (
-                    set /a mid-=1
-                    call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
-                )
-                
             )
+
             :out_estimate
 
         echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
