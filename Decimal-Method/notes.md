@@ -43,3 +43,6 @@ rem 这里不能使用  if !t! gtr !target:~0,2! ，会被当作字符串判断�
 
 * Decimal_Method_OptC
   尝试直接预估结果，跳过二分搜索的部分。
+
+* Decimal_Method_OptD
+  尝试剔除整个二分搜索的代码
