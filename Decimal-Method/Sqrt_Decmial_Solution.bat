@@ -81,7 +81,7 @@ exit /b
 
         :: 做大致的除法预估 mid 值
         :estimate
-        if %target_len% gtr 5 (
+        if %base_len% gtr 5 (
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!
@@ -91,6 +91,11 @@ exit /b
 
         :: 如果预估max等于1，说明结果只能为0，跳过 bin_search
         if %max% equ 1 (set /a mid=0& goto :out_bin_search )
+        rem if %mid% equ 1 (
+        rem     set mp_%mid%=%base%%mid%
+        rem     set /a mplen_%mid%=base_len+1
+        rem     goto :out_bin_search
+        rem )
         rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
 
         set ta=%time%
@@ -126,7 +131,7 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
         :out_bin_search
     
-        rem echo, &echo est: %est%, act mid: %mid%
+        rem echo, &echo est: %est:~0,1%, act mid: %mid%
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
