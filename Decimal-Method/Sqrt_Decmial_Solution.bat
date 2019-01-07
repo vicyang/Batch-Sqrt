@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=20
-call :check_one 2
+call :check_one 3
 exit /b
 
 :: 独立测试
@@ -87,19 +87,24 @@ exit /b
         :estimate
         if %base_len% gtr 5 (
             call :cmp %target% %base%0 %target_len% %tbase_len% cmp
-            if !cmp! equ -1 (set /a est=0,mid=0)
+            if !cmp! equ -1 (
+                set /a mid=0
+                set mp=0
+                set mplen=0
+                goto :out_estimate
+            )
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
-                set /a mid=!est:~0,1!, max=mid+1
+                set /a mid=!est:~0,1!
                 call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
                 call :cmp !mp! !target! !mplen! !target_len! cmp
+                echo !mp! !target! !mplen! !target_len! !cmp!
+
                 :: 如果mp超出目标范围
                 if !cmp! equ 1 (
                     set /a mid-=1
                     call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
                 )
-                :: 后面的 bignum_minus 实际使用 mp_%mid% 和 mplen_%mid%
-                rem echo,&echo !base! !target! !est! !mid! !target:~0,5!/!base:~0,5!
             )
         ) else (
             set /a est=target/base
@@ -109,11 +114,13 @@ exit /b
                 set /a mid-=1
                 set /a mp=!base!!mid!*!mid!
             )
+            :: 对于小范围的字符串长度计算
             set mplen=!mp!9876543210
             set mplen=!mplen:~9,1!
         )
+        :out_estimate
 
-        echo,&echo before tg !target!, mp !mp!, !mplen!, base !base!, mid !mid!
+        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
         call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
 
         set /p inp="%mid%"<nul
