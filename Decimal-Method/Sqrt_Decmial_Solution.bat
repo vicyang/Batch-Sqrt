@@ -85,7 +85,11 @@ exit /b
 
         :: 推算下一个数
         :estimate
-        if %base_len% gtr 5 (
+            if %base_len% gtr 5 (
+                set /a est=!target:~0,6!/!base:~0,5!
+            ) else (
+                set /a est=target/base
+            )
             call :cmp %target% %base%0 %target_len% %tbase_len% cmp
             if !cmp! equ -1 (
                 set /a mid=0
@@ -94,31 +98,18 @@ exit /b
                 goto :out_estimate
             )
             if %target_len% geq %tbase_len% (
-                set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!
                 call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
                 call :cmp !mp! !target! !mplen! !target_len! cmp
-                echo !mp! !target! !mplen! !target_len! !cmp!
-
+                rem echo !mp! !target! !mplen! !target_len! !cmp!
                 :: 如果mp超出目标范围
                 if !cmp! equ 1 (
                     set /a mid-=1
                     call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
                 )
+                
             )
-        ) else (
-            set /a est=target/base
-            set /a mid=!est:~0,1!
-            set /a mp=!base!!mid!*!mid!
-            if !mp! gtr !target! (
-                set /a mid-=1
-                set /a mp=!base!!mid!*!mid!
-            )
-            :: 对于小范围的字符串长度计算
-            set mplen=!mp!9876543210
-            set mplen=!mplen:~9,1!
-        )
-        :out_estimate
+            :out_estimate
 
         echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
         call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
