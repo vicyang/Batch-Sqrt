@@ -12,10 +12,11 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-set num=29
+set num=26
 call :check_one %num%
 exit /b
 
+:: 独立测试
 :check_one
     set ta=!time!
     call :check_first %1 !precision!
@@ -24,6 +25,7 @@ exit /b
     echo time used: !tu!
     goto :eof
 
+:: 批量测试
 :check_all
     for /l %%a in (1,1,99) do (
         echo test number: %%a
@@ -33,6 +35,7 @@ exit /b
     )
     goto :eof
 
+:: 使用其他工具校验/对比结果
 :check_first
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
     goto :eof
@@ -121,7 +124,7 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        :out_bin_search
+        :out_bin_search 
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
