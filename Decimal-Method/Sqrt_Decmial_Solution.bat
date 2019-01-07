@@ -131,7 +131,11 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
         :out_bin_search
     
-        rem echo, &echo est: %est:~0,1%, act mid: %mid%
+        if defined est (
+            if "!est:~0,1!" neq "!mid!" (
+                echo, &echo est: %est:~0,1%, act mid: %mid%, tg %target%, base %base%
+            )
+        )
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
