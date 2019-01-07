@@ -11,14 +11,18 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num=99
-rem set num=10
-set precision=100
-call :check_first %num% %precision%
-set ta=%time%
-call :decimal_solution %num%
-call :time_delta %ta% %time% tu
-echo time used: %tu%
+set precision=80
+
+for /l %%a in (1,1,99) do (
+    set num=%%a
+    echo test number: %%a
+    call :check_first !num! !precision!
+    set ta=!time!&set /a tu=0
+    call :decimal_solution !num!
+    call :time_delta !ta! !time! tu
+    rem echo time used: !tu!
+    echo,
+)
 rem pause
 exit /b
 
