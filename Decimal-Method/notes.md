@@ -40,3 +40,6 @@ rem 这里不能使用  if !t! gtr !target:~0,2! ，会被当作字符串判断�
     ```
 
     把 cmp 后面的if整合到cmp之中，效率变化不大，代码暂时保留
+
+* Decimal_Method_OptC
+  尝试直接预估结果，跳过二分搜索的部分。
