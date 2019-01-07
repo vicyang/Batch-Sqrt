@@ -86,7 +86,7 @@ exit /b
             if !cmp! equ -1 (set mid=0&goto :out_bin_search)
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
-                set /a mid=!est:~0,1!
+                set /a mid=!est:~0,1!, max=mid+1
                 rem echo,&echo %base% !target! !est! !mid! !target:~0,5!/!base:~0,5!
             )
         )
@@ -114,8 +114,9 @@ exit /b
             set mp_%mid%=%mp%
             set mplen_%mid%=%mp_len%
 
-            :: 比较 - 判断是否超出
+            :: 这里用call会产生额外消耗，所以保留冗余代码
             rem call :cmp %mp% %target% %mp_len% %target_len% cmp
+            :: 比较 - 判断是否超出
             :cmp_begin
             if %mp_len% gtr %target_len% (set /a cmp=1&goto :cmp_end)
             if %mp_len% lss %target_len% (set /a cmp=-1&goto :cmp_end)
