@@ -8,10 +8,11 @@ setlocal enabledelayedexpansion
 :init
     rem 创建用于计算字符串长度的模板，长度限制为 2^pow
     set "sharp=#"
+    set "serial=9876543210"
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=10
+set precision=20
 call :check_one 2
 exit /b
 
@@ -57,32 +58,19 @@ exit /b
     set /a prec = 0
     set /a base_len=0, target_len=skip
     :first
-    for /l %%a in (0,1,9) do (
-        set /a mp=%%a*%%a
-        if !mp! gtr !target! (set /a mid=%%a-1, mp=mid*mid &goto :out_first)
-    )
+        for /l %%a in (0,1,9) do (
+            set /a mp=%%a*%%a
+            if !mp! gtr !target! (set /a mid=%%a-1, mp=mid*mid &goto :out_first)
+        )
+
     :out_first
-    if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
-    set /p inp="%mid%"<nul
+        if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
+        set /a target=target-mp, target_len+=2
+        set target=!target!00
+        set /p inp="%mid%"<nul
     
     :dec_loop
         set /a prec+=1
-        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
-
-        :: 如果截取的字符串已经达到被开根数的总长度，直接补0
-        if %skip% geq %len% (
-            set target=%target%00
-        ) else (
-            if "%target%" == "0" (
-                set target=!tnum:~0,2!
-            ) else (
-                set target=!target!!tnum:~0,2!
-            )
-            set tnum=!tnum:~2!
-            set /a skip+=2
-        )
-        set /a target_len+=2
-        
         rem base=base*10+mid*2
         if "%base%" == "0" (
             set /a base=mid*2
@@ -94,13 +82,12 @@ exit /b
         )
 
         set /a tbase_len=base_len+1
-        echo,&echo tg !target!, base !base!, mp !mp!
 
-        :: 做大致的除法预估 mid 值
+        :: 推算下一个数
         :estimate
         if %base_len% gtr 5 (
             call :cmp %target% %base%0 %target_len% %tbase_len% cmp
-            if !cmp! equ -1 (set /a est=0,mid=0&goto :out_bin_search)
+            if !cmp! equ -1 (set /a est=0,mid=0)
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!, max=mid+1
@@ -116,18 +103,38 @@ exit /b
             )
         ) else (
             set /a est=target/base
-            set /a mid=!est:~0,1!, mp=!base!!mid!*!base!!mid!
+            set /a mid=!est:~0,1!
+            set /a mp=!base!!mid!*!mid!
             if !mp! gtr !target! (
                 set /a mid-=1
-                set /a mp=!base!!mid!*!base!!mid!
+                set /a mp=!base!!mid!*!mid!
             )
+            set mplen=!mp!9876543210
+            set mplen=!mplen:~9,1!
         )
-        
-        rem echo, &echo %base%%mid% %target% %tbase_len% %target_len% max: %max%
+
+        echo,&echo before tg !target!, mp !mp!, !mplen!, base !base!, mid !mid!
+        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
+
         set /p inp="%mid%"<nul
+
+        :: 如果截取的字符串已经达到被开根数的总长度，直接补0
+        if %skip% geq %len% (
+            set target=%target%00
+        ) else (
+            if "%target%" == "0" (
+                set target=!tnum:~0,2!
+            ) else (
+                set target=!target!!tnum:~0,2!
+            )
+            set tnum=!tnum:~2!
+            set /a skip+=2
+        )
+        set /a target_len+=2
+
         if "%tnum%" == "" (
             :: 如果target只剩下 00，方案结束
-            if "%target%" == "00" ( goto :dec_loop_out )
+            rem if "%target%" == "00" ( goto :dec_loop_out )
             rem if %cmp% == 0 (
             rem     goto :dec_loop_out
             rem ) else (
@@ -139,7 +146,6 @@ exit /b
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
-    echo search times: %bstimes%
     endlocal
     goto :eof
 
