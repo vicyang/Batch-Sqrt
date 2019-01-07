@@ -54,23 +54,23 @@ exit /b
         set /a tbase_len=base_len+1
 
         :: 评估二分搜索的最大值
-        rem :guess
-        rem if %target_len% gtr 3 (
-        rem if %target_len% equ %tbase_len% (
-        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        rem ) else (
-        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        rem )
-        rem ) else (goto :out_of_guess)
+        :guess
+        if %target_len% gtr 3 (
+        if %target_len% equ %tbase_len% (
+            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
+        ) else (
+            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
+        )
+        ) else (goto :out_of_guess)
 
-        rem for /l %%a in (0,1,9) do (
-        rem     set /a t = %%a * b_head
-        rem     if !t! gtr %t_head% (
-        rem         set /a max = %%a
-        rem         goto :out_of_guess
-        rem     )
-        rem )
-        rem :out_of_guess
+        for /l %%a in (0,1,9) do (
+            set /a t = %%a * b_head
+            if !t! gtr %t_head% (
+                set /a max = %%a
+                goto :out_of_guess
+            )
+        )
+        :out_of_guess
 
         :: 做大致的除法预估 mid 值
         :estimate
@@ -162,6 +162,7 @@ exit /b
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
+    echo search times: %bstimes%
     endlocal
     goto :eof
 
