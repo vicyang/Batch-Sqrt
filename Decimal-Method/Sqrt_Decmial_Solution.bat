@@ -68,9 +68,18 @@ exit /b
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!, max=mid+1
-                rem call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp_!mid! mplen_!mid!
+                call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
+                call :cmp !mp! !target! !mplen! !target_len! cmp
+                :: 如果mp超出目标范围
+                if !cmp! equ 1 (
+                    set /a mid-=1
+                    call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
+                )
+                :: 后面的 bignum_minus 实际使用 mp_%mid% 和 mplen_%mid%
+                set mp_!mid!=!mp!
+                set mplen_!mid!=!mplen!
                 rem echo,&echo !base! !target! !est! !mid! !target:~0,5!/!base:~0,5!
-                rem goto :out_bin_search
+                goto :out_bin_search
             )
         )
 
@@ -111,11 +120,11 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
         :out_bin_search
     
-        if defined est (
-            if "!est:~0,1!" neq "!mid!" (
-                echo, &echo est: %est:~0,1%, act mid: %mid%, tg %target%, base %base%
-            )
-        )
+        rem if defined est (
+        rem     if "!est:~0,1!" neq "!mid!" (
+        rem         echo, &echo est: %est:~0,1%, act mid: %mid%, tg %target%, base %base%
+        rem     )
+        rem )
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
