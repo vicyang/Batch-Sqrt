@@ -61,23 +61,23 @@ exit /b
         set /a tbase_len=base_len+1
 
         :: 评估二分搜索的最大值
-        :guess
-        if %target_len% gtr 3 (
-        if %target_len% equ %tbase_len% (
-            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        ) else (
-            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        )
-        ) else (goto :out_of_guess)
+        rem :guess
+        rem if %target_len% gtr 3 (
+        rem if %target_len% equ %tbase_len% (
+        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
+        rem ) else (
+        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
+        rem )
+        rem ) else (goto :out_of_guess)
 
-        for /l %%a in (0,1,9) do (
-            set /a t = %%a * b_head
-            if !t! gtr %t_head% (
-                set /a max = %%a
-                goto :out_of_guess
-            )
-        )
-        :out_of_guess
+        rem for /l %%a in (0,1,9) do (
+        rem     set /a t = %%a * b_head
+        rem     if !t! gtr %t_head% (
+        rem         set /a max = %%a
+        rem         goto :out_of_guess
+        rem     )
+        rem )
+        rem :out_of_guess
 
         :: 做大致的除法预估 mid 值
         :estimate
@@ -131,11 +131,11 @@ exit /b
         if %quit% == 0 goto :dec_bin_search
         :out_bin_search
     
-        if defined est (
-            if "!est:~0,1!" neq "!mid!" (
-                echo, &echo est: %est:~0,1%, act mid: %mid%, tg %target%, base %base%
-            )
-        )
+        rem if defined est (
+        rem     if "!est:~0,1!" neq "!mid!" (
+        rem         echo, &echo est: %est:~0,1%, act mid: %mid%, tg %target%, base %base%
+        rem     )
+        rem )
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
@@ -183,6 +183,15 @@ exit /b
     echo search times: %bstimes%
     endlocal
     goto :eof
+
+:: 比较
+:cmp
+    if %3 gtr %4 (set /a %5=1&goto :eof)
+    if %3 lss %4 (set /a %5=-1&goto :eof)
+    :: 如果长度相同，直接按字符串对比
+    if "%1" gtr "%2" (set /a %5=1&goto :eof)
+    if "%1" lss "%2" (set /a %5=-1&goto :eof)
+    if "%1" equ "%2" (set /a %5=0&goto :eof)
 
 :: 大数 乘以 单位数
 :bignum_mp_single
