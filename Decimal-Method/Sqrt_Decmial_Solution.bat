@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=100
+set precision=80
 set num=2
 call :check_one %num%
 exit /b
@@ -68,10 +68,9 @@ exit /b
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!, max=mid+1
-                rem set mp_!mid!=!base!!mid!
-                rem set /a mplen_!mid!=base_len+1
-                rem goto :out_bin_search
-                rem echo,&echo %base% !target! !est! !mid! !target:~0,5!/!base:~0,5!
+                call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp_!mid! mplen_!mid!
+                rem echo,&echo !base! !target! !est! !mid! !target:~0,5!/!base:~0,5!
+                goto :out_bin_search
             )
         )
 
