@@ -12,19 +12,22 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-
-for /l %%a in (1,1,99) do (
-    set num=%%a
-    echo test number: %%a
-    call :check_first !num! !precision!
-    set ta=!time!&set /a tu=0
-    call :decimal_solution !num!
-    call :time_delta !ta! !time! tu
-    rem echo time used: !tu!
-    echo,
-)
-rem pause
+set num=29
+set ta=!time!
+call :check_first !num! !precision!
+call :decimal_solution !num!
+call :time_delta !ta! !time! tu
+echo time used: !tu!
 exit /b
+
+:check_all
+    for /l %%a in (1,1,99) do (
+        echo test number: %%a
+        call :check_first %%a !precision!
+        call :decimal_solution %%a
+        echo,
+    )
+    goto :eof
 
 :check_first
     perl -Mbignum=p,-%2 -le "print sqrt(%1)" 2>nul
@@ -42,32 +45,32 @@ exit /b
     set tnum=!tnum:~%skip%!
     set /a mp_0=0, mplen_0=1
 
-    rem prec 精度
+    set /a bstimes=0
+    rem prec 当前精度
     set /a prec = 0
     set /a base_len=0, equ=0, target_len=skip
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         set /a tbase_len=base_len+1
-        rem call :length %target% target_len
 
         :: 评估二分搜索的最大值
-        :guess
-        if %target_len% gtr 3 (
-        if %target_len% equ %tbase_len% (
-            set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        ) else (
-            set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        )
-        ) else (goto :out_of_guess)
+        rem :guess
+        rem if %target_len% gtr 3 (
+        rem if %target_len% equ %tbase_len% (
+        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
+        rem ) else (
+        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
+        rem )
+        rem ) else (goto :out_of_guess)
 
-        for /l %%a in (0,1,9) do (
-            set /a t = %%a * b_head
-            if !t! gtr %t_head% (
-                set /a max = %%a
-                goto :out_of_guess
-            )
-        )
-        :out_of_guess
+        rem for /l %%a in (0,1,9) do (
+        rem     set /a t = %%a * b_head
+        rem     if !t! gtr %t_head% (
+        rem         set /a max = %%a
+        rem         goto :out_of_guess
+        rem     )
+        rem )
+        rem :out_of_guess
 
         :: 做大致的除法预估 mid 值
         :estimate
@@ -85,6 +88,7 @@ exit /b
 
         set ta=%time%
         :dec_bin_search
+            set /a bstimes+=1
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
                 set /a tbase = mid
@@ -109,15 +113,10 @@ exit /b
             rem call :time_delta %ta% %time% bs_tu
             if %cmp% equ 0 (set /a quit=1, equ=1)
             if %cmp% equ 1 (set /a max=mid)
-            if %cmp% equ -1 (
-                set /a min=mid
-                rem call :bignum_minus %target% %mp% %target_len% %mp_len% delta delta_len
-                rem echo,&echo dt:!delta! !delta_len!
-            )
+            if %cmp% equ -1 (set /a min=mid)
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        rem call :time_delta %ta% %time% bs_tu
         :out_bin_search
 
         set /p inp="%mid%"<nul
@@ -159,12 +158,10 @@ exit /b
             if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
-        rem call :time_delta %ta% %time% minus_tu
 
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
-    rem echo bs_tu %bs_tu% minus_tu %minus_tu%
     endlocal
     goto :eof
 
