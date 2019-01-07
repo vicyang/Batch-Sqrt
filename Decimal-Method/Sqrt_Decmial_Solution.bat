@@ -12,8 +12,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-set num=2
-call :check_one %num%
+call :check_one 51
 exit /b
 
 :: 独立测试
@@ -50,6 +49,7 @@ exit /b
     if %mod% equ 1 (set /a skip=1) else (set /a skip=2)
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
+    :: mid为零时，关联乘积和长度是提前准备好的
     set /a mp_0=0, mplen_0=1
 
     set /a bstimes=0
@@ -68,9 +68,9 @@ exit /b
             if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!, max=mid+1
-                call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp_!mid! mplen_!mid!
+                rem call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp_!mid! mplen_!mid!
                 rem echo,&echo !base! !target! !est! !mid! !target:~0,5!/!base:~0,5!
-                goto :out_bin_search
+                rem goto :out_bin_search
             )
         )
 
