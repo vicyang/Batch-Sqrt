@@ -81,10 +81,9 @@ exit /b
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
 
-        set /a tbase_len=base_len+1
-
         :: 推算下一个数
         :estimate
+            set /a tbase_len=base_len+1
             if %base_len% gtr 5 (
                 set /a est=!target:~0,6!/!base:~0,5!
             ) else (
@@ -110,7 +109,7 @@ exit /b
 
             set /a mid=!est:~0,1!
             call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
-            echo !base!!mid! !mid! !tbase_len! 1
+            echo !base!!mid! !mid! !tbase_len! 1 baselen !base_len!
             call :cmp !mp! !target! !mplen! !target_len! cmp
             echo !mp! !target! !mplen! !target_len! !cmp!
             :: 如果mp超出目标范围
