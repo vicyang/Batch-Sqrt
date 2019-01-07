@@ -12,7 +12,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-set num=26
+set num=2
 call :check_one %num%
 exit /b
 
@@ -82,7 +82,7 @@ exit /b
         :: 做大致的除法预估 mid 值
         :estimate
         if %target_len% gtr 5 (
-            if %target_len% gtr %tbase_len% (
+            if %target_len% geq %tbase_len% (
                 set /a est=!target:~0,6!/!base:~0,5!
                 set /a mid=!est:~0,1!
                 rem echo,&echo %base% !target! !est! !mid! !target:~0,5!/!base:~0,5!
@@ -124,7 +124,9 @@ exit /b
             if %range% leq 1 ( set /a quit=1 )
             set /a mid=(max+min)/2, range=max-mid
         if %quit% == 0 goto :dec_bin_search
-        :out_bin_search 
+        :out_bin_search
+    
+        rem echo, &echo est: %est%, act mid: %mid%
 
         set /p inp="%mid%"<nul
         if "%tnum%" == "" (
