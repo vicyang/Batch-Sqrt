@@ -59,26 +59,7 @@ exit /b
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
         set /a tbase_len=base_len+1
-
-        :: 评估二分搜索的最大值
-        rem :guess
-        rem if %target_len% gtr 3 (
-        rem if %target_len% equ %tbase_len% (
-        rem     set /a t_head = %target:~0,2%, b_head = %base:~0,2%
-        rem ) else (
-        rem     set /a t_head = %target:~0,3%, b_head = %base:~0,2%
-        rem )
-        rem ) else (goto :out_of_guess)
-
-        rem for /l %%a in (0,1,9) do (
-        rem     set /a t = %%a * b_head
-        rem     if !t! gtr %t_head% (
-        rem         set /a max = %%a
-        rem         goto :out_of_guess
-        rem     )
-        rem )
-        rem :out_of_guess
-
+        
         :: 做大致的除法预估 mid 值
         :estimate
         if %base_len% gtr 5 (
