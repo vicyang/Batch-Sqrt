@@ -12,17 +12,27 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
+set num=2
+call :check_one %num%
+exit /b
 
-for /l %%a in (1,1,99) do (
-    set num=%%a
-    echo test number: %%a
-    call :check_first !num! !precision!
-    set ta=!time!&set /a tu=0
-    call :decimal_solution !num!
+:check_one
+    set ta=!time!
+    call :check_first %1 !precision!
+    call :decimal_solution %1
     call :time_delta !ta! !time! tu
-    rem echo time used: !tu!
-    echo,
-)
+    echo time used: !tu!
+    goto :eof
+
+:check_all
+    for /l %%a in (1,1,99) do (
+        echo test number: %%a
+        call :check_first %%a !precision!
+        call :decimal_solution %%a
+        echo,
+    )
+    goto :eof
+
 rem pause
 exit /b
 
@@ -43,7 +53,7 @@ exit /b
     set /a mp_0=0, mplen_0=1
 
     rem prec ¾«¶È
-    set /a prec = 0
+    set /a prec = 0, bstimes = 0
     set /a base_len=0, equ=0, target_len=skip
     :dec_loop
         set /a min=0, max=10, mid=5, range=max-min, quit=0, equ=0
@@ -85,6 +95,7 @@ exit /b
 
         set ta=%time%
         :dec_bin_search
+            set /a bstimes+=1
             :: mp = [base*10+mid] * mid
             if "%base%" == "0" (
                 set /a tbase = mid
@@ -164,6 +175,7 @@ exit /b
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
+    echo search times: %bstimes%
     rem echo bs_tu %bs_tu% minus_tu %minus_tu%
     endlocal
     goto :eof
