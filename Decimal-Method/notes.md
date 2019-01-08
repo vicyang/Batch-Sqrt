@@ -93,3 +93,7 @@ rem 这里不能使用  if !t! gtr !target:~0,2! ，会被当作字符串判断�
     `if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)`
     改为
     `set /a db_mid=mid*2, dbmidlen=1+db_mid/10`
+
+* Decimal_Method_Float
+  基于 Decimal_Method_OptD 没有二分，直接估值
+  
