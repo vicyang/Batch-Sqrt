@@ -65,6 +65,7 @@ exit /b
         :estimate
             :: 如果目标值 小于 基数，下一个数字判定为0
             call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
+            echo call :cmp %target% %base%0 %target_len% %base_len%+1 !cmp!
             if !cmp! equ -1 (
                 set /a mid=0, mp=0, mplen=0
                 goto :out_estimate
@@ -76,8 +77,8 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=^(base*10+%%a^)*%%a
-                    echo 1!mp! gtr 1!target!
-                    if 1!mp! gtr 1!target! (set /a est=%%a-1 &goto :out_est_for)
+                    echo if !mp! gtr !target! 
+                    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
             :out_est_for
@@ -113,9 +114,10 @@ exit /b
         :: 扩充target，如果被开根数已经截取完，直接补0，精度+1
         if %skip% geq %lenA% (
             if !lenB! gtr 0 (
-                set /a lenA=!lenB!, skip=2, lenB=0
+                set /a lenA=lenB, skip=2, lenB=0
                 set target=!target!!PB:~0,2!
                 set PA=!PB:~2!
+                if "!target:~0,2!" == "00" set target=!target:~2!
             ) else (
                 set target=%target%00
             )
@@ -125,7 +127,8 @@ exit /b
             set PA=!PA:~2!
             set /a skip+=2
         )
-        set /a target_len+=2
+
+        call :length %target% target_len
 
         if %lenB% equ 0 (
             set /a prec+=1
@@ -225,8 +228,12 @@ exit /b
         set res=!t!!res!
         if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
-    set res=!res:~%zero%!
-    endlocal &set %5=%res%&set /a %6=%max%-%zero%
+    :: 剔除前置0，考虑结果为0的情况
+    if not "%res%" == "0" (
+        set res=!res:~%zero%!
+        set /a max-=zero
+    )
+    endlocal &set %5=%res%&set /a %6=%max%
     goto :eof
 
 ::字符串长度计算
