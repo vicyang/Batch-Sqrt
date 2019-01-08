@@ -12,8 +12,9 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=80
-call :check_one 26
+set precision=10
+call :check_one 3
+rem call :check_all
 exit /b
 
 :: 独立测试
@@ -121,18 +122,15 @@ exit /b
 
             set /a mid=!est:~0,1!
             call :bignum_mp_single !base!!mid! !mid! !base_len!+1 1 mp mplen
-            rem echo !base!!mid! !mid! !base_len!+1 1 baselen !base_len!
             call :cmp !mp! !target! !mplen! !target_len! cmp
-            rem echo !mp! !target! !mplen! !target_len! !cmp!
             :: 如果mp超出目标范围
             if !cmp! equ 1 (
                 set /a mid-=1
                 call :bignum_mp_single !base!!mid! !mid! !base_len!+1 1 mp mplen
             )
+        :out_estimate
 
-            :out_estimate
-
-        rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
+        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%tnum%" == "" (
             set /a prec+=1
             :: 如果target只剩下 00，方案结束
