@@ -121,11 +121,9 @@ exit /b
         :: 更新基数 - base
         rem base=base*10+mid*2
         if "%base%" == "0" (
-            set /a base=mid*2
-            if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)
+            set /a base=mid*2, base_len=1+base/10
         ) else (
-            set /a db_mid=mid*2
-            if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
+            set /a db_mid=mid*2, dbmidlen=1+db_mid/10
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
 

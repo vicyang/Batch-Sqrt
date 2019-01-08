@@ -85,6 +85,11 @@ rem 这里不能使用  if !t! gtr !target:~0,2! ，会被当作字符串判断�
     `set /a est=target/%base%0`
     （原本应该设定一个 tbase=base*10+n，所以这里直接补0作为基数不会有问题）
 
+    优化某些简单数字的长度判断
+    `if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)`
+    改为
+    `set /a base=mid*2, base_len=1+base/10`
 
-
-
+    `if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)`
+    改为
+    `set /a db_mid=mid*2, dbmidlen=1+db_mid/10`
