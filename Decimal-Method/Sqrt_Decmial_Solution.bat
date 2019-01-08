@@ -12,7 +12,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=80
+set precision=30
 call :check_one 121
 exit /b
 
@@ -52,7 +52,7 @@ exit /b
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
     :: mid为零时，关联乘积和长度是提前准备好的
-    set /a mp_0=0, mplen_0=1
+    set /a target_len=skip
 
     :: prec 当前精度
     set /a prec = 0
@@ -62,16 +62,27 @@ exit /b
             set /a mp=%%a*%%a
             if !mp! gtr !target! (set /a mid=%%a-1, mp=mid*mid &goto :out_first)
         )
-
     :out_first
         if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
-        set /a target=target-mp
-        set target=!target!00
-        set target_len=%target%%serial%
-        set target_len=%target_len:~9,1%
-        set /p inp="%mid%"<nul
 
     :dec_loop
+        set /p inp="%mid%"<nul
+        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
+
+        :: 如果截取的字符串已经达到被开根数的总长度，直接补0
+        if %skip% geq %len% (
+            set target=%target%00
+        ) else (
+            if "%target%" == "0" (
+                set target=!tnum:~0,2!
+            ) else (
+                set target=!target!!tnum:~0,2!
+            )
+            set tnum=!tnum:~2!
+            set /a skip+=2
+        )
+        set /a target_len+=2
+
         set /a prec+=1
         rem base=base*10+mid*2
         if "%base%" == "0" (
@@ -121,28 +132,11 @@ exit /b
 
             :out_estimate
 
-        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
-        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
-
-        set /p inp="%mid%"<nul
-
-        :: 如果截取的字符串已经达到被开根数的总长度，直接补0
-        if %skip% geq %len% (
-            set target=%target%00
-        ) else (
-            if "%target%" == "0" (
-                set target=!tnum:~0,2!
-            ) else (
-                set target=!target!!tnum:~0,2!
-            )
-            set tnum=!tnum:~2!
-            set /a skip+=2
-        )
-        set /a target_len+=2
+        rem echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
 
         if "%tnum%" == "" (
             :: 如果target只剩下 00，方案结束
-            rem if "%target%" == "00" ( goto :dec_loop_out )
+            if "%target%" == "00" ( goto :dec_loop_out )
             rem if %cmp% == 0 (
             rem     goto :dec_loop_out
             rem ) else (
