@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=30
-call :check_one 99999999
+call :check_one 99999999999
 exit /b
 
 :: 独立测试
@@ -99,7 +99,14 @@ exit /b
             if %base_len% gtr 5 (
                 set /a est=!target:~0,6!/!base:~0,5!
             ) else (
-                set /a est=target/base
+                set /a est=target/%base%0
+            )
+
+            :: 199999996400/1999999988 = 99.9999988
+            :: but 199999/19999 = 10
+            if %est% geq 10 (
+                set /a tbase_len=base_len+1
+                if %target_len% gtr !tbase_len! (set /a est=9)
             )
 
             :: 如果est大于100（比如target=200, base=2），需要做完整的测试
@@ -132,7 +139,7 @@ exit /b
 
             :out_estimate
 
-        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
+        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
 
         if "%tnum%" == "" (
             :: 如果target只剩下 00，方案结束
