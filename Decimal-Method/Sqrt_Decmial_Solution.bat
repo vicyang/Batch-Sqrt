@@ -65,6 +65,7 @@ exit /b
         :estimate
             :: 如果目标值 小于 基数，下一个数字判定为0
             call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
+            rem bug: when base == 0, call :cmp 8 00 1 1+1 , cmp = -1
             echo call :cmp %target% %base%0 %target_len% %base_len%+1 !cmp!
             if !cmp! equ -1 (
                 set /a mid=0, mp=0, mplen=0
