@@ -56,7 +56,7 @@ exit /b
 
     :: prec 当前精度
     set /a prec = 0
-    set /a base_len=0, target_len=skip
+    set /a base_len=0
     :first
         for /l %%a in (0,1,9) do (
             set /a mp=%%a*%%a
@@ -65,10 +65,12 @@ exit /b
 
     :out_first
         if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
-        set /a target=target-mp, target_len+=2
+        set /a target=target-mp
         set target=!target!00
+        set target_len=%target%%serial%
+        set target_len=%target_len:~9,1%
         set /p inp="%mid%"<nul
-    
+
     :dec_loop
         set /a prec+=1
         rem base=base*10+mid*2
@@ -83,7 +85,6 @@ exit /b
 
         :: 推算下一个数
         :estimate
-            set /a tbase_len=base_len+1
             if %base_len% gtr 5 (
                 set /a est=!target:~0,6!/!base:~0,5!
             ) else (
@@ -99,7 +100,7 @@ exit /b
             )
             :out_est_for
 
-            call :cmp %target% %base%0 %target_len% %tbase_len% cmp
+            call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
             if !cmp! equ -1 (
                 set /a mid=0
                 set mp=0
@@ -108,19 +109,19 @@ exit /b
             )
 
             set /a mid=!est:~0,1!
-            call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
-            echo !base!!mid! !mid! !tbase_len! 1 baselen !base_len!
+            call :bignum_mp_single !base!!mid! !mid! !base_len!+1 1 mp mplen
+            rem echo !base!!mid! !mid! !base_len!+1 1 baselen !base_len!
             call :cmp !mp! !target! !mplen! !target_len! cmp
-            echo !mp! !target! !mplen! !target_len! !cmp!
+            rem echo !mp! !target! !mplen! !target_len! !cmp!
             :: 如果mp超出目标范围
             if !cmp! equ 1 (
                 set /a mid-=1
-                call :bignum_mp_single !base!!mid! !mid! !tbase_len! 1 mp mplen
+                call :bignum_mp_single !base!!mid! !mid! !base_len!+1 1 mp mplen
             )
 
             :out_estimate
 
-        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
+        rem echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
         call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
 
         set /p inp="%mid%"<nul
@@ -158,8 +159,9 @@ exit /b
 
 :: 比较
 :cmp
-    if %3 gtr %4 (set /a %5=1&goto :eof)
-    if %3 lss %4 (set /a %5=-1&goto :eof)
+    set /a La=%3, Lb=%4
+    if %La% gtr %Lb% (set /a %5=1&goto :eof)
+    if %La% lss %Lb% (set /a %5=-1&goto :eof)
     :: 如果长度相同，直接按字符串对比
     if "%1" gtr "%2" (set /a %5=1&goto :eof)
     if "%1" lss "%2" (set /a %5=-1&goto :eof)
