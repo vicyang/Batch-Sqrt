@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=20
-call :check_one 26
+call :check_one 81
 exit /b
 
 :: ∂¿¡¢≤‚ ‘
