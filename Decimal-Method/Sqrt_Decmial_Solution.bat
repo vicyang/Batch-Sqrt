@@ -1,4 +1,4 @@
-:: Bignum(integer) Square Root, Decimal Solution
+:: Bignum(Float) Square Root, Decimal Solution
 :: https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Decimal_(base_10)
 :: 523066680/vicyang
 :: 2019-01
@@ -64,6 +64,7 @@ exit /b
     :dec_loop
         :: 推算下一个数
         :estimate
+            :: 如果 base == 0，不能单纯地叠加 0
             if "%base%" == "0" (set /a tbase=0, tbase_len=1
                         ) else (set /a tbase_len=base_len+1 &set tbase=!base!0)
             :: 如果目标值 小于 %base%0，下一个数字判定为0
