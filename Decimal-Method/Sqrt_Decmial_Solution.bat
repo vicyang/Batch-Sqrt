@@ -11,8 +11,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=80
-call :check_one 2
+set precision=20
+call :check_one 99999999
 exit /b
 
 :: ¶ÀÁ¢²âÊÔ
