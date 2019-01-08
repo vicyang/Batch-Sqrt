@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 2
+call :check_one 121
 exit /b
 
 :: ∂¿¡¢≤‚ ‘
@@ -121,7 +121,7 @@ exit /b
 
             :out_estimate
 
-        rem echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
+        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
         call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
 
         set /p inp="%mid%"<nul
