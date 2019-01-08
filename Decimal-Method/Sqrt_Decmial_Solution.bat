@@ -12,8 +12,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=20
-call :check_one 81
+set precision=80
+call :check_one 2
 exit /b
 
 :: ¶ÀÁ¢²âÊÔ
@@ -58,7 +58,7 @@ exit /b
     set /a prec = 0
     set /a base_len=0
     :first
-        for /l %%a in (0,1,9) do (
+        for /l %%a in (0,1,10) do (
             set /a mp=%%a*%%a
             if !mp! gtr !target! (set /a mid=%%a-1, mp=mid*mid &goto :out_first)
         )
