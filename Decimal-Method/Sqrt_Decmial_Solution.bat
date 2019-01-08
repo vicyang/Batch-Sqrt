@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 0.0000000009
+call :check_one 16
 rem call :check_all
 exit /b
 
@@ -46,6 +46,7 @@ exit /b
     setlocal
     set num=%1
     :: Part A, Part B
+    if "%num:.=%" == "%num%" set num=%num%.0
     set PA=%num:.=&set PB=%
 
     :: 计算长度，判断需要截取的目标长度（1 or 2）
@@ -63,10 +64,9 @@ exit /b
     :dec_loop
         :: 推算下一个数
         :estimate
-            :: 如果目标值 小于 基数，下一个数字判定为0
             if "%base%" == "0" (set /a tbase=0, tbase_len=1
                         ) else (set /a tbase_len=base_len+1 &set tbase=!base!0)
-
+            :: 如果目标值 小于 %base%0，下一个数字判定为0
             call :cmp %target% %tbase% %target_len% %tbase_len% cmp
             if !cmp! equ -1 (
                 set /a mid=0, mp=0, mplen=0
@@ -79,7 +79,6 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=^(base*10+%%a^)*%%a
-                    rem echo if !mp! gtr !target! 
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
@@ -107,9 +106,11 @@ exit /b
         set /p inp="%mid%"<nul
         rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%PA%" == "" (
-            :: 如果target只剩下 00，方案结束
-            if "%target%" == "00" ( goto :dec_loop_out )
-            rem if %cmp% == 0 ( goto :dec_loop_out )
+            if %lenB% equ 0 (
+                :: 如果target只剩下 0，方案结束
+                if "%target%" == "0" ( goto :dec_loop_out )
+                if %cmp% == 0 ( goto :dec_loop_out )
+            )
         )
 
         :: 计算下一段target的值
@@ -121,7 +122,6 @@ exit /b
                 set /a lenA=lenB, skip=2, lenB=0
                 set target=!target!!PB:~0,2!
                 set PA=!PB:~2!
-                if "!target:~0,2!" == "00" set target=!target:~2!
             ) else (
                 set target=%target%00
             )
@@ -133,7 +133,12 @@ exit /b
         )
 
         call :length %target% target_len
+        :zero
+        if "%target%" == "0" goto :out_zero
+        if "%target:~0,1%" == "0" (set /a target_len-=1&set target=!target:~1!&goto :zero)
+        :out_zero
 
+        :: 如果进入小数处理阶段
         if %lenB% equ 0 (
             set /a prec+=1
             if !prec! equ 1 set /p inp="."<nul
