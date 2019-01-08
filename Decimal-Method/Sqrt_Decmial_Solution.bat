@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 0.000200009
+call :check_one 0.9
 rem call :check_all
 exit /b
 
@@ -60,7 +60,6 @@ exit /b
 
     :: prec 当前精度
     set /a prec = 0, base_len=0, target_len=skip
-
     :dec_loop
         :: 推算下一个数
         :estimate
@@ -77,6 +76,7 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=%base%%%a*%%a
+                    echo !base!%%a*%%a
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
@@ -100,7 +100,7 @@ exit /b
         :out_estimate
 
         set /p inp="%mid%"<nul
-        rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
+        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%PA%" == "" (
             :: 如果target只剩下 00，方案结束
             if "%target%" == "00" ( goto :dec_loop_out )
