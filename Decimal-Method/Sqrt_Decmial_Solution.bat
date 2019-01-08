@@ -13,8 +13,8 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 37
-rem call :check_all
+rem call :check_one 100
+call :check_all
 exit /b
 
 :: 独立测试
@@ -46,56 +46,30 @@ exit /b
     setlocal
     set num=%1
     set tnum=%1
-    :: 计算长度，判断初始
+    :: 计算长度，判断需要截取的目标长度（1 or 2）
     call :length %num% len
-    set /a mod=len %% 2, tlen=len, base=0
-    if %mod% equ 1 (set /a skip=1) else (set /a skip=2)
+    set /a mod=len %% 2, skip = 2 - mod
     set target=!tnum:~0,%skip%!
     set tnum=!tnum:~%skip%!
-    :: mid为零时，关联乘积和长度是提前准备好的
-    set /a target_len=skip
+    set "base="
 
     :: prec 当前精度
-    set /a prec = 0
-    set /a base_len=0
-    :first
-        for /l %%a in (0,1,10) do (
-            set /a mp=%%a*%%a
-            if !mp! gtr !target! (set /a mid=%%a-1, mp=mid*mid &goto :out_first)
-        )
-    :out_first
-        if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
-        set /p inp="%mid%"<nul
+    set /a prec = 0, base_len=0, target_len=skip
 
     :dec_loop
-        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
-
-        :: 如果截取的字符串已经达到被开根数的总长度，直接补0
-        if %skip% geq %len% (
-            set target=%target%00
-        ) else (
-            if "%target%" == "0" (set target=!tnum:~0,2!
-                          ) else (set target=!target!!tnum:~0,2!)
-            set tnum=!tnum:~2!
-            set /a skip+=2
-        )
-        set /a target_len+=2
-
-        rem base=base*10+mid*2
-        if "%base%" == "0" (
-            set /a base=mid*2
-            if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)
-        ) else (
-            set /a db_mid=mid*2
-            if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
-            call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
-        )
-
         :: 推算下一个数
         :estimate
-            if %base_len% gtr 5 (set /a est=!target:~0,6!/!base:~0,5!
+            :: 如果目标值 小于 基数，下一个数字判定为0
+            call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
+            if !cmp! equ -1 (
+                set /a mid=0, mp=0, mplen=0
+                goto :out_estimate
+            )
+
+            if %base_len% gtr 5 (
+                set /a est=!target:~0,6!/!base:~0,5!
             ) else (
-                :: 在set/a计算范围内的，简单遍历
+                :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=%base%%%a*%%a
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
@@ -107,13 +81,7 @@ exit /b
             :: but 199999/19999 = 10
             if %est% geq 10 (
                 set /a tbase_len=base_len+1
-                if %target_len% gtr !tbase_len! (set /a est=9)
-            )
-
-            call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
-            if !cmp! equ -1 (
-                set /a mid=0, mp=0, mplen=0
-                goto :out_estimate
+                if !target_len! gtr !tbase_len! (set /a est=9)
             )
 
             set /a mid=!est:~0,1!
@@ -129,16 +97,39 @@ exit /b
         set /p inp="%mid%"<nul
         rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%tnum%" == "" (
-            set /a prec+=1
             :: 如果target只剩下 00，方案结束
             if "%target%" == "00" ( goto :dec_loop_out )
-            
-            if !prec! equ 1 set /p inp="."<nul
+            if %cmp% == 0 ( goto :dec_loop_out )
         )
 
-        if %cmp% == 0 ( goto :dec_loop_out )
+        :: 计算下一段target的值
+        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
 
-    if %prec% lss %precision% (goto :dec_loop)
+        :: 扩充target，如果被开根数已经截取完，直接补0，精度+1
+        if %skip% geq %len% (
+            set target=%target%00
+            set /a prec+=1
+            if !prec! equ 1 set /p inp="."<nul
+        ) else (
+            if "%target%" == "0" (set target=!tnum:~0,2!
+                          ) else (set target=!target!!tnum:~0,2!)
+            set tnum=!tnum:~2!
+            set /a skip+=2
+        )
+        set /a target_len+=2
+
+        :: 更新基数 - base
+        rem base=base*10+mid*2
+        if "%base%" == "0" (
+            set /a base=mid*2
+            if !base! geq 10 (set /a base_len=2) else (set /a base_len=1)
+        ) else (
+            set /a db_mid=mid*2
+            if !db_mid! geq 10 (set /a dbmidlen=2) else (set /a dbmidlen=1)
+            call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
+        )
+
+    if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
     endlocal
