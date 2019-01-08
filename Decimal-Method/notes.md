@@ -97,3 +97,27 @@ rem 这里不能使用  if !t! gtr !target:~0,2! ，会被当作字符串判断�
 * Decimal_Method_Float
   基于 Decimal_Method_OptD 没有二分，直接估值
   
+  需要留意的问题
+  for /l %%a in (0,1,10) do (
+    set /a mp=%base%%%a*%%a
+    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
+  )
+  直接拼接可能导致八进制错误，%base%可能为0
+
+  解决方法：
+  set /a mp=^(base*10+%%a^)*%%a
+
+  set /a est=!target:~0,6!/!base:~0,5! 不会有这样的问题
+  因为只有当结果中出现非0的数字以后 base 才会逐位地叠加
+
+  ```shell
+        :: 更新基数 - base
+        rem base=base*10+mid*2
+        if "%base%" == "0" (
+            set /a base=mid*2, base_len=1+base/10
+        ) else (
+            set /a db_mid=mid*2, dbmidlen=1+db_mid/10
+            call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
+        )
+  ```
+  

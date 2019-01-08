@@ -13,8 +13,8 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 0.0000000000001000000001000000000000009
-rem call :check_all
+rem call :check_one 0.000000010000000000000000009
+call :check_all
 exit /b
 
 :: ∂¿¡¢≤‚ ‘
@@ -29,9 +29,9 @@ exit /b
 :: ≈˙¡ø≤‚ ‘
 :check_all
     for /l %%a in (1,1,99) do (
-        echo test number: %%a.0
-        call :check_first %%a.0 !precision!
-        call :decimal_solution %%a.0
+        echo test number: %%a.%%a
+        call :check_first %%a.%%a !precision!
+        call :decimal_solution %%a.%%a
         echo,
     )
     goto :eof
