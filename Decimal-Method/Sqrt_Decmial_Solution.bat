@@ -12,8 +12,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=10
-call :check_one 3
+set precision=80
+call :check_one 37
 rem call :check_all
 exit /b
 
@@ -94,7 +94,14 @@ exit /b
         :: 推算下一个数
         :estimate
             if %base_len% gtr 5 (set /a est=!target:~0,6!/!base:~0,5!
-                         ) else (set /a est=target/%base%0)
+            ) else (
+                :: 在set/a计算范围内的，简单遍历
+                for /l %%a in (0,1,10) do (
+                    set /a mp=%base%%%a*%%a
+                    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
+                )
+            )
+            :out_est_for
 
             :: 199999996400/1999999988 = 99.9999988
             :: but 199999/19999 = 10
@@ -103,20 +110,9 @@ exit /b
                 if %target_len% gtr !tbase_len! (set /a est=9)
             )
 
-            :: 如果est大于100（比如target=200, base=2），需要做完整的测试
-            if %est% geq 100 (
-                for /l %%a in (0,1,10) do (
-                    set /a mp=%base%%%a*%%a
-                    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
-                )
-            )
-            :out_est_for
-
             call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
             if !cmp! equ -1 (
-                set /a mid=0
-                set mp=0
-                set mplen=0
+                set /a mid=0, mp=0, mplen=0
                 goto :out_estimate
             )
 
@@ -130,16 +126,17 @@ exit /b
             )
         :out_estimate
 
-        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
+        set /p inp="%mid%"<nul
+        rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%tnum%" == "" (
             set /a prec+=1
             :: 如果target只剩下 00，方案结束
-            if "%target%" == "00" (goto :dec_loop_out )
-            if %cmp% == 0 (
-                goto :dec_loop_out
-            ) else (if !prec! equ 1 set /p inp="."<nul)
+            if "%target%" == "00" ( goto :dec_loop_out )
+            
+            if !prec! equ 1 set /p inp="."<nul
         )
-        set /p inp="%mid%"<nul
+
+        if %cmp% == 0 ( goto :dec_loop_out )
 
     if %prec% lss %precision% (goto :dec_loop)
     :dec_loop_out
