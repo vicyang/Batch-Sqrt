@@ -76,8 +76,8 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=^(base*10+%%a^)*%%a
-                    echo mp !mp! %%a tg !target!
-                    if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
+                    echo 1!mp! gtr 1!target!
+                    if 1!mp! gtr 1!target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
             :out_est_for
