@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=10
-call :check_one 0.09
+call :check_one 0.08
 rem call :check_all
 exit /b
 
@@ -76,6 +76,7 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=^(base*10+%%a^)*%%a
+                    echo mp !mp! %%a tg !target!
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
