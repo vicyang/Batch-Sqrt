@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=30
-call :check_one 121
+call :check_one 99999999
 exit /b
 
 :: 独立测试
@@ -132,7 +132,7 @@ exit /b
 
             :out_estimate
 
-        rem echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
+        echo,&echo before tg !target!, mp !mp!, base !base!, mid !mid!
 
         if "%tnum%" == "" (
             :: 如果target只剩下 00，方案结束
