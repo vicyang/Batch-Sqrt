@@ -115,8 +115,8 @@ exit /b
             if not !lenB! == 0 (
                 set /a lenA=!lenB!, skip=2, lenB=0
                 set PA=!PB!
-                call set target=!target!%%PA:~0,!skip!%%
-                call set PA=%%PA:~!skip!%%
+                set target=!target!!PA:~0,2!
+                set PA=!PA:~2!
             ) else (
                 set target=%target%00
             )
@@ -139,6 +139,7 @@ exit /b
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
 
+    echo - %prec%
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
