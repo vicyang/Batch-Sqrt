@@ -56,7 +56,7 @@ exit /b
     if %mod% == 1 set PB=!PB!0
     set target=!PA:~0,%skip%!
     set PA=!PA:~%skip%!
-    set "base="
+    set base=0
 
     :: prec 当前精度
     set /a prec = 0, base_len=0, target_len=skip
@@ -64,9 +64,10 @@ exit /b
         :: 推算下一个数
         :estimate
             :: 如果目标值 小于 基数，下一个数字判定为0
-            call :cmp %target% %base%0 %target_len% %base_len%+1 cmp
-            rem bug: when base == 0, call :cmp 8 00 1 1+1 , cmp = -1
-            echo call :cmp %target% %base%0 %target_len% %base_len%+1 !cmp!
+            if "%base%" == "0" (set /a tbase=0, tbase_len=1
+                        ) else (set /a tbase_len=base_len+1 &set tbase=!base!0)
+
+            call :cmp %target% %tbase% %target_len% %tbase_len% cmp
             if !cmp! equ -1 (
                 set /a mid=0, mp=0, mplen=0
                 goto :out_estimate
@@ -78,7 +79,7 @@ exit /b
                 :: 在set/a计算范围内的，[粗暴]遍历
                 for /l %%a in (0,1,10) do (
                     set /a mp=^(base*10+%%a^)*%%a
-                    echo if !mp! gtr !target! 
+                    rem echo if !mp! gtr !target! 
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
             )
@@ -92,7 +93,9 @@ exit /b
             )
 
             set /a mid=!est:~0,1!
-            call :bignum_mp_single !base!!mid! !mid! !base_len!+1 1 mp mplen
+            if "%base%" == "0" (set /a tbase=mid, tbase_len=1
+                        ) else (set /a tbase_len=base_len+1 &set tbase=!base!!mid!)
+            call :bignum_mp_single !tbase! !mid! !tbase_len! 1 mp mplen
             call :cmp !mp! !target! !mplen! !target_len! cmp
             :: 如果mp超出目标范围
             if !cmp! equ 1 (
