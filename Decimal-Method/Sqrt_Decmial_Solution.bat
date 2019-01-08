@@ -12,8 +12,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=80
-call :check_one 0.000000010000000000000000009
+set precision=10
+call :check_one 0.09
 rem call :check_all
 exit /b
 
@@ -99,7 +99,7 @@ exit /b
         :out_estimate
 
         set /p inp="%mid%"<nul
-        rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
+        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%PA%" == "" (
             :: 如果target只剩下 00，方案结束
             if "%target%" == "00" ( goto :dec_loop_out )
