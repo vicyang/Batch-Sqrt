@@ -12,8 +12,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=50
-call :check_one 1242343124123.4190094314
+set precision=80
+call :check_one 0.000200009
 rem call :check_all
 exit /b
 
@@ -112,16 +112,13 @@ exit /b
 
         :: 扩充target，如果被开根数已经截取完，直接补0，精度+1
         if %skip% geq %lenA% (
-            if not !lenB! == 0 (
+            if !lenB! gtr 0 (
                 set /a lenA=!lenB!, skip=2, lenB=0
-                set PA=!PB!
-                set target=!target!!PA:~0,2!
-                set PA=!PA:~2!
+                set target=!target!!PB:~0,2!
+                set PA=!PB:~2!
             ) else (
                 set target=%target%00
             )
-            set /a prec+=1
-            if !prec! equ 1 set /p inp="."<nul
         ) else (
             if "%target%" == "0" (set target=!PA:~0,2!
                           ) else (set target=!target!!PA:~0,2!)
@@ -129,6 +126,11 @@ exit /b
             set /a skip+=2
         )
         set /a target_len+=2
+
+        if %lenB% equ 0 (
+            set /a prec+=1
+            if !prec! equ 1 set /p inp="."<nul
+        )
 
         :: 更新基数 - base
         rem base=base*10+mid*2
@@ -139,7 +141,7 @@ exit /b
             call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
         )
 
-    echo - %prec%
+    rem echo - %prec%
     if %prec% leq %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
