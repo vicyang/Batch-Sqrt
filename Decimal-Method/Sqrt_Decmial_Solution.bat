@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=20
-call :check_one 29
+call :check_one 26
 exit /b
 
 :: 独立测试
@@ -93,7 +93,7 @@ exit /b
 
             :: 如果est大于100（比如target=200, base=2），需要做完整的测试
             if %est% geq 100 (
-                for /l %%a in (0,1,9) do (
+                for /l %%a in (0,1,10) do (
                     set /a mp=%base%%%a*%%a
                     if !mp! gtr !target! (set /a est=%%a-1 &goto :out_est_for)
                 )
