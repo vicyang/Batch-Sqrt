@@ -12,8 +12,8 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set precision=30
-call :check_one 99999999999
+set precision=80
+call :check_one 26
 exit /b
 
 :: 独立测试
@@ -64,26 +64,22 @@ exit /b
         )
     :out_first
         if %mp% geq 10 (set /a mplen=2) else (set /a mplen=1)
+        set /p inp="%mid%"<nul
 
     :dec_loop
-        set /p inp="%mid%"<nul
         call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
 
         :: 如果截取的字符串已经达到被开根数的总长度，直接补0
         if %skip% geq %len% (
             set target=%target%00
         ) else (
-            if "%target%" == "0" (
-                set target=!tnum:~0,2!
-            ) else (
-                set target=!target!!tnum:~0,2!
-            )
+            if "%target%" == "0" (set target=!tnum:~0,2!
+                          ) else (set target=!target!!tnum:~0,2!)
             set tnum=!tnum:~2!
             set /a skip+=2
         )
         set /a target_len+=2
 
-        set /a prec+=1
         rem base=base*10+mid*2
         if "%base%" == "0" (
             set /a base=mid*2
@@ -96,11 +92,8 @@ exit /b
 
         :: 推算下一个数
         :estimate
-            if %base_len% gtr 5 (
-                set /a est=!target:~0,6!/!base:~0,5!
-            ) else (
-                set /a est=target/%base%0
-            )
+            if %base_len% gtr 5 (set /a est=!target:~0,6!/!base:~0,5!
+                         ) else (set /a est=target/%base%0)
 
             :: 199999996400/1999999988 = 99.9999988
             :: but 199999/19999 = 10
@@ -139,20 +132,18 @@ exit /b
 
             :out_estimate
 
-        echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
-
+        rem echo,&echo tg !target!, mp !mp!, base !base!, mid !mid!, est !est!
         if "%tnum%" == "" (
+            set /a prec+=1
             :: 如果target只剩下 00，方案结束
-            if "%target%" == "00" ( goto :dec_loop_out )
-            rem if %cmp% == 0 (
-            rem     goto :dec_loop_out
-            rem ) else (
-            rem     :: 当前精度
-            rem     if %prec% equ 0 set /p inp="."<nul
-            rem     set /a prec+=1
-            rem )
+            if "%target%" == "00" (goto :dec_loop_out )
+            if %cmp% == 0 (
+                goto :dec_loop_out
+            ) else (if !prec! equ 1 set /p inp="."<nul)
         )
-    if %prec% leq %precision% (goto :dec_loop)
+        set /p inp="%mid%"<nul
+
+    if %prec% lss %precision% (goto :dec_loop)
     :dec_loop_out
     echo,
     endlocal
