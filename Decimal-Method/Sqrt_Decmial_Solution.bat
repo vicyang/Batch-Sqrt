@@ -195,8 +195,7 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4
-    set /a max = len_a
+    set /a len_a=%3, len_b=%4, max=len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
     set /a pool=0
     set res=
@@ -218,8 +217,7 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4
-    set /a max = len_a
+    set /a len_a=%3, len_b=%4, max=len_a
     if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
 
     set /a minus = 0
