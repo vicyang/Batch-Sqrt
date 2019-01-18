@@ -1,27 +1,32 @@
 @echo off & SetLocal EnableDelayedExpansion
-::变量c的值是被开方数，不得超过1000！
-for  /l %%a in (1,1,1000) do (
-    perl -Mbignum=p,-81 -e "print sqrt(%%a),qq(\n)"
-    call :test %%a
-    echo,
-)
-exit /b
+::变量a的值是被开方数，不得超过10000！
+set a=29
+::变量c的值是精确位数，不得超过2147483645！
+set c=300
+::【阶段1】计算整数部分
+for %%a in (64 32 16 8 4 2 1) do set /a "b=(a0*%%a<<1)+%%a*%%a+b0" & if !a! geq !b! set /a "a0+=%%a","b0=b"
+if !a! equ !b0! ( echo !a0! & exit /b ) else set /p "=!a0!."<nul
 
-:test
-setlocal
-set c=%1
-for %%a in (16 8 4 2 1) do set /a "d=(a*%%a<<1)+%%a*%%a+b" & if !c! geq !d! set /a "a+=%%a","b=d"
-if !b! equ !c! (echo !a! & goto :eof) else set /p "=!a!."<nul
-set "d=0" & for %%a in (512 256 128 64 32 16 8 4 2 1) do set /a "d+=%%a","e=((a*d<<1)+d*d/1000)/1000+b" & if !e! geq !c! set /a "d-=%%a"
-set "e=00!d!" & set /p "=!e:~-3!"<nul & set /a "e=(!a!!e:~-3!*!a!!e:~-3!)%%1000000","b=e/1000","e=e%%1000"
-set "e=  !e!" & set "e=!e:~-3!" & set "b=  0!e!!b!" & set "e=  !d!" & set "a=!e:~-3!!a!"
-for /l %%a in (3 3 80) do (
-set "d=0" & for %%b in (512 256 128 64 32 16 8 4 2 1) do (
-set /a "d+=%%b" & if 1000 gtr !d! (
-set /a "c=d*d/1000" & for /l %%c in (0 3 %%a) do set /a "c=((!a:~%%c,3!*d<<1)+c+!b:~%%c,3!)/1000"
-set /a "e=%%a+3" & for %%c in (!e!) do set /a "c+=!b:~%%c,3!" & if !c! geq 1000 set /a "d-=%%b"
-) else set /a "d-=%%b")
-set "e=00!d!" & set /p "=!e:~-3!"<nul & set "c=" & set /a "f=d*d/1000"
-for /l %%b in (0 3 %%a) do set /a "e=(!a:~%%b,3!*d<<1)+!b:~%%b,3!+f","f=e/1000","e%%=1000" & set "e=  !e!" & set "c=!c!!e:~-3!"
-set /a "e=(d*d)%%1000" & set "e=  !e!" & set "b=  0!e:~-3!!c!" & set "e=  !d!" & set "a=!e:~-3!!a!")
-echo. & goto :eof
+::【阶段2】计算小数点后几位，直到 结果的平方 与 被开方数 相差不到1。这点很重要。
+for %%a in (512 256 128 64 32 16 8 4 2 1) do set /a "a1+=%%a","b=((a0*a1<<1)+a1*a1/1000)/1000+b0" & if !b! geq !a! set /a "a1-=%%a"
+set "a=000!a1!" & set /p "=!a:~-3!"<nul & set /a "a=(a0*!a1!000<<1)+a1*a1","b0+=a/1000000","b1=(a/1000)%%1000","b2=a%%1000"
+
+::【阶段3】计算小数点后剩余部分。
+set /a "c=(c+2)/3+3" & for /l %%a in (1 1 !c!) do (
+    
+    :: 二分法模型，三位三位计算
+    set "a=0" & for %%b in (512 256 128 64 32 16 8 4 2 1) do (
+        :: 变量a为当前计算结果，如果得数超过三位，直接跳过计算并将得数减去本次增加的值。
+        set /a "a+=%%b" & if 1000 gtr !a! (
+            :: 变量c是余数
+            set /a "b=(%%a<<1)+1","c=a*a/1000" & for /l %%c in (%%a -1 0) do set /a "c=((a%%c*a<<1)+c+b!b!)/1000","b-=1"
+            :: 比较是否有溢出的值，如有，将得数减去本次增加的值。【已省略部分计算，所以在阶段3已经不需要和被开方数进行比较】
+            set /a "c+=b!b!" & if !c! geq 1000 set /a "a-=%%b"
+        ) else set /a "a-=%%b"
+    )
+    set "b=00!a!" & set /p "=!b:~-3!"<nul
+    ::计算总结果的平方。利用完全平方公式 (1000a+b)^2 = 1000000a^2 + b^2 + 2000ab ，直接在原结果上增加。
+    set /a "b=%%a+1" & set /a "a!b!=a","b<<=1" & set /a "b!b!=(a*a)%%1000","c=a*a/1000","b-=1"
+    for /l %%b in (%%a -1 0) do set /a "b-=1","b!b!+=(a%%b*a<<1)+c","c=b!b!/1000","b!b!%%=1000"
+)
+echo. & exit /b
