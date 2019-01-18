@@ -14,14 +14,15 @@ for %%a in (16 8 4 2 1) do (
     set /a "d=(a*%%a<<1)+%%a*%%a+b"
     if !c! geq !d! set /a "a+=%%a","b=d"
 )
-if !b! equ !c! echo !a! & goto :eof
+if !b! equ !c! echo !a! &endlocal & goto :eof
 set /p "=!a!."<nul
+set "d=0"
 for %%a in (512 256 128 64 32 16 8 4 2 1) do (
     set /a "d+=%%a","e=((a*d<<1)+d*d/1000)/1000+b"
     if !e! geq !c! set /a "d-=%%a"
 )
 set "e=00!d!" & set /p "=!e:~-3!"<nul
-set /a "e=(!a!!d!*!a!!d!)%%1000000","b=e/1000","e=e%%1000"
+set /a "e=(!a!!e:~-3!*!a!!e:~-3!)%%1000000","b=e/1000","e=e%%1000"
 set "e=  !e!" & set "e=!e:~-3!"
 set "b=  0!e!!b!"
 set "e=  !d!"
