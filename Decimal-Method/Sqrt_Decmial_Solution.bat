@@ -204,31 +204,10 @@ exit /b
     endlocal&set %5=%res%&set %6=%maxid%
     goto :eof
 
-::大数加法
-:bignum_plus
-    setlocal
-    set num_a=%1
-    set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a
-    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
-    set /a pool=0
-    set res=
-    for /l %%n in ( 1, 1, %max% ) do (
-        if %%n leq %len_b% (
-            set /a t = !num_a:~-%%n,1! + !num_b:~-%%n,1! + pool
-        ) else (
-            set /a t = !num_a:~-%%n,1! + pool
-        )
-        set /a mod = t %% 10, pool = t / 10
-        set res=!mod!!res!
-    )
-    if %pool% gtr 0 (set /a max+=1 &set res=1%res%)
-    endlocal &set %5=%res%&set %6=%max%
-    goto :eof
-
 ::大数减法
 :bignum_minus
     setlocal
+    if "%1" == "%2" (echo a&endlocal &set /a %5=0,%6=1& goto :eof)
     set num_a=%1
     set num_b=%2
     set /a len_a=%3, len_b=%4, max=len_a
@@ -250,8 +229,8 @@ exit /b
         set res=!t!!res!
         if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
-    :: 剔除前置0，考虑结果为0的情况
-    if not "%res%" == "0" (
+    :: 剔除前置0
+    if not %zero% == 0 (
         set res=!res:~%zero%!
         set /a max-=zero
     )
