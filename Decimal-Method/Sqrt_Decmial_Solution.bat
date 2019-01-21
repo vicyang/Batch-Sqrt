@@ -13,7 +13,7 @@ setlocal enabledelayedexpansion
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
 set precision=80
-call :check_one 16
+call :check_one 2
 rem call :check_all
 exit /b
 
@@ -150,8 +150,13 @@ exit /b
         if "%base%" == "0" (
             set /a base=mid*2, base_len=1+base/10
         ) else (
-            set /a db_mid=mid*2, dbmidlen=1+db_mid/10
-            call :bignum_plus !base!0 !db_mid! !base_len!+1 !dbmidlen! base base_len
+            set /a db_mid=mid*2, dbmidlen=1+db_mid/10, base_len+=1
+            if !db_mid! gtr 9 (
+                set /a plus=!base:~-1,1!+1
+                set base=!base:~0,-1!!plus!!db_mid:~1!
+            ) else (
+                set base=!base!!db_mid!
+            )
         )
 
     rem echo - %prec%
