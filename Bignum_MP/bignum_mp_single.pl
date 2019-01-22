@@ -1,18 +1,20 @@
 use strict;
+use Time::HiRes qw/time/;
 STDOUT->autoflush(1);
 
-my $num_a = "9"x1000000;
+my $num_a = "9"x10000000;
 my $num_b = 9;
 #printf "%d\n", $num_a * $num_b;
 
 #my $mp = mp_single( $num_a, $num_b );
 #print $mp;
 
-
+my $t1 = time();
 my $mp = mp_single_opt( $num_a, $num_b );
-$mp = mp_single_opt("1230007", 9);
-print $mp;
-
+$mp = mp_single_opt("123000789", 9);
+printf "%s\n", $mp;
+my $t2 = time();
+printf("Time used: %.2f\n", $t2-$t1);
 
 sub mp_single
 {
@@ -36,16 +38,17 @@ sub mp_single_opt
 {
     my ($a, $b) = @_;
     my ($la, $lb) = (length($a), length($b));
-    my $pool = 0;
+    my ($pool, $div, $base);
     my ($t, $res, $part);
     my @buff;
+    $pool = 0, $div = 3, $base = 10**$div;
     $res = "";
-    for ( my $ia=3; $ia<$la+3; $ia+=3 ) {
-        $part = substr($a, -$ia, 3);
-        $t = $part * $b + $pool,
-        push @buff, sprintf("%03d", $t%1000);
-        $pool=int($t/1000);
+    for ( my $ia=$div; $ia<=$la+$div; $ia+=$div ) {
+        $part = substr($a, -$ia, $div);
+        $t = $part * $b + $pool, $pool = int($t/$base);
+        push @buff, sprintf("%0${div}d", $t % $base);
     }
     $res = join("", reverse @buff);
+    $res =~s/^0+//;
     return $res;
 }
