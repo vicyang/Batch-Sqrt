@@ -11,7 +11,7 @@ my $num_b = 9;
 
 my $t1 = time();
 my $mp = mp_single_opt( $num_a, $num_b );
-$mp = mp_single_opt("123000789", 9);
+$mp = mp_single_opt("987654", 2);
 printf "%s\n", $mp;
 my $t2 = time();
 printf("Time used: %.2f\n", $t2-$t1);
@@ -49,6 +49,6 @@ sub mp_single_opt
         push @buff, sprintf("%0${div}d", $t % $base);
     }
     $res = join("", reverse @buff);
-    $res =~s/^0+//;
+    #$res =~s/^0+//;
     return $res;
 }
