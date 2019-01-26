@@ -201,19 +201,19 @@ exit /b
     rem actlen 是实际长度，bid是序列数组长度
     set /a pool = 0, actlen = 0, left = len_a %% 8, bid = 0
     set "ele="
-    for /l %%a in ( 8, 8, %len_a% ) do (set ele=!ele! !num_a:~-%%a,8!)
-    :: 消除前置0
-    for /l %%a in (1,1,7) do (set ele=!ele: 0= !)
-
-    for %%a in (%ele%) do (
-        set /a mp = %%a * num_b + pool, actlen+=8, bid+=1
-        set /a buff[!bid!] = mp %% unit + unit, pool = mp / unit
+    for /l %%a in ( 8, 8, %len_a% ) do (
+        set /a n=1!num_a:~-%%a,8! - unit
+        set ele=!ele! !n!
     )
 
-    set res=
-    for /l %%n in (%bid%, -1, 1) do set res=!res!!buff[%%n]:~1!
+    set "res="
+    for %%a in (%ele%) do (
+        set /a mp = %%a * num_b + pool, actlen+=8, bid+=1
+        set /a value = mp %% unit + unit, pool = mp / unit
+        set res=!value:~1!!res!
+    )
 
-    ::如果最左还有字段
+    ::如果最左还有字段（最左剩余字段最大可能为7位，*9最多8位）
     if %left% gtr 0 (
         set /a mp = !num_a:~0,%left%!*num_b + pool, pool = mp/unit
         set mpmask=!mp!!mask!
