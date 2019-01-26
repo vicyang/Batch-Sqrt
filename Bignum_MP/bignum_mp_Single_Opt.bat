@@ -5,13 +5,14 @@ setlocal enabledelayedexpansion
     rem static template for calculating strlen
     set /a base=100000000
     set "sharp=#"
+    set mask=a987654321
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=99999999
+set num_a=99900000001
 set num_b=9
 
-for /l %%a in (1,1,2000) do (set num_a=!num_a!9)
+::for /l %%a in (1,1,1) do (set num_a=!num_a!9)
 
 call :check_first %num_a%*%num_b%
 
@@ -32,23 +33,34 @@ exit
     set num_a=%1
     set num_b=%2
     call :length %num_a% len
-    rem maxid æ˜¯å®žé™…é•¿åº¦ï¼Œbidæ˜¯åºåˆ—æ•°ç»„é•¿åº¦
-    set /a pool = 0, maxid = len, left = maxid %% 8, bid = 0
-    for /l %%a in ( 8, 8, %len% ) do (
-        set /a mp = !num_a:~-%%a,8! * num_b + pool
-        set /a buff[!bid!] = mp %% base, pool = mp / base, bid+=1
-    )
+    rem actlen ÊÇÊµ¼Ê³¤¶È£¬bidÊÇÐòÁÐÊý×é³¤¶È
+    set /a pool = 0, actlen = 0, left = len %% 8, bid = 0
+    set "ele="
+    for /l %%a in ( 8, 8, %len% ) do (set ele=!ele! !num_a:~-%%a,8!)
+    :: Ïû³ýÇ°ÖÃ0
+    for /l %%a in (1,1,7) do (set ele=!ele: 0= !)
 
-    if %left% gtr 0 (
-        set /a mp = !num_a:~0,%left%! * num_b + pool
-        set /a buff[!bid!] = mp %% base, pool = mp / base, bid+=1
+    for %%a in (%ele%) do (
+        set /a mp = %%a * num_b + pool, actlen+=8, bid+=1
+        set /a v = mp %% base, buff[!bid!] = base+v, pool = mp / base
     )
-
-    if %pool% gtr 0 set /a maxid+=1, buff[!bid!] = pool
 
     set res=
-    for /l %%n in (%maxid%, -1, 0) do set res=!res!!buff[%%n]!
-    endlocal&set %3=%res%&set %4=%maxid%
+    for /l %%n in (%bid%, -1, 1) do set res=!res!!buff[%%n]:~1!
+
+    ::Èç¹û×î×ó»¹ÓÐ×Ö¶Î
+    if %left% gtr 0 (
+        set /a mp = !num_a:~0,%left%!*num_b + pool, pool = mp/base
+        set mpmask=!mp!!mask!
+        set /a actlen+=0x!mpmask:~10,1!
+        set res=!mp!!res!
+    ) else (
+        rem Èç¹ûËùÓÐ×Ö¶ÎÇå¿Õ£¬¿¼ÂÇ¸ß×Ö¶Î¸ÕºÃ½øÒ»Î»µÄÇé¿ö
+        set res=!pool!!res!
+        set /a actlen+=1
+    )
+
+    endlocal&set %3=%res%&set %4=%actlen%
     goto :eof
     
 :length %str% %vname%
