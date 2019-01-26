@@ -242,7 +242,7 @@ exit /b
     )
     rem if %len_a% leq 8 (endlocal&set %5=%dt%&set %6=%actlen%&goto :eof)
 
-    set /a minus = 0, actlen = 0, left = len_a %% 8, dtlen=len_a-len_b, bid = 0
+    set /a minus = 0, left = len_a %% 8, bid = 0
     rem num_a num_b前置补0，方便统一处理
     set /a ext=8-left, len_a+=ext, dtlen = len_a-len_b
     set num_a=!fill:~0,%ext%!!num_a!
@@ -258,10 +258,8 @@ exit /b
         if !v! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
 
-    rem echo !bid! !zero!
     set "res="
-    if %zero% lss %bid% (set /a bid-=zero)
-    
+    if %zero% lss %bid% (set /a bid-=zero)    
     ::高位直接写入，不需要前置补0
     set res=!buff[%bid%]!
     set mimask=!buff[%bid%]!!mask!
