@@ -14,19 +14,7 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-rem call :bignum_mp_single_opt 282842712474619009760337744841939615713934375075389614635335947598146495692421407770077506865528314547002769246182459402 2 120 1 a b
-rem echo %a% %b%
-rem exit
-
-rem call :bignum_minus_opt 6712126400 5656854244 10 10 a b
-rem echo %a% %b%
-rem exit
-
-rem call :bignum_minus_opt 105527215600 84852813729 12 11 a b
-rem echo %a% %b%
-rem exit
-
-set precision=300
+set precision=150
 call :check_one 2
 rem call :check_all
 exit /b
@@ -233,10 +221,8 @@ exit /b
             set /a actlen+=1
         )
     )
-
     endlocal&set %5=%res%&set %6=%actlen%
     goto :eof
-
 
 ::此函数假设参数 a > b
 :bignum_minus_opt
