@@ -200,15 +200,11 @@ exit /b
     set /a len_a=%3
     rem actlen 是实际长度，bid是序列数组长度
     set /a pool = 0, actlen = 0, left = len_a %% 8, bid = 0
-    set "ele="
-    for /l %%a in ( 8, 8, %len_a% ) do (
-        set /a n=1!num_a:~-%%a,8! - unit
-        set ele=!ele! !n!
-    )
 
     set "res="
-    for %%a in (%ele%) do (
-        set /a mp = %%a * num_b + pool, actlen+=8, bid+=1
+    for /l %%a in ( 8, 8, %len_a% ) do (
+        set /a ele=1!num_a:~-%%a,8! - unit
+        set /a mp = !ele! * num_b + pool, actlen+=8, bid+=1
         set /a value = mp %% unit + unit, pool = mp / unit
         set res=!value:~1!!res!
     )
