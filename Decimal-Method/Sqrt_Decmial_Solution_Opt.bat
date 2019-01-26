@@ -18,12 +18,15 @@ rem call :bignum_mp_single_opt 2828427124746190097603377448419396157139343750753
 rem echo %a% %b%
 rem exit
 
-call :bignum_minus_opt 6712126400 5656854244 10 10 a b
-echo %a% %b%
-exit
+rem call :bignum_minus_opt 6712126400 5656854244 10 10 a b
+rem echo %a% %b%
+rem exit
 
+rem call :bignum_minus_opt 105527215600 84852813729 12 11 a b
+rem echo %a% %b%
+rem exit
 
-set precision=20
+set precision=300
 call :check_one 2
 rem call :check_all
 exit /b
@@ -136,9 +139,9 @@ exit /b
         )
 
         :: 计算下一段target的值
-        echo,&echo before !target! !mp!
+        rem echo,&echo before !target! !mp!
         call :bignum_minus_opt %target% %mp% %target_len% %mplen% target target_len
-        echo aftertg !target! tglen !target_len!
+        rem echo aftertg !target! tglen !target_len!
 
         :: 扩充target，如果被开根数已经截取完，直接补0，精度+1
         if %skip% geq %lenA% (
@@ -240,7 +243,7 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a, zero=0
+    set /a len_a=%3, len_b=%4, max=len_a, dtlen=len_a-len_b, zero=0
     if %len_a% leq 8 (
         set /a dt=%1-%2
         set mimask=!dt!!mask!
@@ -250,8 +253,10 @@ exit /b
 
     set /a minus = 0, actlen = 0, left = len_a %% 8, bid = 0
     rem num_b前置补0，方便统一处理
-    set fill=!sharp:~0,%dtlen%!
-    set num_b=!fill:#=0!!num_b!
+    if %dtlen% gtr 0 (
+        set fill=!sharp:~0,%dtlen%!
+        set num_b=!fill:#=0!!num_b!
+    )
 
     for /l %%a in ( 8, 8, %len_a% ) do (
         set /a dt = 1!num_a:~-%%a,%ULEN%! - 1!num_b:~-%%a,%ULEN%! + minus, bid+=1
@@ -263,7 +268,15 @@ exit /b
         if !v! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
 
-    echo !bid! !zero!
+    if %left% gtr 0 (
+        set /a dt = 1!num_a:~0,%left%!-1!num_b:~0,%left%! + minus
+        if !dt! neq 0 (
+            set /a bid+=1
+            set /a buff[!bid!]=dt
+        )
+    )
+
+    rem echo !bid! !zero!
     set "res="
     if %zero% lss %bid% (set /a bid-=zero)
     set /a bid-=1, actlen=0
@@ -274,44 +287,11 @@ exit /b
 
     ::高位直接写入，不需要考虑前置0问题
     set /a bid+=1
-    set res=!res!!buff[%bid%]!
+    set res=!buff[%bid%]!!res!
     set mimask=!buff[%bid%]!!mask!
     set /a actlen+=0x!mimask:~10,1!
 
     endlocal &set %5=%res%&set %6=%actlen%
-    goto :eof
-
-::大数减法
-:bignum_minus
-    setlocal
-    if "%1" == "%2" (echo a&endlocal &set /a %5=0,%6=1& goto :eof)
-    set num_a=%1
-    set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a
-    if %len_b% gtr %len_a% (set /a max=len_b, len_b=len_a&set num_a=%num_b%&set num_b=%num_a%)
-
-    set /a minus = 0
-    set "res="
-    for /l %%n in ( 1, 1, %max% ) do (
-        if %%n leq %len_b% (
-            set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
-        ) else (
-            set /a dt = !num_a:~-%%n,1! - minus
-        )
-        if !dt! lss 0 (
-            set /a t = dt + 10, minus=1
-        ) else (
-            set /a t = dt, minus=0
-        )
-        set res=!t!!res!
-        if !t! equ 0 (set /a zero+=1) else (set /a zero=0)
-    )
-    :: 剔除前置0
-    if not %zero% == 0 (
-        set res=!res:~%zero%!
-        set /a max-=zero
-    )
-    endlocal &set %5=%res%&set /a %6=%max%
     goto :eof
 
 ::字符串长度计算
