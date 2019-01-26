@@ -8,7 +8,8 @@ setlocal enabledelayedexpansion
 :init
     rem 创建用于计算字符串长度的模板，长度限制为 2^pow
     set "sharp=#"
-    set unit=100000000
+    set UNIT=100000000
+    set ULEN=8
     set mask=a987654321
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
@@ -17,7 +18,12 @@ rem call :bignum_mp_single_opt 2828427124746190097603377448419396157139343750753
 rem echo %a% %b%
 rem exit
 
-set precision=150
+call :bignum_minus_opt 6712126400 5656854244 10 10 a b
+echo %a% %b%
+exit
+
+
+set precision=20
 call :check_one 2
 rem call :check_all
 exit /b
@@ -130,7 +136,9 @@ exit /b
         )
 
         :: 计算下一段target的值
-        call :bignum_minus %target% %mp% %target_len% %mplen% target target_len
+        echo,&echo before !target! !mp!
+        call :bignum_minus_opt %target% %mp% %target_len% %mplen% target target_len
+        echo aftertg !target! tglen !target_len!
 
         :: 扩充target，如果被开根数已经截取完，直接补0，精度+1
         if %skip% geq %lenA% (
@@ -203,15 +211,15 @@ exit /b
 
     set "res="
     for /l %%a in ( 8, 8, %len_a% ) do (
-        set /a ele=1!num_a:~-%%a,8! - unit
+        set /a ele=1!num_a:~-%%a,8! - UNIT
         set /a mp = !ele! * num_b + pool, actlen+=8, bid+=1
-        set /a value = mp %% unit + unit, pool = mp / unit
+        set /a value = mp %% UNIT + UNIT, pool = mp / UNIT
         set res=!value:~1!!res!
     )
 
     ::如果最左还有字段（最左剩余字段最大可能为7位，*9最多8位）
     if %left% gtr 0 (
-        set /a mp = !num_a:~0,%left%!*num_b + pool, pool = mp/unit
+        set /a mp = !num_a:~0,%left%!*num_b + pool, pool = mp/UNIT
         set mpmask=!mp!!mask!
         set /a actlen+=0x!mpmask:~10,1!
         set res=!mp!!res!
@@ -226,24 +234,51 @@ exit /b
     endlocal&set %5=%res%&set %6=%actlen%
     goto :eof
 
-:: 大数 乘以 单位数
-:bignum_mp_single
+
+::此函数假设参数 a > b
+:bignum_minus_opt
     setlocal
     set num_a=%1
     set num_b=%2
-    if "%num_b%" == "0" (endlocal&set %5=0&set %6=1&goto :eof)
-    set /a pool = 0, maxid = %3
-    set "res="
-    for /l %%a in ( 1, 1, %maxid% ) do (
-        set /a mp = !num_a:~-%%a,1! * num_b + pool, t = mp %% 10, pool = mp / 10
-        set res=!t!!res!
+    set /a len_a=%3, len_b=%4, max=len_a, zero=0
+    if %len_a% leq 8 (
+        set /a dt=%1-%2
+        set mimask=!dt!!mask!
+        set /a actlen=0x!mimask:~10,1!
+    )
+    if %len_a% leq 8 (endlocal&set %5=%dt%&set %6=%actlen%&goto :eof)
+
+    set /a minus = 0, actlen = 0, left = len_a %% 8, bid = 0
+    rem num_b前置补0，方便统一处理
+    set fill=!sharp:~0,%dtlen%!
+    set num_b=!fill:#=0!!num_b!
+
+    for /l %%a in ( 8, 8, %len_a% ) do (
+        set /a dt = 1!num_a:~-%%a,%ULEN%! - 1!num_b:~-%%a,%ULEN%! + minus, bid+=1
+        if !dt! lss 0 (
+            set /a buff[!bid!] = UNIT+dt, v=UNIT+dt, minus=-1
+        ) else (
+            set /a buff[!bid!] = dt, v = dt, minus=0
+        )
+        if !v! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
 
-    if %pool% neq 0 (
-        set /a maxid+=1
-        set res=!pool!!res!
+    echo !bid! !zero!
+    set "res="
+    if %zero% lss %bid% (set /a bid-=zero)
+    set /a bid-=1, actlen=0
+    for /l %%a in (%bid%, -1, 1) do (
+        set /a v = UNIT + buff[%%a], actlen+=8
+        set res=!res!!v:~1!
     )
-    endlocal&set %5=%res%&set %6=%maxid%
+
+    ::高位直接写入，不需要考虑前置0问题
+    set /a bid+=1
+    set res=!res!!buff[%bid%]!
+    set mimask=!buff[%bid%]!!mask!
+    set /a actlen+=0x!mimask:~10,1!
+
+    endlocal &set %5=%res%&set %6=%actlen%
     goto :eof
 
 ::大数减法
