@@ -5,12 +5,12 @@ setlocal enabledelayedexpansion
 :init
     rem 创建用于计算字符串长度的模板，长度限制为 2^pow
     set "sharp=#"
-    set unit=100000000
+    set unit=1000
     set mask=a987654321
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=10000000000
+set num_a=1000000
 set num_b=999999
 rem for /l %%a in (1,1,2000) do set num_a=!num_a!1
 rem for /l %%a in (1,1,2000) do set num_b=!num_b!2
@@ -31,36 +31,30 @@ exit
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a
+    set /a len_a=%3, len_b=%4, max=len_a, dtlen=len_a-len_b
     set time_a=%time%
 
-    set /a minus = 0, actlen = 0, left = len_a %% 8, bid = 0
-    set "ele="
+    set /a minus = 0, actlen = 0, left = len_a %% 3, bid = 0
+    rem num_b前置补0，方便统一处理
+    set fill=!sharp:~0,%dtlen%!
+    set num_b=!fill:#=0!!num_b!
 
-    if %len_b% lss 8 (
-        set /a dt = 1!num_a:~-8,8! - num_b
-        set /a buff[!bid!] = dt
-    )
-    echo !dt!
-
-    for /l %%a in ( 8, 8, %len_b% ) do (
-        set na=1!num_a:~-%%a,8!, nb=1!num_b:~-%%a,8!
-    )
-
-    exit
-    
-    for /l %%n in ( 1, 1, %max% ) do (
-        if %%n leq %len_b% (
-            set /a dt = !num_a:~-%%n,1! - !num_b:~-%%n,1! - minus
-        ) else (
-            set /a dt = !num_a:~-%%n,1! - minus
-        )
+    for /l %%a in ( 3, 3, %len_a% ) do (
+        set /a dt = 1!num_a:~-%%a,3! - 1!num_b:~-%%a,3! + minus, bid+=1
         if !dt! lss 0 (
-            set /a buff[%%n] = dt + 10, minus=1
+            set /a buff[!bid!] = unit+dt, minus=-1
         ) else (
-            set /a buff[%%n] = dt, minus=0
+            set /a buff[!bid!] = dt, minus=0
         )
     )
+
+    set "res="
+    for /l %%a in (%bid%, -1, 1) do (
+        set /a v = unit + buff[%%a]
+        set res=!res!!v:~1!
+    )
+    echo !res!
+    exit
 
     set delta=#
     for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
