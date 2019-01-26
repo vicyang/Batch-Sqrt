@@ -13,6 +13,11 @@ setlocal enabledelayedexpansion
     set mask=a987654321
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
+    set FILL=!sharp:#=0!
+
+rem call :bignum_minus_opt 0 0 1 1 a b
+rem echo %a% %b%
+rem exit /b
 
 set precision=150
 call :check_one 2
@@ -229,20 +234,19 @@ exit /b
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a, dtlen=len_a-len_b, zero=0
+    set /a len_a=%3, len_b=%4, max=len_a, zero=0
     if %len_a% leq 8 (
         set /a dt=%1-%2
         set mimask=!dt!!mask!
         set /a actlen=0x!mimask:~10,1!
     )
-    if %len_a% leq 8 (endlocal&set %5=%dt%&set %6=%actlen%&goto :eof)
+    rem if %len_a% leq 8 (endlocal&set %5=%dt%&set %6=%actlen%&goto :eof)
 
-    set /a minus = 0, actlen = 0, left = len_a %% 8, bid = 0
-    rem num_b前置补0，方便统一处理
-    if %dtlen% gtr 0 (
-        set fill=!sharp:~0,%dtlen%!
-        set num_b=!fill:#=0!!num_b!
-    )
+    set /a minus = 0, actlen = 0, left = len_a %% 8, dtlen=len_a-len_b, bid = 0
+    rem num_a num_b前置补0，方便统一处理
+    set /a ext=8-left, len_a+=ext, dtlen = len_a-len_b
+    set num_a=!fill:~0,%ext%!!num_a!
+    set num_b=!fill:~0,%dtlen%!!num_b!
 
     for /l %%a in ( 8, 8, %len_a% ) do (
         set /a dt = 1!num_a:~-%%a,%ULEN%! - 1!num_b:~-%%a,%ULEN%! + minus, bid+=1
@@ -254,28 +258,18 @@ exit /b
         if !v! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
 
-    if %left% gtr 0 (
-        set /a dt = 1!num_a:~0,%left%!-1!num_b:~0,%left%! + minus
-        if !dt! neq 0 (
-            set /a bid+=1
-            set /a buff[!bid!]=dt
-        )
-    )
-
     rem echo !bid! !zero!
     set "res="
     if %zero% lss %bid% (set /a bid-=zero)
-    set /a bid-=1, actlen=0
+    
+    ::高位直接写入，不需要前置补0
+    set res=!buff[%bid%]!
+    set mimask=!buff[%bid%]!!mask!
+    set /a actlen=0x!mimask:~10,1!, bid-=1
     for /l %%a in (%bid%, -1, 1) do (
         set /a v = UNIT + buff[%%a], actlen+=8
         set res=!res!!v:~1!
     )
-
-    ::高位直接写入，不需要考虑前置0问题
-    set /a bid+=1
-    set res=!buff[%bid%]!!res!
-    set mimask=!buff[%bid%]!!mask!
-    set /a actlen+=0x!mimask:~10,1!
 
     endlocal &set %5=%res%&set %6=%actlen%
     goto :eof
