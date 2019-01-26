@@ -10,16 +10,21 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=100000
-set num_b=99999
+set num_a=10000000000
+set num_b=999999
 rem for /l %%a in (1,1,2000) do set num_a=!num_a!1
 rem for /l %%a in (1,1,2000) do set num_b=!num_b!2
+call :check_first %num_a%-%num_b%
 
 call :length %num_a% len_a
 call :length %num_b% len_b
 call :bignum_minus_opt %num_a% %num_b% %len_a% %len_b% delta
 echo %delta%
 exit
+
+:check_first
+    perl -Mbignum -le "print %1" 2>nul
+    goto :eof
 
 ::此函数假设参数 a > b
 :bignum_minus_opt
@@ -31,8 +36,18 @@ exit
 
     set /a minus = 0, actlen = 0, left = len_a %% 8, bid = 0
     set "ele="
-    for /l %%a in ( 8, 8, %len_a% ) do (set ele=!ele! !num_a:~-%%a,8!)
 
+    if %len_b% lss 8 (
+        set /a dt = 1!num_a:~-8,8! - num_b
+        set /a buff[!bid!] = dt
+    )
+    echo !dt!
+
+    for /l %%a in ( 8, 8, %len_b% ) do (
+        set na=1!num_a:~-%%a,8!, nb=1!num_b:~-%%a,8!
+    )
+
+    exit
     
     for /l %%n in ( 1, 1, %max% ) do (
         if %%n leq %len_b% (
