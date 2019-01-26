@@ -10,10 +10,10 @@ setlocal enabledelayedexpansion
     set /a pow=11, maxlen=1^<^<pow
     for /l %%a in (1,1,%pow%) do set sharp=!sharp!!sharp!
 
-set num_a=1000000
-set num_b=999999
-rem for /l %%a in (1,1,2000) do set num_a=!num_a!1
-rem for /l %%a in (1,1,2000) do set num_b=!num_b!2
+set num_a=1000000000
+set num_b=999999999
+for /l %%a in (1,1,2000) do set num_a=!num_a!1
+for /l %%a in (1,1,2000) do set num_b=!num_b!2
 call :check_first %num_a%-%num_b%
 
 call :length %num_a% len_a
@@ -31,7 +31,7 @@ exit
     setlocal
     set num_a=%1
     set num_b=%2
-    set /a len_a=%3, len_b=%4, max=len_a, dtlen=len_a-len_b
+    set /a len_a=%3, len_b=%4, max=len_a, zero=0
     set time_a=%time%
 
     set /a minus = 0, actlen = 0, left = len_a %% 3, bid = 0
@@ -42,25 +42,27 @@ exit
     for /l %%a in ( 3, 3, %len_a% ) do (
         set /a dt = 1!num_a:~-%%a,3! - 1!num_b:~-%%a,3! + minus, bid+=1
         if !dt! lss 0 (
-            set /a buff[!bid!] = unit+dt, minus=-1
+            set /a buff[!bid!] = unit+dt, v=unit+dt, minus=-1
         ) else (
-            set /a buff[!bid!] = dt, minus=0
+            set /a buff[!bid!] = dt, v = dt, minus=0
         )
+        if !v! equ 0 (set /a zero+=1) else (set /a zero=0)
     )
 
     set "res="
+    if %zero% lss %bid% (set /a bid-=zero)
+    set /a bid-=1
     for /l %%a in (%bid%, -1, 1) do (
         set /a v = unit + buff[%%a]
         set res=!res!!v:~1!
     )
-    echo !res!
-    exit
+    ::高位直接写入，不需要考虑前置0问题
+    set /a bid+=1
+    set res=!res!!buff[%bid%]!
 
-    set delta=#
-    for /l %%a in (%max%, -1, 1) do set delta=!delta:#0=#!!buff[%%a]!
     call :time_delta %time_a% %time% tu
     echo time used: %tu%
-    endlocal &set %5=%delta:#=%
+    endlocal &set %5=%res%
     goto :eof
 
 ::字符串长度计算
