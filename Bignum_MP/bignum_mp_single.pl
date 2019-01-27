@@ -41,7 +41,7 @@ sub mp_single_opt
     my ($pool, $div, $base);
     my ($t, $res, $part);
     my @buff;
-    $pool = 0, $div = 3, $base = 10**$div;
+    $pool = 0, $div = 9, $base = 10**$div;
     $res = "";
     for ( my $ia=$div; $ia<=$la+$div; $ia+=$div ) {
         $part = substr($a, -$ia, $div);
@@ -49,6 +49,6 @@ sub mp_single_opt
         push @buff, sprintf("%0${div}d", $t % $base);
     }
     $res = join("", reverse @buff);
-    #$res =~s/^0+//;
+    $res =~s/^0+//;
     return $res;
 }
