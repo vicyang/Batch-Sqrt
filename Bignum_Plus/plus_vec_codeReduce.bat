@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 ::constant
-set /a BASE=1000000000, LEN=9
-set MASK=!BASE:~1!
+set /a BASE=1000000000, L=9
+set MK=!BASE:~1!
 
 ::test
 set num_a=456456521000210000000000000000874112115674511111111111111110019999999
@@ -16,17 +16,12 @@ exit /b
 
 :plus
     setlocal enabledelayedexpansion
-    set "sum=" & set "va=%1" & set "vb=%2"
-    set /a carry=0
-    :: 1 to 1000, because max strlen < 8192
+    set "sum=" &set "va=%1" &set "vb=%2" &set carry=0
     for /l %%a in (1,1,1000) do (
-        set /a a=1!va:~-%LEN%, %LEN%!-BASE, b=1!vb:~-%LEN%,%LEN%!-BASE
-        set /a t=a+b+carry, carry=t/BASE, head=t
-        set t=!MASK!!t!
-        set va=!MASK!!va:~0,-%LEN%!
-        set vb=!MASK!!vb:~0,-%LEN%!
+        set /a a=1!va:~-%L%, %L%!-BASE, b=1!vb:~-%L%,%L%!-BASE, t=a+b+carry, carry=t/BASE, head=t
+        set t=!MK!!t!& set va=!MK!!va:~0,-%L%!& set vb=!MK!!vb:~0,-%L%!
         if "!va:0=!!vb:0=!" == "" (goto :next)
-        set sum=!t:~-%LEN%!!sum!
+        set sum=!t:~-%L%!!sum!
     )
     :next
     endlocal&set %3=%head%%sum%&goto :eof
