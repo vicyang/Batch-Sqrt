@@ -10,7 +10,10 @@ set num_b=923451344221111111111111111000000000001
 for /l %%a in (1,1,6) do set num_a=!num_a!!num_a!
 for /l %%b in (1,1,6) do set num_b=!num_b!!num_b!
 
+set t1=%time%
 call :plus %num_a% %num_b% sum
+call :tt %t1% %time% t
+echo %t%
 echo %sum%
 exit /b
 
@@ -30,3 +33,9 @@ exit /b
     )
     :next
     endlocal&set %3=%head%%sum%&goto :eof
+
+
+:tt
+setlocal&set be=%1:%2
+for /f "delims=: tokens=1-6" %%a in ("%be:.=%")do set/at=(%%d-%%a)*360000+(1%%e-1%%b)*6000+1%%f-1%%c,t+=-8640000*("t>>31")
+endlocal&set %3=%t%0ms&exit/b
