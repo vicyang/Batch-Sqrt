@@ -12,7 +12,7 @@ set num_a=456456521000210000000000000000874112115674511111111111111110019999999
 set num_b=923451344221111111111111111000000000001
 rem set num_b=9
 for /l %%a in (1,1,6) do set num_a=!num_a!!num_a!
-for /l %%b in (1,1,1) do set num_b=!num_b!!num_b!
+for /l %%b in (1,1,6) do set num_b=!num_b!!num_b!
 
 call :func %num_a% %num_b% sum
 call :tt %t1% %time% t
@@ -26,23 +26,25 @@ exit /b
     setlocal enabledelayedexpansion
     set "sum=" & set "va=%1" & set "vb=%2"
     if "%va:~2000%"=="" (
-        call :plus %va% %vb% part1
+        call :plus %va% %vb% 0 part1
     ) else (
         set vb=!ZERO!!vb!
-        call :plus !va:~-2000! !vb:~-2000! part1
-        call :plus !va:~0,-2000! !vb:~0,-2000! part2
+        call :plus !va:~-2000! !vb:~-2000! 0 part1
+        if not "!part1:~2000!"=="" (set c=1) else (set c=0)
+        call :plus !va:~0,-2000! !vb:~0,-2000! !c! part2
     )
-    endlocal &set %3=%part2%%part1%&goto :eof
+    if "%va:~2000%"=="" (endlocal &set %3=%part1%&goto :eof)
+    set part1=!MASK!!part1!
+    endlocal &set %3=%part2%%part1:~-2000%&goto :eof
 
 :plus
     setlocal enabledelayedexpansion
-    set "sum=" & set "va=%1" & set "vb=%2"
+    set "sum=" & set "va=%1" & set "vb=%2" & set c=%3
     :: fill zero if too short
     if "!va:~27!" == "" set va=!ZERO:~0,27!!va!
     if "!vb:~27!" == "" set vb=!ZERO:~0,27!!vb!
-    set /a c=0
     :: 1 to 1000, because max strlen < 8192
-    for /l %%a in (1,1,300) do (
+    for /l %%a in (1,1,100) do (
         set /a a=1!va:~-9,9!-BASE,  b=1!vb:~-9,9!-BASE, ^
                i=1!va:~-18,9!-BASE, j=1!vb:~-18,9!-BASE, ^
                m=1!va:~-27,9!-BASE, n=1!vb:~-27,9!-BASE
@@ -62,7 +64,7 @@ exit /b
     ) else if %h1% gtr 0 (
         set sum=%h1%%sum%
     )
-    endlocal&set %3=%sum%&goto :eof
+    endlocal&set %4=%sum%&goto :eof
 
 :tt
 setlocal&set be=%1:%2
