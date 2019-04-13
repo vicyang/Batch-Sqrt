@@ -2,14 +2,15 @@ use bigint 'a'=>9000;
 STDOUT->autoflush(1);
 
 srand(2);
-for (1..50) { check() }
+for (1..100) { check() }
 
 sub check
 {
     my $a = int(rand(9))+1 .join "", map { int(rand(10)) } ( 1 .. rand(4000) );
     my $b = int(rand(9))+1 .join "", map { int(rand(10)) } ( 1 .. rand(4000) );
 
-    my $res = `hongrk3.bat $a $b`;
+    #my $res = `plus_vec3.bat $a $b`;
+    my $res = `hongrk2.bat $a $b`;
     my $check = (0+$a)+$b;
     $res =~s/\r?\n$//;
     if ( $res eq $check ) {
