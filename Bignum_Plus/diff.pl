@@ -2,7 +2,7 @@ use List::MoreUtils qw/pairwise mesh/;
 use File::Slurp;
 
 #my ($f1, $f2) = ("hongrk2.bat", "hongrk3.bat");
-my ($f1, $f2) = ("hongrk2.bat", "plus_vec2_fo1.bat");
+my ($f1, $f2) = ("hongrk2.bat", "plus_vec2_fo2.bat");
 
 my @s1 = `$f1`;
 my @s2 = `$f2`;
