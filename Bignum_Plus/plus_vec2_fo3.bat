@@ -20,20 +20,32 @@ exit /b
 :plus
     setlocal enabledelayedexpansion
     set "sum=" & set "va=%1" & set "vb=%2"
-    set /a carry=0
+    set /a c=0
     :: max strlen < 8192
-    for /l %%a in (9,9,9000) do (
-        set /a a=1!va:~-%%a, %LEN%!-BASE, b=1!vb:~-%%a, %LEN%!-BASE
-        set /a t=a+b+carry, carry=t/BASE, head=t
+    for /l %%a in (27,27,9000) do (
+        set ta=!va:~-%%a, 27!
+        set tb=!vb:~-%%a, 27!
+        set /a a=1!ta:~18, 9!-BASE, b=1!tb:~18, 9!-BASE, ^
+               i=1!ta:~9, 9!-BASE, j=1!tb:~9, 9!-BASE, ^
+               m=1!ta:~0, 9!-BASE, n=1!tb:~0, 9!-BASE
+        set /a t1=a+b+c, c=t1/BASE, h1=t1, t1+=^(1-c^)*BASE, ^
+               t2=i+j+c, c=t2/BASE, h2=t2, t2+=^(1-c^)*BASE, ^
+               t3=m+n+c, c=t2/BASE, h3=t3, t3+=^(1-c^)*BASE
         if "!va:~%%a!!vb:~%%a!" == "" (goto :next)
         if "!va:~%%a!" == "" set va=!MASK!!va!
         if "!vb:~%%a!" == "" set vb=!MASK!!vb!
-        set t=!MASK!!t!
-        set sum=!t:~-%LEN%!!sum!
+        set sum=!t3:~-%LEN%!!t2:~-%LEN%!!t1:~-%LEN%!!sum!
     )
     
     :next
-    endlocal&set %3=%head%%sum%&goto :eof
+    if %h3% gtr 0 (
+        set sum=%h3%!t2:~-%LEN%!!t1:~-%LEN%!%sum%
+    ) else if %h2% gtr 0 (
+        set sum=%h2%!t1:~-%LEN%!%sum%
+    ) else if %h1% gtr 0 (
+        set sum=%h1%%sum%
+    )
+    endlocal&set %3=%sum%&goto :eof
 
 
 :tt

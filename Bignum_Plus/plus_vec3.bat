@@ -19,7 +19,7 @@ call :tt %t1% %time% t
 echo %t%
 echo %sum%
 
-call check.pl %num_a% %num_b%
+rem call check.pl %num_a% %num_b%
 exit /b
 
 :plus

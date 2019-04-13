@@ -3,9 +3,9 @@ setlocal enabledelayedexpansion
 
 set t1=%time%
 ::constant
-set /a BASE=100000000, LEN=8
+set /a BASE=100000000, LEN=8, ZERO=0
 set MASK=!BASE:~1!
-
+for /l %%a in (1,1,12) do set ZERO=!ZERO!!ZERO!
 ::test
 set num_a=456456521000210000000000000000874112115674511111111111111110019999999
 set num_b=923451344221111111111111111000000000001
@@ -17,13 +17,14 @@ call :tt %t1% %time% t
 echo %t%
 echo %sum%
 
-call check.pl %num_a% %num_b%
-
+rem call check.pl %num_a% %num_b%
 exit /b
 
 :plus
     setlocal enabledelayedexpansion
     set "sum=" & set "va=%1" & set "vb=%2"
+    if "!va:~32!" == "" set va=!ZERO:~0,32!!va!
+    if "!vb:~32!" == "" set vb=!ZERO:~0,32!!vb!
     set /a c=0
     :: 1 to 1000, because max strlen < 8192
     for /l %%a in (1,1,300) do (
