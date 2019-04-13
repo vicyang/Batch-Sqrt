@@ -1,27 +1,30 @@
 @echo off
 setlocal enabledelayedexpansion
+
+set t1=%time%
 ::constant
 set /a BASE=1000000000, LEN=9
 set MASK=!BASE:~1!
-set DBMASK=!MASK!!MASK!
 
 ::test
 set num_a=456456521000210000000000000000874112115674511111111111111110019999999
 set num_b=923451344221111111111111111000000000001
-for /l %%a in (1,1,6) do set num_a=!num_a!!num_a!
-for /l %%b in (1,1,6) do set num_b=!num_b!!num_b!
+for /l %%a in (1,1,2) do set num_a=!num_a!!num_a!
+for /l %%b in (1,1,2) do set num_b=!num_b!!num_b!
 
-set t1=%time%
 call :plus %num_a% %num_b% sum
 call :tt %t1% %time% t
 echo %t%
 echo %sum%
+
+call check.pl %num_a% %num_b%
+
 exit /b
 
 :plus
     setlocal enabledelayedexpansion
     set "sum=" & set "va=%1" & set "vb=%2"
-    set /a c1=0, c2=0, c3=0
+    set /a c=0
     :: 1 to 1000, because max strlen < 8192
     for /l %%a in (1,1,300) do (
         set /a a=1!va:~-9,9!-BASE,  b=1!vb:~-9,9!-BASE, ^
