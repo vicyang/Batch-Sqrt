@@ -10,7 +10,7 @@ for /l %%a in (1,1,12) do set ZERO=!ZERO!!ZERO!
 ::test
 set num_a=456456521000210000000000000000874112115674511111111111111110019999999
 set num_b=923451344221111111111111111000000000001
-set num_b=9
+rem set num_b=9
 for /l %%a in (1,1,6) do set num_a=!num_a!!num_a!
 for /l %%b in (1,1,6) do set num_b=!num_b!!num_b!
 
@@ -26,8 +26,8 @@ exit /b
     setlocal enabledelayedexpansion
     set "sum=" & set "va=%1" & set "vb=%2"
     :: fill zero if too short
-    if "!va:~%LEN%!" == "" set va=!MASK!!va!
-    if "!vb:~%LEN%!" == "" set vb=!MASK!!vb!
+    if "!va:~27!" == "" set va=!ZERO:~0,27!!va!
+    if "!vb:~27!" == "" set vb=!ZERO:~0,27!!vb!
     set /a c=0
     :: 1 to 1000, because max strlen < 8192
     for /l %%a in (1,1,300) do (

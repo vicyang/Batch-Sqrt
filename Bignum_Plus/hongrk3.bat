@@ -9,7 +9,10 @@ call :jia %a% %b% P
 :next
 call :tt %t1% %time% t
 echo %t%
-echo %P%&exit
+echo %P%
+
+rem call check.pl %a% %b%
+exit
 
 :jia
 setlocal enabledelayedexpansion&set c1=%1&set c2=%2&set c=0&set t=&set s=
